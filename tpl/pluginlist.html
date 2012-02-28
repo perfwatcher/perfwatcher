@@ -1,0 +1,53 @@
+{**
+ * Common functions
+ *
+ * PHP version 5
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Monitoring
+ * @author    Cyril Feraudet <cyril@feraudet.com>
+ * @copyright 2011 Cyril Feraudet
+ * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @link      http://www.perfwatcher.org/
+ *} 
+
+{foreach key=plugin item=attrs from=$plugins}
+    <a href="#" id="del_{$plugin}" style="color:gray; text-decoration:underline;">delete</a> {$plugin|regex_replace:"/\-(AVG|SUM)$/":""} ({$plugin|regex_replace:"/.*\-(AVG|SUM)$/":"\\1"}) <br />
+{/foreach}
+
+<script type="text/javascript">
+{literal}
+$(function () {
+    $('#plugin_list a').click(function () {
+        $.ajax({
+            async : false,
+            type: 'POST',
+            url: "admin/index.php?tpl=pluginlist&id={/literal}{$dbdata.id}{literal}",
+            data : { 
+                "action" : "del_plugin", 
+                "plugin" : this.id.substring(4),
+                "type" : $('input[type=radio][name=plugin_type]:checked').val()
+            },
+            complete : function (r) {
+                if(!r.status) {
+                    ('#plugin_list').html('Error, can\'t retrieve data from server !');
+                }
+                else {
+                    $('#plugin_list').html(r.responseText);
+                }
+            }
+        }) 
+    });
+});
+{/literal}
+</script>

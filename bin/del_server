@@ -1,0 +1,6 @@
+#!/usr/bin/php
+<?php
+require 'lib/common.php';
+$jstree = new json_tree();
+$jstree->del_node($argv[1]);
+?>

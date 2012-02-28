@@ -1,0 +1,157 @@
+#!/usr/bin/php
+<?php
+$starttime = time();
+chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
+
+
+require "lib/common.php";
+
+$hostname = posix_uname();
+$hostname = $hostname['nodename'];
+$debug=false;
+$debug2=false;
+$foreground=false;
+$clildren_number = 48;
+
+if (isset($argv[1])) {
+    foreach($argv as $key => $val) {
+        if ($key == 0) { continue; }
+        switch($val) {
+            case '-v':
+                $debug=true;
+            break;
+            case '-vv':
+                $debug=true;
+                $debug2=true;
+            break;
+            case '-f':
+                $foreground=true;
+            break;
+        }
+    }
+}
+
+$jstree = new json_tree();
+$containers = $jstree->get_containers();
+$jstree->db->destroy();
+connect_dbcollectd();
+$dbcopytime = time();
+$dbcollectd->query("TRUNCATE TABLE snap_data");
+$dbcollectd->query("INSERT INTO snap_data SELECT * FROM data");
+$dbcollectd->disconnect();
+$dbcopytime = time() - $dbcopytime;
+unset($dbcollectd);
+
+$nbcontainers = count($containers);
+$containersbychildren = (intval($nbcontainers / $clildren_number) + 1);
+$child = 0;
+$childs = array();
+while($containerstodo = array_splice($containers, 0, $containersbychildren)) {
+	$child++;
+	$pid = pcntl_fork();
+	if ($pid == -1) {
+	     die('could not fork');
+	} else if ($pid) {
+		$parent = true;
+		$childs[] = $pid;
+		//pcntl_wait($pid, &$status);
+	} else {
+		break;
+	}
+}
+if (isset($parent)) {
+	foreach ($childs as $child) {
+		pcntl_wait($child, &$status);
+	}
+}
+if(count($containerstodo) == 0) {
+	echo "PUTVAL ".$hostname."/collectd/gauge-aggregator $starttime:".(time() - $starttime)."\n";
+	echo "PUTVAL ".$hostname."/collectd/gauge-db_copy_aggregator $starttime:$dbcopytime\n";
+	exit();
+}
+unset($jstree);
+$jstree = new json_tree();
+
+foreach ($containerstodo as $container) {
+    $container_host = 'aggregator_'.$container['id'];
+    $datas = $jstree->get_datas($container['id']);
+    $nodes = 0;
+    if (!isset($datas['plugins']) || count($datas['plugins']) == 0) {
+        continue;
+    } 
+//$time = microtime(true);
+	$childrens = $jstree->_get_children($container['id'], true);
+	$hosts = array();
+    foreach($childrens as $children) {
+        if ($children['type'] == 'default') {
+            $hosts[] = $children['title'];
+        }
+    }
+	$hostsstr = implode("','", $hosts);
+//echo "TIME >> _get_children ".(microtime(true) - $time)."\n";
+    $cpus = get_cpu_count($container['id']);
+//echo "TIME >> get_cpu_count ".(microtime(true) - $time)."\n";
+    $processes = get_process_count($container['id']);
+    $nodes = count($hosts);
+//echo "TIME >> get_process_count ".(microtime(true) - $time)."\n";
+    echo "PUTVAL $container_host/grid/grid-cpus ".time().":$cpus\n";
+    echo "PUTVAL $container_host/grid/grid-processes ".time().":$processes\n";
+    echo "PUTVAL $container_host/grid/grid-nodes ".time().":$nodes\n";
+	foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
+		$pluginstr = substr($pluginandcalc, 0, -4);
+		$calc = substr($pluginandcalc, -3);
+		list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
+		if (in_array($type, $grouped_type)) {
+			$query = "SELECT SUM(value) AS value, type_instance, dataset_name AS ds, COUNT(value) AS nbval
+					FROM snap_data_view 
+					WHERE plugin = '$plugin'
+					AND plugin_instance = '$plugin_instance'
+					AND type = '$type'
+					AND host IN ('$hostsstr')
+					GROUP BY type_instance, dataset_name
+					";
+		} else {
+			$query = "SELECT SUM(value) AS value, dataset_name AS ds, COUNT(value) AS nbval
+					FROM snap_data_view
+					WHERE plugin = '$plugin'
+					AND plugin_instance = '$plugin_instance'
+					AND type = '$type'
+					AND type_instance = '$type_instance'
+					AND host IN ('$hostsstr')
+					GROUP BY dataset_name
+					";
+		}
+		$res = $dbcollectd->query($query);
+		//echo "$query\n";
+		if (PEAR::isError($res)) {
+		    print("[DB Collectd query] " . $res->getMessage()."\n");
+			continue;
+		}
+		if (in_array($type, $grouped_type)) {
+			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+				$row['type_instance'] = str_replace(' ', '_', $row['type_instance']);
+				if (in_array($type, $derive_type)) { $type .= 'g'; }
+				$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($row['type_instance'] == '' ? '' : '-'.$row['type_instance']);
+				$out .= " ".time().":".($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value'])."\n";
+				echo $out;
+			}
+		} else {
+			$type_instance = str_replace(' ', '_', $type_instance);
+			if (in_array($type, $derive_type)) { $type .= 'g'; }
+			$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($type_instance == '' ? '' : '-'.$type_instance)." ".time();
+			$outok = false;
+			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC)) {
+				$outok = true;
+				$out .= ':'.($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value']);	
+			}
+			$out .= "\n";
+			if ($outok) { echo $out; }
+		}
+//echo "TIME >> plugins ".(microtime(true) - $time)."\n";
+	}
+//echo "TIME >>> ".(microtime(true) - $time)."\n";
+//break;
+}
+
+
+?>

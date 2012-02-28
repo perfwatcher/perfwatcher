@@ -1,0 +1,47 @@
+* { font-family:Verdana,alial; font-size:10px; }
+img { border:0; }
+html, body { margin:0; padding:0; }
+table, td { margin:0; padding:0; }
+table td { vertical-align:top; text-align:left; }
+body, td, th, pre, code, select, option, input, textarea { font-family:verdana,arial,sans-serif; font-size:10px; }
+body { margin:10px; }
+#configcontainer { border:0px solid silver; height:400px; clear:both; padding:0px; margin-bottom:10px; white-space:nowrap; }
+#pluginlist { clear: both; }
+#tree { width:auto; overflow:visible; border:1px solid #AAAAAA; background-color:white; padding:10px; float:left; }
+#content { overflow:visible; border:0px solid #AAAAAA; float:left; padding-left:10px; white-space:nowrap; min-width: 700px; }
+#middlecontent {}
+#statuschart, #speedometer, #nodedata { float:left; }
+#speedometer { margin-left:20px; }
+#text { margin-top:1px; }
+#alog { font-size:9px !important; margin:5px; border:1px solid silver; }
+#nodecontrol { clear:both; }
+#nodeinfo { border: 1px solid #AAAAAA; margin-bottom:10px; padding:10px; }
+#nodeinfo h1 { font-size:20px; }
+#mmenu { border: 1px solid #AAAAAA; margin-bottom:10px; padding:10px; vertical-align:middle; text-align:right; background-image: url(../img/bnplogo.png); background-repeat:no-repeat; background-position:left center; }
+#legal { clear:both; padding:10px; border: 1px solid #AAAAAA; margin-top:10px; text-align:center; }
+#tabs li .ui-icon-close { float: left; margin: 0.4em 0.2em 0 0; cursor: pointer; }
+#nodedata li { list-style-image: url('../img/right-arrow.png'); }
+a { text-decoration:none; color:black; }
+#manuallist { width:100%; height:90%; }
+#selecttimespan { height:122px; width:80px; background-color:#AAAAAA; opacity:0.6; filter:alpha(opacity=60); display:none; }
+.custom_host .graph_container { border-top: 1px solid #AAAAAA; display:inline-block; clear:both; vertical-align:top; }
+.bordered_img { border: 1px solid #888888; }
+#topdiv table { border: 1px solid #888888; width:100%; }
+.toprowalt:hover, .toprow:hover { background-color:#AAAAAA; }
+.toprow { background-color:#EEEEEE; }
+.toprowalt { background-color:#CCCCCC; }
+.ui-autocomplete { max-height: 250px; overflow-y: auto; overflow-x: hidden; padding-right: 20px; }
+* html .ui-autocomplete { height: 250px; }
+#electronictrading { border: 1px solid #AAAAAA; margin-bottom:10px; padding:10px; width:800px; white-space:normal; }
+#electronictrading .socket, .core, .version { border: 1px solid #AAAAAA; clear:both; display:inline-table; text-align:center; }
+#electronictrading .socket { width:48px; clear:both; padding-bottom: 4px; }
+#electronictrading .isolated { background-color:green; }
+#electronictrading .cpus, .nic, .kernel, .misc, .sysctl, .smp { border: 1px solid #AAAAAA; padding:5px; width:auto; margin-top:5px; margin-left:5px; display:inline-block; vertical-align:top; }
+#electronictrading .core { width: 14px; background-color:green; }
+#electronictrading .hyperthreadedcore { background-color:#90EE90; }
+#electronictrading .isolatedcore { background-color:yellow; }
+#electronictrading .isolatedhyperthreadedcore { background-color:#FFFFE0;}
+#electronictrading .stable { background-color:#2E8B57; border: 1px solid #AAAAAA; width:auto; }
+#electronictrading .old { background-color:#FF4500; border: 1px solid #AAAAAA; width:auto; }
+#electronictrading .unknown { background-color:gray; border: 1px solid #AAAAAA; width:auto; }
+#electronictrading .servers { border: 1px solid #AAAAAA; padding: 5px 5px 5px 5px; }

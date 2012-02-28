@@ -1,0 +1,50 @@
+{**
+ * Common functions
+ *
+ * PHP version 5
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Monitoring
+ * @author    Cyril Feraudet <cyril@feraudet.com>
+ * @copyright 2011 Cyril Feraudet
+ * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @link      http://www.perfwatcher.org/
+ *} 
+<script type="text/javascript">
+{literal}
+	var graph_id = 0;
+	function tabs_{/literal}{$time}{$pluginid}{literal}() { }
+    $('#selectpi_disk, #selectti_disk').click(function () {
+        $('#tabs-{/literal}{$pluginid}{literal} .graph_container').remove();
+        $('#selectpi_disk option:selected').each(function() {
+            pi_name = $(this).val();
+            $('#selectti_disk option:selected').each(function() {
+                t_name = $(this).val();    
+				graph_id++;
+				add_graph('tabs-{/literal}{$pluginid}{literal}', '{/literal}{$host}{literal}', 'disk', pi_name, t_name, '_', 'disk{/literal}{$pluginid}{literal}'+graph_id);
+            });
+        });
+    });
+{/literal}
+</script>
+<select multiple="multiple" size="4" id="selectpi_disk">
+  {foreach key=plugin_instance_name item=types from=$plugin}
+  <option value="{$plugin_instance_name}">{$plugin_instance_name}</option>
+  {/foreach}
+</select>
+<select multiple="multiple" size="4" id="selectti_disk">
+    {foreach item=type_name from=$alltypes[$plugin_name] }
+        <option value="{$type_name}">{$type_name}</option>
+    {/foreach}
+</select>
+

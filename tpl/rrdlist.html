@@ -1,0 +1,266 @@
+{**
+ * Common functions
+ *
+ * PHP version 5
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Monitoring
+ * @author    Cyril Feraudet <cyril@feraudet.com>
+ * @copyright 2011 Cyril Feraudet
+ * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @link      http://www.perfwatcher.org/
+ *} 
+<script type="text/javascript">
+{literal}
+var tab_counter = 1;
+$('#configcontainer').hide();
+$(document).ready(function() {
+        nav_init ({/literal}{$timeyesterday}, {$time}{literal});
+        refresh_status();
+});
+
+function piesliceclicked( index )
+{
+    var status;
+    switch(index) {
+        case 0: status = 'up';  break;
+        case 1: status = 'down'; break;
+        case 2: status = 'unknown'; break;
+    }
+    window.open( "index.php?tpl=serverlist&status="+status+"&id={/literal}{$nodeid}{literal}", "_new", "status=1,height=300,width=300,resizable=1,scrollbars=yes" );
+}
+
+$(function() { 
+    $('#configure, #refresh, .deletetab').button();
+    tabstate=true;
+    $('#tabstoggle').click(function () {
+        if (tabstate) {
+            $('#tabs').tabs( "destroy");
+            $('#tabs li').addClass( "li-right-arrow");
+            tabstate=false;
+        } else {
+            $('#tabs').tabs();
+            tabstate=true;
+        }
+    });
+	var configuretoggled = 0;
+    $('#configure').click(function () {
+		$('#configcontainer').toggle();
+		if (configuretoggled == 0) {
+			$.ajax({
+				async : true, type: 'POST', url: "index.php?tpl=configure-{/literal}{$nodetype}{literal}",
+				data : { "action" : "select_node", "id" : {/literal}{$nodeid}{literal} },
+				complete : function (r) {
+					if(!r.status) { ('#configcontainer').html('Error, can\'t retrieve data from server !'); }
+					else {
+						$('#configcontainer').html(r.responseText);
+						configuretoggled = 1;
+					}
+				}
+			});
+		}
+	});
+    $('#refresh').click(function () { 
+        $.ajax({
+            async : true, type: 'POST', url: "index.php?tpl=rrdlist",
+            data : { "id" : {/literal}{$nodeid}{literal} },
+            complete : function (r) {
+                if(!r.status) { ('#content').html('Error, can\'t retrieve data from server !'); }
+                else { $('#content').html(r.responseText); refresh_status(); }
+            }
+        })
+    });
+
+    //$('#tabs').tabs().find( ".ui-tabs-nav" ).sortable({ axis: "x" });
+    $('#tabs').tabs( {
+        show: function(event, ui) {
+            tab = 'tabs-{/literal}{$time}{literal}'+ui.index;
+            eval('if ( typeof tabs_{/literal}{$time}{literal}'+(ui.index + 1)+' == "function") { tabs_{/literal}{$time}{literal}'+(ui.index + 1)+'(); }');
+        }
+    });
+    $( "#add_tab" ).button().click(function() { $dialog.dialog( "open" ); });
+
+    var $tab_title_input = $( "#tab_title");
+    var $dialog = $( "#dialog" ).dialog({
+            autoOpen: false,
+            modal: true,
+            buttons: {
+                Add: function() {
+                    addTab();
+                    $( this ).dialog( "close" );
+                },
+                Cancel: function() {
+                    $( this ).dialog( "close" );
+                }
+            },
+            open: function() {
+                $tab_title_input.focus();
+            },
+            close: function() {
+                $form[ 0 ].reset();
+            }
+    });
+    var $form = $( "form", $dialog ).submit(function() {
+        addTab();
+        $dialog.dialog( "close" );
+        return true;
+    });
+    function addTab() {
+        var tab_title = $tab_title_input.val() || "Custom view";
+        $.ajax({
+            async : false, type: 'POST', url: "index.php?tpl=rrdlist",
+            data : { "action" : "add_tab", "id" : {/literal}{$nodeid}{literal}, "tab_title" : tab_title },
+            complete : function (r) {
+                if(!r.status) { ('#content').html('Error, can\'t retrieve data from server !'); }
+                else { $('#content').html(r.responseText); refresh_status(); }
+            }
+        });
+
+    }
+    $( ".deletetab" ).button().click(function() {
+        if (confirm('Are you sure you want to delete this tab ?')) {
+            $.ajax({
+                async : false, type: 'POST', url: "index.php?tpl=rrdlist",
+                data : { "action" : "del_tab", "id" : {/literal}{$nodeid}{literal}, "tab_id" : $(this).attr('tabid') },
+                complete : function (r) {
+                    if(!r.status) { ('#content').html('Error, can\'t retrieve data from server !'); }
+                    else { $('#content').html(r.responseText); refresh_status(); }
+                }
+            });
+        }
+    });
+
+    {/literal}{if $nodetype != 'container'}{literal}
+        $.ajax({
+            async : true, type: 'GET', url: "index.php?tpl=ocsinfo&server={/literal}{$dbdata.title}{literal}",
+            complete : function (r) {
+                if(r.status) { $('#infolist').html($('#infolist').html() + r.responseText); }
+            }
+        });
+        $.ajax({
+            async : true, type: 'GET', url: "../electronictrading/index.php?tpl=server&host={/literal}{$dbdata.title}{literal}",
+            complete : function (r) {
+                if(r.status) {
+					if (r.responseText != '') {
+						$('#electronictrading').html(r.responseText);
+					} else { $('#electronictrading').hide(); }
+				}
+            }
+        });
+    {/literal}{else}{literal}
+        swfobject.embedSWF("open-flash-chart.swf", "statuschart", "250", "150","9.0.0", "expressInstall.swf",{"data-file":"index.php?tpl=statuschart%26node={/literal}{$dbdata.id}{literal}"});
+    {/literal}{/if}{literal}
+    $('#speedometer').speedometer();
+});
+{/literal}
+</script>
+{if $nodetype == 'container'}
+<div id="nodeinfo" class="ui-corner-all">
+    <div id="nodedata">
+        <h1>{$dbdata.title}</h1>
+        <ul>
+            <li>{$nbhosts} host(s)</li>
+            <li>{$nbcontainers} container(s)</li>
+            <li>{$nbaggregator} aggregator(s)</li>
+            <li>{$cpus} core(s)</li>
+            <li>Load {$load}</li>
+            <li>{$process} running processes</li>
+        </ul>
+    </div>
+    <div id="statuschart"></div>
+    <div id="speedometer">{$speedometer}</div>
+    <div id="nodecontrol">
+        <button id="configure">Configure</button>
+        <button id="refresh">Refresh</button>
+        <button id="add_tab">Add tab</button>
+    </div>
+</div>
+{else}
+<div id="nodeinfo" class="ui-corner-all">
+    
+    <div id="nodedata">
+        <h1>{$dbdata.title}</h1>
+        <ul id="infolist">
+            <li>{$cpus} core(s)</li>
+            <li>{$process} running processes</li>
+        </ul>
+    </div>
+    <div id="speedometer">{$speedometer}</div>
+    <div id="nodecontrol">
+        <button id="configure">Configure</button>
+        <button id="refresh">Refresh</button>
+        <button id="add_tab">Add tab</button>
+    </div>
+</div>
+{/if}
+<div id="configcontainer">
+</div>
+{if $nodetype != 'container'}
+<div id="electronictrading" class="ui-corner-all">
+</div>
+{/if}
+<div id="dialog" title="Tab Name">
+    <form>
+        <fieldset class="ui-helper-reset">
+            <label for="tab_title">Title</label>
+            <input type="text" name="tab_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" />
+        </fieldset>
+    </form>
+</div>
+<div id="pluginlist">
+</div>
+<div id="tabs">
+    <ul>
+    {assign var='pluginid' value=0}
+    {foreach key=plugin_name item=plugin from=$plugins}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <li pluginid="{$pluginid}"><a href="#tabs-{$pluginid}">{$plugin_name|capitalize}</a></li>
+    {/foreach}
+    {foreach key=tab_id item=tab_datas from=$data.tabs}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <li pluginid="{$pluginid}"><a href="#tabs-{$pluginid}">{$tab_datas.tab_title|capitalize}</a></li>
+    {/foreach}
+    </ul>
+    {assign var='graphid' value=0}
+    {assign var='pluginid' value=0}
+    {foreach key=plugin_name item=plugin from=$plugins}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <div id="tabs-{$pluginid}">
+        <script type="text/javascript">
+            tab_counter++;
+        </script>
+        {assign var='rrdtplok' value=0}
+        {foreach item=rrdtpl from=$rrdtpls} 
+            {if $rrdtpl == $plugin_name}
+                {include file="rrdlist-$rrdtpl.html"}
+                {assign var='rrdtplok' value=1}
+            {/if}
+        {/foreach}
+        {if $rrdtplok == 0}
+        {include file="rrdlist-default.html"}
+        {/if}
+        </div>
+    {/foreach}
+    {foreach key=tab_id item=tab_datas from=$data.tabs}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <div id="tabs-{$pluginid}">
+            {if $nodetype == 'container'}
+                {include file="rrdlist-tabcontainer.html"}
+            {else}
+                {include file="rrdlist-tabserver.html"}
+            {/if}
+        </div>
+    {/foreach}
+</div>
+<div id="selecttimespan" ><div id="selecttimespancontent">&nbsp;</div></div>
+<div id="topdiv" title="Top"></div>

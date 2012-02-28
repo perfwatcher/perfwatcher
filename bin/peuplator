@@ -1,0 +1,131 @@
+#!/usr/bin/php
+<?php
+
+chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
+
+
+require "lib/common.php";
+
+$debug=false;
+
+if (isset($argv[1])) {
+    foreach($argv as $key => $val) {
+        if ($key == 0) { continue; }
+        switch($val) {
+            case '-v':
+                $debug=true;
+            break;
+        }
+    }
+}
+
+
+$jstree = new json_tree();
+$list = file($serverlisturl);
+list(, $list[0]) = split('<br>', $list[0], 2);
+foreach($list as $key => $val) {
+    $list[$key] = str_replace('<br>', '', $val);
+    if (trim($list[$key]) == '') { unset($list[$key]); }
+}
+if (count($list) < 1000) {
+    if ($debug) { echo "List < 1000 entry \n"; }
+    die('No enough entry in gprime');
+}
+foreach ($jstree->get_containers() as $container) {
+    $datas = $jstree->get_datas($container['id']);
+    $serverlist = array();
+    // Gprime
+    if (isset($datas['serverslist']) && isset($datas['serverslist']['gprimeregex']) && trim($datas['serverslist']['gprimeregex']) != '') {
+        if ($debug) { echo "Processing ".$container['title']."(".$container['id'].") for Gprime list\n"; }
+        foreach($list as $key => $val) {
+            if (ereg($datas['serverslist']['gprimeregex'], $val)) {
+            $server = '';
+            list($server,) = split(';', $val);
+	if(strpos($server, '.') !== false) { list($server,) = split('\.', $server); }
+                if ( $server != '') { $serverlist[] = $server; }
+            }
+        }
+    }
+    // Servername
+    if (isset($datas['serverslist']) && isset($datas['serverslist']['servernameregex']) && trim($datas['serverslist']['servernameregex']) != '') {
+        if ($debug) { echo "Processing ".$container['title']."(".$container['id'].") for server list\n"; }
+        $dh = opendir($rrds_path);
+        while ($hostdir = readdir($dh)) {
+            if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
+            if (ereg($datas['serverslist']['servernameregex'], $hostdir)) { $serverlist[] = $hostdir; }
+        }
+        closedir($dh);
+    }
+    // Switch name
+    if (isset($datas['serverslist']) && isset($datas['serverslist']['switchregex']) && trim($datas['serverslist']['switchregex']) != '') {
+        if ($debug) { echo "Processing ".$container['title']."(".$container['id'].") for server list\n"; }
+        if ($fp = fopen('/var/www/html/phpcollectd/tmp/netlist.txt', 'r')) {
+            while ($line = fgets($fp, 4096)) {
+                if (@ereg(trim($datas['serverslist']['switchregex']), trim($line))) {
+                    $server = '';
+                    list($server,) = split(';', $line);
+                    if ( $server != '') { $serverlist[] = $server; }
+                }
+            }
+            fclose($fp);
+        }
+
+    }
+    // Manual list
+    if (isset($datas['serverslist']) && isset($datas['serverslist']['manuallist']) && trim($datas['serverslist']['manuallist']) != '') {
+        if ($debug) { echo "Processing ".$container['title']."(".$container['id'].") for server list\n"; }
+
+        foreach (split("\n", $datas['serverslist']['manuallist']) as $line) {
+            if (trim($line) == '' || trim($line) == '#delete#') { continue; }
+                $serverlist[] = trim($line);
+        }
+    }
+
+    if (
+        (
+            isset($datas['serverslist']) && 
+            isset($datas['serverslist']['servernameregex']) && 
+            trim($datas['serverslist']['servernameregex']) != ''
+        ) ||
+        (
+            isset($datas['serverslist']) && 
+            isset($datas['serverslist']['switchregex']) && 
+            trim($datas['serverslist']['switchregex']) != ''
+        ) ||
+        (
+            isset($datas['serverslist']) && 
+            isset($datas['serverslist']['gprimeregex']) && 
+            trim($datas['serverslist']['gprimeregex']) != ''
+        ) ||
+        (
+            isset($datas['serverslist']) && 
+            isset($datas['serverslist']['manuallist']) && 
+            trim($datas['serverslist']['manuallist']) != ''
+        )
+ 
+    ) {
+        $childrens = $jstree->_get_children($container['id']);
+        $childrenslist = array();
+		$invalidatecache = false;
+        foreach($childrens as $children) {
+            if ($children['type'] != 'default') { continue; }
+            if (!in_array($children['title'], $serverlist)) {
+                if ($debug) { echo "Removing child ".$children['title']."(".$children['id'].") from ".$container['title']."(".$container['id'].")"."\n"; }
+                $jstree->_remove($children['id']);
+				$invalidatecache = true;
+            } else { $childrenslist[] = $children['title']; }
+        }
+        foreach($serverlist as $server) {
+            if (!in_array($server, $childrenslist)) {
+                $jstree->add_node($container['id'], $server);
+                if ($debug) { echo "Adding child $server to ".$container['title']."(".$container['id'].")"."\n"; }
+				$invalidatecache = true;
+            }
+        }
+		if($invalidatecache && file_exists('/var/lib/collectd/_cache/aggregator_'.$container['id'].'/pluginslist.dat')) { 
+			unlink('/var/lib/collectd/_cache/aggregator_'.$container['id'].'/pluginslist.dat'); 
+		}
+    }
+}
+
+?>

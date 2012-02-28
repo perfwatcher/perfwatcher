@@ -1,0 +1,99 @@
+{**
+ * Common functions
+ *
+ * PHP version 5
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Monitoring
+ * @author    Cyril Feraudet <cyril@feraudet.com>
+ * @copyright 2011 Cyril Feraudet
+ * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @link      http://www.perfwatcher.org/
+ *} 
+
+<style type="text/css" media="screen">
+@import "http://eqds3pcold001/phpcollectd/css/global.css";
+@import "http://eqds3pcold001/phpcollectd/css/graph.css";
+@import "http://eqds3pcold001/phpcollectd/css/jquery.ui.all.css";
+</style>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/vendor/jquery/jquery.js"></script>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/vendor/jquery/ui/jquery-ui.js"></script>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/vendor/jquery/ui/jquery.ui.core.js"></script>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/vendor/jquery/ui/jquery.ui.widget.js"></script>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/vendor/jquery/ui/jquery.ui.tabs.js"></script>
+<script type="text/javascript" src="http://eqds3pcold001/phpcollectd/js/graph.js"></script>
+
+<script type="text/javascript">
+{literal}
+$(document).ready(function() {
+    tabstate=true;
+    $('#tabstoggle').click(function () {
+        if (tabstate) {
+            $('#tabs').tabs( "destroy");
+            $('#tabs li').addClass( "li-right-arrow");
+            tabstate=false;
+        } else {
+            $('#tabs').tabs();
+            tabstate=true;
+        }
+    });
+    $('#tabs').tabs().find( ".ui-tabs-nav" ).sortable({ axis: "x" });
+    nav_init ({/literal}{$timeyesterday}, {$time}{literal});
+});
+{/literal}
+</script>
+<div id="tabs">
+    <ul>
+    {assign var='pluginid' value=0}
+    {foreach key=plugin_name item=plugin from=$plugins}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <li><a href="#tabs-{$pluginid}">{$plugin_name|capitalize}</a></li>
+    {/foreach}
+    </ul>
+    {assign var='graphid' value=0}
+    {assign var='pluginid' value=0}
+    {foreach key=plugin_name item=plugin from=$plugins}
+        {assign var='pluginid' value=`$pluginid+1`}
+        <div id="tabs-{$pluginid}">
+        {foreach key=plugin_instance_name item=types from=$plugin }
+            {foreach key=type_name item=type from=$types }
+                {foreach key=type_instance_name item=type_instance from=$type }
+                {assign var='graphid' value=`$graphid+1`}
+                    <div class="graph_float">
+                      <img id="graph{$graphid}" class="graph_image" src="http://eqds3pcold001/phpcollectd/graph.php?host={$host}&amp;plugin={$plugin_name}&amp;plugin_instance={$plugin_instance_name}&amp;type={$type_name}&amp;type_instance={$type_instance_name}&amp;begin=-86400&amp;width=500&amp;{$timestamp}" />
+                      <div class="controls zoom">
+                        <div title="Earlier" onclick="nav_move_earlier ('graph{$graphid}');">&#x2190;</div>
+                        <div title="Zoom out" onclick="nav_zoom_out ('graph{$graphid}');">-</div>
+
+                        <div title="Zoom in" onclick="nav_zoom_in ('graph{$graphid}');">+</div>
+                        <div title="Later" onclick="nav_move_later ('graph{$graphid}');">&#x2192;</div>
+                      </div>
+                      <div class="controls preset">
+                        <div title="Show current hour" onclick="nav_time_reset ('graph{$graphid}', 3600);">H</div>
+                        <div title="Show current day" onclick="nav_time_reset ('graph{$graphid}', 86400);">D</div>
+                        <div title="Show current week" onclick="nav_time_reset ('graph{$graphid}', 7 * 86400);">W</div>
+
+                        <div title="Show current month" onclick="nav_time_reset ('graph{$graphid}', 31 * 86400);">M</div>
+                        <div title="Show current year" onclick="nav_time_reset ('graph{$graphid}', 366 * 86400);">Y</div>
+                        <div title="Set all images to this timespan" onclick="nav_set_reference ('graph{$graphid}');">!</div>
+                        <div title="Toggle legend" onclick="nav_toggle_legend ('graph{$graphid}');">L</div>
+                      </div>
+                    </div>
+                {/foreach}
+            {/foreach}
+        {/foreach}
+        </div>
+    {foreachelse}
+    <div>No data found !
+    {/foreach}
+</div>

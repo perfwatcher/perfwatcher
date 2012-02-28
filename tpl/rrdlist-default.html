@@ -1,0 +1,41 @@
+{**
+ * Common functions
+ *
+ * PHP version 5
+ *
+ * LICENSE: This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @category  Monitoring
+ * @author    Cyril Feraudet <cyril@feraudet.com>
+ * @copyright 2011 Cyril Feraudet
+ * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
+ * @link      http://www.perfwatcher.org/
+ *} 
+<script type="text/javascript">
+{literal}
+function tabs_{/literal}{$time}{$pluginid}{literal}() {
+{/literal}
+{foreach key=plugin_instance_name item=types from=$plugin }
+    {foreach key=type_name item=type from=$types }
+        {foreach key=type_instance_name item=type_instance from=$type }
+        {assign var='graphid' value=`$graphid+1`}
+        add_graph('tabs-{$pluginid}', '{$host}', '{$plugin_name}', '{$plugin_instance_name}', '{$type_name}', '{$type_instance_name}', '{$pluginid}{$plugin_name}{$graphid}');
+        {/foreach}
+    {/foreach}
+{/foreach}
+{literal}
+}
+if ({/literal}{$pluginid}{literal} == 1) {
+    tabs_{/literal}{$time}{$pluginid}{literal}();
+}
+{/literal}
+</script>

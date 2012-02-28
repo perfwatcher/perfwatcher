@@ -1,0 +1,6 @@
+#!/usr/bin/php
+<?php
+require 'lib/common.php';
+$jstree = new json_tree();
+print_r($jstree->_get_children($argv[1]));
+?>
