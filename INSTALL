@@ -1,0 +1,16 @@
+
+- git clone git://github.com/feraudet/perfwatcher.git
+- cd perfwatcher
+- Be sure having a MySQL server > 5.1.38 installed
+- cat install/create.sql | mysql -u <your mysql user> -p
+- modify etc/config.php to overide etc/config.default.php :
+	- adjust db setting
+	- adjust $rrds_path 
+- Make sure PHP >= 5.3 is compiled with rrd > 1.4 support
+- Make sure PHP in command line is installed in /usr/bin/php
+- run ./bin/peuplator and check for error
+- put in cron * * * * * /<path to perfwatcher>/bin/peuplator
+- run ./bin/peuplator and check for error
+- put in cron * * * * * /<path to perfwatcher>/bin/peuplator
+- install rrdcached and make sure socket is : /var/run/rrdcached/rrdcached.sock
+- 

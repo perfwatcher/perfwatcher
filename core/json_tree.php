@@ -28,7 +28,7 @@ switch($_REQUEST["operation"]) {
     case "remove_node":
     case "rename_node":
     case "move_node":
-        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+//        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
     break;
     case "get_children":
     case "search":

@@ -22,7 +22,7 @@
  */ 
 
 switch ($_POST['action']) {
-    case 'gprimetest': 
+/*    case 'gprimetest': 
         $list = file($serverlisturl);
         $i=0;
         foreach($list as $line) {
@@ -49,7 +49,7 @@ switch ($_POST['action']) {
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['gprimeregex'] = $_POST['gprimeregex'];
         $jstree->set_datas($_GET['id'], $datas);
-    break;
+    break;*/
     case 'servernametest':
         $dh = opendir($rrds_path);
         while ($hostdir = readdir($dh)) {
@@ -62,7 +62,7 @@ switch ($_POST['action']) {
         closedir($dh);
     break;
     case 'servernamesave':
-        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        //if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
         echo "Regex saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);
@@ -70,7 +70,7 @@ switch ($_POST['action']) {
         $datas['serverslist']['servernameregex'] = $_POST['servernameregex'];
         $jstree->set_datas($_GET['id'], $datas);
     break;
-    case 'switchtest':
+/*    case 'switchtest':
         echo "#hostname;switchportname<br/><br/>";
         echo "2000 First results<br/><br/>";
         $i = 0;
@@ -93,9 +93,9 @@ switch ($_POST['action']) {
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['switchregex'] = $_POST['switchregex'];
         $jstree->set_datas($_GET['id'], $datas);
-    break;
+    break;*/
     case 'manuallistsave':
-        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        //if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
         echo "Manual list saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);

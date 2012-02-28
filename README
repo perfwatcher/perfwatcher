@@ -1,0 +1,11 @@
+ perfwatcher - Performance Monitoring
+======================================
+http://perfwatcher.org
+
+About
+-----
+
+  perfwatcher is a frontend for collectd witch show you graph and
+  aggregate data over several host
+
+

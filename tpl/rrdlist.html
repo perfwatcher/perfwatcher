@@ -141,7 +141,7 @@ $(function() {
     });
 
     {/literal}{if $nodetype != 'container'}{literal}
-        $.ajax({
+        /*$.ajax({
             async : true, type: 'GET', url: "index.php?tpl=ocsinfo&server={/literal}{$dbdata.title}{literal}",
             complete : function (r) {
                 if(r.status) { $('#infolist').html($('#infolist').html() + r.responseText); }
@@ -156,7 +156,7 @@ $(function() {
 					} else { $('#electronictrading').hide(); }
 				}
             }
-        });
+        });*/
     {/literal}{else}{literal}
         swfobject.embedSWF("open-flash-chart.swf", "statuschart", "250", "150","9.0.0", "expressInstall.swf",{"data-file":"index.php?tpl=statuschart%26node={/literal}{$dbdata.id}{literal}"});
     {/literal}{/if}{literal}
