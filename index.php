@@ -23,13 +23,16 @@
  */
 
 require 'lib/common.php';
-
-if (!include 'Smarty/Smarty.class.php' ) {
+$smarty_path = array('Smarty/Smarty.class.php', 'smarty/libs/Smarty.class.php');
+foreach ($smarty_path as $path) {
+    @include $path;
+}
+if (!class_exists('Smarty')) {
     die("Error : Smarty PEAR module not present.<br />
 Please install it.<br/>
 Ex:<br>
-- yum --nogpgcheck install php-Smarty.noarch<br>
-- aptitude install Smarty<br>
+- yum install php-Smarty.noarch<br>
+- aptitude install smarty<br>
 - wget http://www.smarty.net/files/Smarty-3.0.7.tar.gz<br>
 ");
 }
