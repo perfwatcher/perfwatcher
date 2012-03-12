@@ -272,6 +272,104 @@ SET character_set_client = utf8;
 ) ENGINE=MyISAM */;
 SET character_set_client = @saved_cs_client;
 
+USE `collectd`;
+
+--
+-- Final view structure for view `data_view`
+--
+
+/*!50001 DROP TABLE IF EXISTS `data_view`*/;
+/*!50001 DROP VIEW IF EXISTS `data_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `data_view` AS select `data`.`date` AS `date`,`host`.`name` AS `host`,`plugin`.`name` AS `plugin`,`data`.`plugin_instance` AS `plugin_instance`,`type`.`name` AS `type`,`data`.`type_instance` AS `type_instance`,`dataset`.`name` AS `dataset_name`,`data`.`value` AS `value` from ((((`data` join `host`) join `plugin`) join `type`) join `dataset`) where ((`host`.`id` = `data`.`host_id`) and (`plugin`.`id` = `data`.`plugin_id`) and (`type`.`id` = `data`.`type_id`) and (`data`.`dataset_id` = `dataset`.`id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `notification_view`
+--
+
+/*!50001 DROP TABLE IF EXISTS `notification_view`*/;
+/*!50001 DROP VIEW IF EXISTS `notification_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `notification_view` AS select `n`.`date` AS `date`,`h`.`name` AS `hostname`,`p`.`name` AS `plugin`,`n`.`plugin_instance` AS `plugin_instance`,`t`.`name` AS `type`,`n`.`type_instance` AS `type_instance`,`n`.`severity` AS `severity`,`n`.`message` AS `message` from (((`notification` `n` join `host` `h`) join `plugin` `p`) join `type` `t`) where ((`n`.`host_id` = `h`.`id`) and (`n`.`plugin_id` = `p`.`id`) and (`n`.`type_id` = `t`.`id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `plugin_view`
+--
+
+/*!50001 DROP TABLE IF EXISTS `plugin_view`*/;
+/*!50001 DROP VIEW IF EXISTS `plugin_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `plugin_view` AS select `host`.`name` AS `host`,`plugin`.`name` AS `plugin`,`data`.`plugin_instance` AS `plugin_instance`,`type`.`name` AS `type`,`data`.`type_instance` AS `type_instance` from (((`data` join `host`) join `plugin`) join `type`) where ((`host`.`id` = `data`.`host_id`) and (`plugin`.`id` = `data`.`plugin_id`) and (`type`.`id` = `data`.`type_id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `snap_data_view`
+--
+
+/*!50001 DROP TABLE IF EXISTS `snap_data_view`*/;
+/*!50001 DROP VIEW IF EXISTS `snap_data_view`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`%` SQL SECURITY DEFINER */
+/*!50001 VIEW `snap_data_view` AS select `snap_data`.`date` AS `date`,`host`.`name` AS `host`,`plugin`.`name` AS `plugin`,`snap_data`.`plugin_instance` AS `plugin_instance`,`type`.`name` AS `type`,`snap_data`.`type_instance` AS `type_instance`,`dataset`.`name` AS `dataset_name`,`snap_data`.`value` AS `value` from ((((`snap_data` join `host`) join `plugin`) join `type`) join `dataset`) where ((`host`.`id` = `snap_data`.`host_id`) and (`plugin`.`id` = `snap_data`.`plugin_id`) and (`type`.`id` = `snap_data`.`type_id`) and (`snap_data`.`dataset_id` = `dataset`.`id`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `types_db`
+--
+
+/*!50001 DROP TABLE IF EXISTS `types_db`*/;
+/*!50001 DROP VIEW IF EXISTS `types_db`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `types_db` AS select `type`.`name` AS `type`,`dataset`.`name` AS `ds` from (`type` join `dataset`) where (`dataset`.`type_id` = `type`.`id`) order by `type`.`name`,`dataset`.`id` */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+
 --
 -- Current Database: `jsTree`
 --
