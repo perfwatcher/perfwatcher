@@ -1,5 +1,6 @@
 
-- git clone git://github.com/feraudet/perfwatcher.git
+- cd /<your www directory>
+- git clone http://github.com/feraudet/perfwatcher.git
 - cd perfwatcher
 - Be sure having a MySQL server > 5.1.38 installed
 - cat install/create.sql | mysql -u <your mysql user> -p
@@ -18,3 +19,10 @@
 - put in cron * * * * * /<path to perfwatcher>/bin/peuplator
 - install rrdcached, make sure socket is /var/run/rrdcached/rrdcached.sock 
  and is writable by group of your webserver
+- cd /<an arbitrary directory to compile a custom version of collectd>
+- git clone -b cf/perfwatcher http://github.com/feraudet/collectd.git
+or
+- wget http://github.com/downloads/feraudet/collectd/collectd-5.0.3-perfwatcher.tgz
+and
+- tar xzf collectd-5.0.3-perfwatcher.tgz
+- cd collectd  
