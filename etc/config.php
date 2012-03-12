@@ -3,16 +3,16 @@
 $db_config = array(
 	"servername"=> "localhost",
 	"username"	=> "root",
-	"password"	=> "FPSllsker",
-	"database"	=> "jsTree2"
+	"password"	=> "",
+	"database"	=> "jsTree"
 );
 
 $collectd_db_config = array(
 	'phptype'  => 'mysql',
 	"hostspec"=> "localhost",
 	"username"	=> "root",
-	"password"	=> "FPSllsker",
+	"password"	=> "",
 	"database"	=> "collectd"
 );
-
+$rrds_path = "/var/lib/collectd/rrd";
 ?>
