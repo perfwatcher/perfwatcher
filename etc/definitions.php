@@ -730,6 +730,16 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 		'GPRINT:permission_avg:AVERAGE:Average\:%5.1lf%s  ',
 		'GPRINT:permission_avg:LAST:Last\:%5.1lf%s\l'
 	);
+	$GraphDefs['pressure'] = array(
+		'-v', 'millibar', '-X', '-1', '-b', '1000', 
+		'--units-exponent', '0', '-Y',
+		'-l', '860', '-u', '1090', '-r',
+		'DEF:value={file}:value:AVERAGE',
+		//'CDEF:value=value_avg,1000,/',
+		'LINE1:value#FF0000:value ',
+		'GPRINT:value:AVERAGE:Average\:%4.0lf millibar  ',
+		'GPRINT:value:LAST:Last\:%4.0lf millibar\l'
+	);
 	$GraphDefs['nfs_procedure'] = array(
 		'-v', 'Issues/s',
 		'DEF:avg={file}:value:AVERAGE',
