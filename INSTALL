@@ -7,13 +7,18 @@
 - modify etc/config.php to overide etc/config.default.php :
 	- adjust db setting
 	- adjust $rrds_path 
-- Make sure PHP >= 5.3 is compiled with rrd > 1.4 support
+- Make sure PHP >= 5.3 is compiled with rrd > 1.4 support (pecl install rrd)
 - Make sure PHP in command line is installed in /usr/bin/php
+- Install Smarty PEAR lib (yum install php-Smarty.noarch on RHEL or
+ aptitude install smarty on Debian)
+- Install MDB2 PEAR lib (pear install MDB2_Driver_mysql on RHEL or
+ aptitude install php-mdb2-driver-mysql on Debian)
 - run ./bin/peuplator and check for error
 - put in cron * * * * * /<path to perfwatcher>/bin/peuplator
 - run ./bin/peuplator and check for error
 - put in cron * * * * * /<path to perfwatcher>/bin/peuplator
-- install rrdcached and make sure socket is : /var/run/rrdcached/rrdcached.sock
+- install rrdcached, make sure socket is /var/run/rrdcached/rrdcached.sock 
+ and is writable by group of your webserver
 - cd /<an arbitrary directory to compile a custom version of collectd>
 - git clone -b cf/perfwatcher http://github.com/feraudet/collectd.git
 or
@@ -21,4 +26,3 @@ or
 and
 - tar xzf collectd-5.0.3-perfwatcher.tgz
 - cd collectd  
-- 
