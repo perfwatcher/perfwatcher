@@ -42,7 +42,7 @@ switch ($_POST['action']) {
         }
     break;
     case 'gprimesave':
-        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        if(!ereg("/admin/", $_SERVER["REQUEST_URI"])) { die(); }
         echo "Regex saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);
@@ -62,7 +62,7 @@ switch ($_POST['action']) {
         closedir($dh);
     break;
     case 'servernamesave':
-        //if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        if(!ereg("/admin/", $_SERVER["REQUEST_URI"])) { die(); }
         echo "Regex saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);
@@ -86,7 +86,7 @@ switch ($_POST['action']) {
         }
     break;
     case 'switchsave':
-        if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        if(!ereg("/admin/", $_SERVER["REQUEST_URI"])) { die(); }
         echo "Regex saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);
@@ -95,7 +95,7 @@ switch ($_POST['action']) {
         $jstree->set_datas($_GET['id'], $datas);
     break;*/
     case 'manuallistsave':
-        //if(!ereg("/admin/", $_SERVER["REQUEST_URI"]) || !is_numeric($_SERVER["PHP_AUTH_USER"])) { die(); }
+        if(!ereg("/admin/", $_SERVER["REQUEST_URI"])) { die(); }
         echo "Manual list saved";
         $jstree = new json_tree();
         $datas = $jstree->get_datas($_GET['id']);
