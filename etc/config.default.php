@@ -35,5 +35,8 @@ $container_plugins['options']    = array('title' => 'Options', 'url' => 'index.p
 $container_plugins['servername'] = array('title' => 'Autofill folder with server name filtering', 'url' => 'index.php?tpl=container_plugins_servername');
 $container_plugins['manuallist'] = array('title' => 'Autofill folder with manual server list', 'url' => 'index.php?tpl=container_plugins_manuallist');
 
+$rrdtool = '/usr/bin/rrdtool';
+
 if (file_exists("etc/config.php")) { include("etc/config.php"); } else { die('no etc/config.php'); }
+
 ?>

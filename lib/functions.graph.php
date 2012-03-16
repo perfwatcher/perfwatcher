@@ -482,9 +482,10 @@ function rrd_escape($str) {
  * @return Array describing the RRD file
  */
 function _rrd_info($file) {
+	global $rrdtool;
 	$info = array('filename'=>$file);
 
-	$rrd = popen(RRDTOOL.' info '.escapeshellarg($file), 'r');
+	$rrd = popen($rrdtool.' info '.escapeshellarg($file), 'r');
 	if ($rrd) {
 		while (($s = fgets($rrd)) !== false) {
 			$p = strpos($s, '=');
@@ -624,7 +625,7 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
 			$graph[] = sprintf('GPRINT:%s_avg:LAST:Last\:%%5.1lf%%s\\l', $k);
 	}
 
-	$rrd_cmd = array(RRDTOOL, 'graph', '-', '--daemon', '/var/run/rrdcached/rrdcached.sock', '-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle, '-v', ' ', '-c', 'BACK#FFFFFF');
+	$rrd_cmd = array('-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle, '-v', ' ', '-c', 'BACK#FFFFFF');
     $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
     $rrd_cmd[] = '-s';
     $rrd_cmd[] = $_GET['begin'];
@@ -634,7 +635,7 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
     }
 	$rrd_cmd = array_merge($rrd_cmd, $config['rrd_opts'], $opts['rrd_opts'], $graph);
 
-	$cmd = RRDTOOL;
+	$cmd = array();
 	for ($i = 1; $i < count($rrd_cmd); $i++)
 		$cmd .= ' '.escapeshellarg($rrd_cmd[$i]);
 
@@ -660,7 +661,7 @@ function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, 
 
 	$rrd_file = sprintf('%s/%s%s%s/%s%s%s', $host, $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
 	$rrdtitle = sprintf('%s/%s%s%s/%s%s%s', get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
-	$rrd_cmd  = array(RRDTOOL, 'graph', '-', '--daemon', '/var/run/rrdcached/rrdcached.sock', '-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle, '-v', ' ', '-c', 'BACK#FFFFFF');
+	$rrd_cmd  = array('-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle, '-v', ' ', '-c', 'BACK#FFFFFF');
     $rrd_cmd[] = '-s';
     $rrd_cmd[] = $_GET['begin'];
     if ($_GET['end'] != '') {
@@ -682,7 +683,7 @@ function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, 
         $rrd_args[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
 		$rrdgraph = array_merge($rrd_cmd, $rrd_args);
-		$cmd = RRDTOOL;
+		$cmd = array();
 		for ($i = 1; $i < count($rrdgraph); $i++)
 			$cmd .= ' '.escapeshellarg($rrdgraph[$i]);
 
@@ -707,7 +708,7 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
 	if (isset($opts['logarithmic']) && $opts['logarithmic'])
 		array_unshift($opts['rrd_opts'], '-o');
 
-	$cmd = array(RRDTOOL, 'graph', '-', '--daemon', '/var/run/rrdcached/rrdcached.sock', '-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title'], '-v', ' ', '-c', 'BACK#FFFFFF');
+	$cmd = array('-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title'], '-v', ' ', '-c', 'BACK#FFFFFF');
 	$cmd = array_merge($cmd, $config['rrd_opts'], $opts['rrd_opts']);
 	$max_inst_name = 0;
 
@@ -768,7 +769,7 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
         $cmd[] = '-e';
         $cmd[] = $_GET['end'];
     }
-	$rrdcmd = RRDTOOL;
+	$rrdcmd = array();
 	for ($i = 1; $i < count($cmd); $i++)
 		$rrdcmd .= ' '.escapeshellarg($cmd[$i]);
 	return $cmd;
@@ -792,7 +793,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 	if (isset($opts['logarithmic']) && $opts['logarithmic'])
 		array_unshift($opts['rrd_opts'], '-o');
 
-	$cmd = array(RRDTOOL, 'graph', '-', '--daemon', '/var/run/rrdcached/rrdcached.sock', '-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title'], '-v', ' ', '-c', 'BACK#FFFFFF');
+	$cmd = array('-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title'], '-v', ' ', '-c', 'BACK#FFFFFF');
 	$cmd = array_merge($cmd, $config['rrd_opts'], $opts['rrd_opts']);
 	$max_inst_name = 0;
 
@@ -838,7 +839,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
         $cmd[] = '-e';
         $cmd[] = $_GET['end'];
     }
-	$rrdcmd = RRDTOOL;
+	$rrdcmd = array();
 	for ($i = 1; $i < count($cmd); $i++)
 		$rrdcmd .= ' '.escapeshellarg($cmd[$i]);
 	return $cmd;

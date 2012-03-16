@@ -212,37 +212,33 @@ if ((is_null($tinst) || $tinst == '@merge') && isset($MetaGraphDefs[$type])) {
 	collectd_flush($identifiers);
 	$rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
 } else {
-//	if (!in_array(is_null($tinst) ? '' : $tinst, $all_tinst))
-//		return error404($host.'/'.$plugin.(!is_null($pinst) ? '-'.$pinst : '').'/'.$type.(!is_null($tinst) ? '-'.$tinst : ''), "No rrd file found for graphing");
 	collectd_flush(collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, is_null($tinst) ? '' : $tinst));
 	if (isset($GraphDefs[$type]))
 		$rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst);
 	else
 		$rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst);
 }
-if($rrd_cmd[0][0] == '/') {unset($rrd_cmd[0]);}
-if($rrd_cmd[1] == 'graph') {unset($rrd_cmd[1]);}
-if($rrd_cmd[2] == '-') {unset($rrd_cmd[2]);}
 $rrd_cmd = array_merge($rrd_cmd,$xconfig);
 $rrd_cmd[] = "-m";
 $rrd_cmd[] = "1";
+if (isset($rrdcached) && file_exists($rrdcached)) {
+	$rrd_cmd[] = "--daemon";
+	$rrd_cmd[] = $rrdcached;
+}
 if (isset($_GET['debug'])) {
 	header('Content-Type: text/plain; charset=utf-8');
-	printf("Would have executed:\n%s\n", is_array($rrd_cmd) ? "'/usr/bin/rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'" : $rrd_cmd);
+	printf("Would have executed:\n%s\n", is_array($rrd_cmd) ? "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'" : $rrd_cmd);
 	return 0;
 } else if ($rrd_cmd) {
 	header('Content-Type: image/png');
 	header('Cache-Control: max-age=60');
     $tmpfile = tempnam('/dev/shm/','rrd-phpcollectd-');
-	//echo $tmpfile;
     $ret = rrd_graph($tmpfile, $rrd_cmd);
     readfile($tmpfile);
     unlink($tmpfile);
-    //print_r($rrd_cmd);
-    //print_r($ret);
     exit();
 	if (!is_array($ret))
-		return error500($graph_identifier, "RRD failed to generate the graph: ".`/usr/bin/rrdtool graph - $rrd_cmd 2>&1`);
+		return error500($graph_identifier, "RRD failed to generate the graph");
 } else {
 	return error500($graph_identifier, "Failed to tell RRD how to generate the graph");
 }

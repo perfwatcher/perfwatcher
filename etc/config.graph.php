@@ -54,6 +54,7 @@ $config['error_font']    = '/usr/share/fonts/liberation/LiberationSans-Regular.t
 /*
  * Constant defining full path to rrdtool
  */
-define('RRDTOOL', '/usr/bin/rrdtool');
+//define('RRDTOOL', '/usr/bin/rrdtool', 'graph', '-', '--daemon', '/var/run/rrdcached/rrdcached.sock');
+//define('RRDTOOL', '/usr/bin/rrdtool');
 
 ?>
