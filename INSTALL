@@ -19,6 +19,7 @@
 - put in cron * * * * * /<path to perfwatcher>/bin/peuplator
 - run ./bin/aggregator and check for error
 - put in cron * * * * * /<path to perfwatcher>/bin/aggregator
+- Check installation at http://<your server>/setup.php
 - cd /<an arbitrary directory to compile a custom version of collectd>
 - git clone -b cf/perfwatcher http://github.com/feraudet/collectd.git
 or
