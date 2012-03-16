@@ -54,7 +54,7 @@ switch ($_POST['action']) {
         $dh = opendir($rrds_path);
         while ($hostdir = readdir($dh)) {
             if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
-            if (@ereg($_POST['servernameregex'], $hostdir)) {
+            if (substr($hostdir,0,11) != 'aggregator_' && @ereg($_POST['servernameregex'], $hostdir)) {
                 echo "$hostdir<br/>";
             }
             

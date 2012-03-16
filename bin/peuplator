@@ -53,7 +53,7 @@ foreach ($jstree->get_containers() as $container) {
         $dh = opendir($rrds_path);
         while ($hostdir = readdir($dh)) {
             if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
-            if (ereg($datas['serverslist']['servernameregex'], $hostdir)) { $serverlist[] = $hostdir; }
+            if (substr($hostdir,0,11) != 'aggregator_' && ereg($datas['serverslist']['servernameregex'], $hostdir)) { $serverlist[] = $hostdir; }
         }
         closedir($dh);
     }
