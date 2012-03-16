@@ -70,10 +70,11 @@ if(count($containerstodo) == 0) {
 	$out .= "PUTVAL ".$hostname."/collectd/gauge-aggregator $starttime:".(time() - $starttime)."\n";
 	$out .= "PUTVAL ".$hostname."/collectd/gauge-db_copy_aggregator $starttime:$dbcopytime\n";
 	fwrite($socket, $out, strlen($out));
+	if ($debug) { echo $out; }
 	$resp = fgets($socket);
-	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	$resp = fgets($socket);
-	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	unset($out);
 	fclose($socket);
 	exit();
@@ -104,12 +105,13 @@ foreach ($containerstodo as $container) {
     $out .= "PUTVAL $container_host/grid/grid-processes ".time().":$processes\n";
     $out .= "PUTVAL $container_host/grid/grid-nodes ".time().":$nodes\n";
 	fwrite($socket, $out, strlen($out));
+	if ($debug) { echo $out; }
 	$resp = fgets($socket);
-	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	$resp = fgets($socket);
-	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	$resp = fgets($socket);
-	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	unset($out);
 	foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
 		$pluginstr = substr($pluginandcalc, 0, -4);
@@ -148,8 +150,9 @@ foreach ($containerstodo as $container) {
 				$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($row['type_instance'] == '' ? '' : '-'.$row['type_instance']);
 				$out .= " ".time().":".($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value'])."\n";
 				fwrite($socket, $out, strlen($out));
+				if ($debug) { echo $out; }
 				$resp = fgets($socket);
-				if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+				if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 			}
 		} else {
 			$type_instance = str_replace(' ', '_', $type_instance);
@@ -163,8 +166,9 @@ foreach ($containerstodo as $container) {
 			$out .= "\n";
 			if ($outok) {
 				fwrite($socket, $out, strlen($out));
+				if ($debug) { echo $out; }
 				$resp = fgets($socket);
-				if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+				if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 			}
 		}
 	}
