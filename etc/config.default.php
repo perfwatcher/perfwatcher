@@ -37,6 +37,8 @@ $container_plugins['manuallist'] = array('title' => 'Autofill folder with manual
 
 $rrdtool = '/usr/bin/rrdtool';
 
+$collectd_socket  = '/var/run/collectd-unixsock';
+
 if (file_exists("etc/config.php")) { include("etc/config.php"); } else { die('no etc/config.php'); }
 
 ?>

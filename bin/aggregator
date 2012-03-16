@@ -11,7 +11,7 @@ $hostname = $hostname['nodename'];
 $debug=false;
 $debug2=false;
 $foreground=false;
-$clildren_number = 48;
+$clildren_number = 24;
 
 if (isset($argv[1])) {
     foreach($argv as $key => $val) {
@@ -65,13 +65,22 @@ if (isset($parent)) {
 	}
 }
 if(count($containerstodo) == 0) {
-	echo "PUTVAL ".$hostname."/collectd/gauge-aggregator $starttime:".(time() - $starttime)."\n";
-	echo "PUTVAL ".$hostname."/collectd/gauge-db_copy_aggregator $starttime:$dbcopytime\n";
+	$socket = fsockopen("unix://".$collectd_socket,  0, $u_errno, $u_errmsg);
+	$out = '';
+	$out .= "PUTVAL ".$hostname."/collectd/gauge-aggregator $starttime:".(time() - $starttime)."\n";
+	$out .= "PUTVAL ".$hostname."/collectd/gauge-db_copy_aggregator $starttime:$dbcopytime\n";
+	fwrite($socket, $out, strlen($out));
+	$resp = fgets($socket);
+	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	$resp = fgets($socket);
+	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	unset($out);
+	fclose($socket);
 	exit();
 }
 unset($jstree);
 $jstree = new json_tree();
-
+$socket = fsockopen("unix://".$collectd_socket,  0, $u_errno, $u_errmsg);
 foreach ($containerstodo as $container) {
     $container_host = 'aggregator_'.$container['id'];
     $datas = $jstree->get_datas($container['id']);
@@ -79,7 +88,6 @@ foreach ($containerstodo as $container) {
     if (!isset($datas['plugins']) || count($datas['plugins']) == 0) {
         continue;
     } 
-//$time = microtime(true);
 	$childrens = $jstree->_get_children($container['id'], true);
 	$hosts = array();
     foreach($childrens as $children) {
@@ -88,15 +96,21 @@ foreach ($containerstodo as $container) {
         }
     }
 	$hostsstr = implode("','", $hosts);
-//echo "TIME >> _get_children ".(microtime(true) - $time)."\n";
     $cpus = get_cpu_count($container['id']);
-//echo "TIME >> get_cpu_count ".(microtime(true) - $time)."\n";
     $processes = get_process_count($container['id']);
     $nodes = count($hosts);
-//echo "TIME >> get_process_count ".(microtime(true) - $time)."\n";
-    echo "PUTVAL $container_host/grid/grid-cpus ".time().":$cpus\n";
-    echo "PUTVAL $container_host/grid/grid-processes ".time().":$processes\n";
-    echo "PUTVAL $container_host/grid/grid-nodes ".time().":$nodes\n";
+	$out = '';
+    $out .= "PUTVAL $container_host/grid/grid-cpus ".time().":$cpus\n";
+    $out .= "PUTVAL $container_host/grid/grid-processes ".time().":$processes\n";
+    $out .= "PUTVAL $container_host/grid/grid-nodes ".time().":$nodes\n";
+	fwrite($socket, $out, strlen($out));
+	$resp = fgets($socket);
+	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	$resp = fgets($socket);
+	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	$resp = fgets($socket);
+	if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+	unset($out);
 	foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
 		$pluginstr = substr($pluginandcalc, 0, -4);
 		$calc = substr($pluginandcalc, -3);
@@ -133,7 +147,9 @@ foreach ($containerstodo as $container) {
 				if (in_array($type, $derive_type)) { $type .= 'g'; }
 				$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($row['type_instance'] == '' ? '' : '-'.$row['type_instance']);
 				$out .= " ".time().":".($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value'])."\n";
-				echo $out;
+				fwrite($socket, $out, strlen($out));
+				$resp = fgets($socket);
+				if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 			}
 		} else {
 			$type_instance = str_replace(' ', '_', $type_instance);
@@ -145,13 +161,14 @@ foreach ($containerstodo as $container) {
 				$out .= ':'.($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value']);	
 			}
 			$out .= "\n";
-			if ($outok) { echo $out; }
+			if ($outok) {
+				fwrite($socket, $out, strlen($out));
+				$resp = fgets($socket);
+				if (trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+			}
 		}
-//echo "TIME >> plugins ".(microtime(true) - $time)."\n";
 	}
-//echo "TIME >>> ".(microtime(true) - $time)."\n";
-//break;
 }
-
+fclose($socket);
 
 ?>
