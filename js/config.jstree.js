@@ -1,7 +1,7 @@
 /**
- * Common functions
+ * Perfwatcher jsTree config
  *
- * PHP version 5
+ * Javascript
  *
  * LICENSE: This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,10 @@
  * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
  * @link      http://www.perfwatcher.org/
  **/ 
+
 $(function () {
 	// Settings up the tree - using $(selector).jstree(options);
-	// All those configuration options are documented in the _docs folder
+	// All those configuration options are documented at http://www.jstree.com/
 	$('#tree')
 		.jstree({ 
 			// the list of plugins to include
@@ -42,7 +43,7 @@ $(function () {
 				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
 				"ajax" : {
 					// the URL to fetch the data
-					"url" : "index.php?tpl=json_tree",
+					"url" : "action.php?tpl=json_tree",
 					// this function is executed in the instance's scope (this refers to the tree instance)
 					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
 					"data" : function (n) { 
@@ -60,7 +61,7 @@ $(function () {
 				// Same as above - the `ajax` config option is actually jQuery's object (only `data` can be a function)
                 "case_insensitive" : true,
 				"ajax" : {
-					"url" : "index.php?tpl=json_tree",
+					"url" : "action.php?tpl=json_tree",
 					"data" : function (str) {
 						return { 
 							"operation" : "search", 
@@ -150,7 +151,7 @@ $(function () {
                 "strings" : { loading : "Loading ...", new_node : "Untiteled"}
 			},
             "contextmenu" : {
-                "select_node" : true,
+                "select_node" : false,
                 "items" : {
                     "create" : {
                         "separator_before"	: false,
@@ -184,7 +185,7 @@ $(function () {
 		})
 		.bind("create.jstree", function (e, data) {
 			$.post(
-				"admin/index.php?tpl=json_tree", 
+				"admin/action.php?tpl=json_tree", 
 				{ 
 					"operation" : "create_node", 
 					"id" : data.rslt.parent.attr("id").replace("node_",""), 
@@ -207,7 +208,7 @@ $(function () {
 				$.ajax({
 					async : false,
 					type: 'POST',
-					url: "admin/index.php?tpl=json_tree",
+					url: "admin/action.php?tpl=json_tree",
 					data : { 
 						"operation" : "remove_node", 
 						"id" : this.id.replace("node_","")
@@ -222,7 +223,7 @@ $(function () {
 		})
 		.bind("rename.jstree", function (e, data) {
 			$.post(
-				"admin/index.php?tpl=json_tree", 
+				"admin/action.php?tpl=json_tree", 
 				{ 
 					"operation" : "rename_node", 
 					"id" : data.rslt.obj.attr("id").replace("node_",""),
@@ -240,7 +241,7 @@ $(function () {
 				$.ajax({
 					async : false,
 					type: 'POST',
-					url: "admin/index.php?tpl=json_tree",
+					url: "admin/action.php?tpl=json_tree",
 					data : { 
 						"operation" : "move_node", 
 						"id" : $(this).attr("id").replace("node_",""), 
@@ -265,90 +266,6 @@ $(function () {
 			});
 		})
 		.bind("select_node.jstree", function (e, data) {
-			$.ajax({
-				async : false,
-				type: 'POST',
-				url: "index.php?tpl=rrdlist",
-				data : { 
-					"id" : data.rslt.obj.attr("id").replace("node_","") 
-				},
-				complete : function (r) {
-					if(!r.status) {
-						('#content').html('Error, can\'t retrieve data from server !');
-					}
-					else {
-                        $('#content').html(r.responseText);
-					}
-				}
-			})
+			select_node(data.rslt.obj.attr("id").replace("node_",""));
 		});
 });
-
-$(function () { 
-	$('#refresh_tree').button().click(function () {
-        $('#tree').jstree("refresh");
-    });
-    var cache = {}, lastXhr;
-    $('#searchtext').autocomplete({
-        minLength: 2,
-        source: function( request, response ) {
-            var term = request.term;
-            if ( term in cache ) {
-                response( cache[ term ] );
-                return;
-            }
-
-            lastXhr = $.getJSON( "index.php?tpl=searchserver", request, function( data, status, xhr ) {
-                cache[ term ] = data;
-                if ( xhr === lastXhr ) {
-                    response( data );
-                }
-            });
-        },
-        select: function(event, ui) { 
-            $('#tree').jstree("search", ui.item.label);
-        }
-    });
-    $('#searchtext').keypress(function(event) {
-        if ( event.which == 13 ) {
-             $('#tree').jstree("search", $('#searchtext').val());
-             $('#searchtext').autocomplete("close");
-        }
-    });
-
-});
-
-function refresh_status() {
-    var lst = '';
-    $('li[id^="node_"]').each(function(index, element) {
-            if ($('#'+this.id).attr('rel') != 'drive' && $('#'+this.id).attr('rel') != 'folder') {
-                lst = lst + this.id.substr(5) + "\n";
-            }
-        }
-    );
-    $.ajax({
-        async : true,
-        type: 'POST',
-        url: "index.php?tpl=status",
-        dataType : 'json',
-        data : { 
-            "nodes" : lst
-        },
-        complete : function (r) {
-            if(r.status) {
-                var res = jQuery.parseJSON(r.responseText);
-                for(i in res['up']) {
-                    $('#node_'+res['up'][i]).attr('rel', 'default-green');
-                }
-                for(i in res['down']) {
-                    $('#node_'+res['down'][i]).attr('rel', 'default-red');
-                }
-                for(i in res['unknown']) {
-                    $('#node_'+res['unknown'][i]).attr('rel', 'default-grey');
-                }
-            }
-        }
-    });
-}
-//setTimeout("refresh_status()", 10000);
-

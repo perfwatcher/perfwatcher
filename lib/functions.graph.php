@@ -626,7 +626,7 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
 	}
 
 	$rrd_cmd = array('-W', 'PERFWATCHER', '--border','0', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle, '-v', ' ', '-c', 'BACK#FFFFFF');
-    $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
+//    $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
     $rrd_cmd[] = '-s';
     $rrd_cmd[] = $_GET['begin'];
     if ($_GET['end'] != '') {
@@ -680,7 +680,7 @@ function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, 
 		$file = str_replace(":", "\\:", $file);
 		$rrd_args = str_replace('{file}', rrd_escape($file), $rrd_args);
 		$rrd_args = str_replace('{pathplugin}', $datadir.'/'.$host.'/'.$plugin.(is_null($pinst) ? '' : '-'.$pinst).'/', $rrd_args);
-        $rrd_args[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
+//        $rrd_args[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
 		$rrdgraph = array_merge($rrd_cmd, $rrd_args);
 		$cmd = array();
@@ -761,7 +761,7 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
 			$cmd[] = 'GPRINT:'.$inst_name.'_avg:AVERAGE:Average\:'.$number_format.'\l';
 		}
 	}
-    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
+//    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
     $cmd[] = '-s';
     $cmd[] = $_GET['begin'];
@@ -831,7 +831,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 			$cmd[] = 'GPRINT:'.$inst_name.'_avg:AVERAGE:Average\:'.$number_format.'\l';
 		}
 	}
-    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
+//    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
     $cmd[] = '-s';
     $cmd[] = $_GET['begin'];

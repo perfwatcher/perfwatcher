@@ -45,18 +45,17 @@ if (!isset($_GET['tpl']) && !isset($_POST['tpl'])) {
     $tplfile = $_POST['tpl']; 
 }
 
-if (!file_exists("tpl/$tplfile.html")) {
-    die("Error : Template tpl/$tplfile.html does not exists !");
+if (file_exists("tpl/$tplfile.html")) {
+	$tpl = new Smarty();
+	$tpl->template_dir = 'tpl';
+	$tpl->compile_dir = '/dev/shm';
+	$tpl->php_handling = SMARTY_PHP_ALLOW;
 }
-
-$tpl = new Smarty();
-$tpl->template_dir = 'tpl';
-$tpl->compile_dir = '/dev/shm';
-$tpl->php_handling = SMARTY_PHP_ALLOW;
-
 if (file_exists("core/$tplfile.php")) {
     include "core/$tplfile.php";
 }
 
-$tpl->display("$tplfile.html");
+if (file_exists("tpl/$tplfile.html")) {
+	$tpl->display("$tplfile.html");
+}
 ?>

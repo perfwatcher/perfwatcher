@@ -1,0 +1,99 @@
+<div>
+	<script type="text/javascript">
+	$(function () {
+		var custom_tab_id = $('div[tabid="{{ tabid }}"]').attr('custom_tab_id');
+		var json_data = null;
+		var selecthosts_selector = 'select[tabid="{{ tabid }}"][name="hosts"]';
+		var selectplugins_selector = 'select[tabid="{{ tabid }}"][name="plugins"]';
+		$.getJSON('action.php?tpl=custom_view_folder&action=get_datas&id='+json_item_datas['jstree']['id'], function(datas) {
+			json_datas = datas;
+			$.each(json_datas['hosts'], function (hostn, host) {
+				var option = document.createElement('option');
+				option.innerHTML = host;
+				$(option).appendTo(selecthosts_selector);
+			});
+			$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_hosts']).each(function (devnull, host) {
+				$(selecthosts_selector+' option').each(function () {
+					if ($(this).val() == host) {
+						$(this).attr('selected', 'selected');
+					}
+				});
+			});
+			$(selecthosts_selector).multiselect({ noneSelectedText: 'Select host(s)', selectedList: 0 }).multiselectfilter();
+			$.each(json_datas['plugins'], function (pluginitemn, pluginitem) {
+				var name = pluginitem[0];
+				name = name+(pluginitem[1] == '' ? '/' : '-'+pluginitem[1]+'/');
+				name = name+pluginitem[2];
+				name = name+(pluginitem[3] == '' ? '' : '-'+pluginitem[3]);
+				var option = document.createElement('option');
+				option.innerHTML = name;
+				$(option).data(pluginitem);
+				$(option).appendTo(selectplugins_selector);
+			});
+			$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_graph']).each(function (devnull, plugin) {
+				$(selectplugins_selector+' option').each(function () {
+					var data = $(this).data()
+					var datas = new Array(data[0],data[1],data[2],data[3],data[4]);
+					if ($(plugin).compare(datas)) {
+						$(this).attr('selected', 'selected');
+					}
+				});
+			});
+			$(selectplugins_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
+		});
+		var input_selector = 'input[tabid="{{ tabid }}"]';
+		$(input_selector).click(function () {
+			switch($(this).attr('action')) {
+				case 'apply':
+					$('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]').html('');
+					$(selecthosts_selector+' option:selected').each(function() {
+						var host = $(this).val();
+						$(selectplugins_selector+' option:selected').each(function() {
+							graphid++;
+							$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+							$('#graph_{{ tabid }}_'+graphid).pwgraph({
+								host: host,
+								plugin: $(this).data()[0],
+								plugin_instance: $(this).data()[1],
+								type: $(this).data()[2],
+								type_instance: $(this).data()[3]
+							}).pwgraph('display');
+						});
+						$('<br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+					});
+				break;
+				case 'save':
+        			var plugins = new Array();
+        			var hosts = new Array();
+					$(selectplugins_selector+' option:selected').each(function() {
+						plugins.push($(this).data());
+					});
+					$(selecthosts_selector+' option:selected').each(function() {
+						hosts.push($(this).val());
+					});
+					$.ajax({
+					    async : false, type: 'POST', url: "action.php?tpl=custom_view_folder",
+					    data : { "action" : "save_tab", "id" : json_item_datas['jstree']['id'], "tab_id" : custom_tab_id, 'selected_graph' : plugins, 'selected_hosts' : hosts },
+					    complete : function (r) {
+					        if(!r.status) {
+								notify_ko('Error, can\'t retrieve data from server !');
+							} else {
+								notify_ok("Plugin list saved");
+							}
+					    }
+					});
+				break;
+			}
+		}).jqxButton({ theme: theme });
+	});
+	</script>
+    <select multiple="multiple" name="hosts" tabid="{{ tabid }}"></select>
+    <select multiple="multiple" name="plugins" tabid="{{ tabid }}"></select><br/>
+	<input type="button" action="apply" tabid="{{ tabid }}" value="Apply" />
+	<input type="button" action="save" tabid="{{ tabid }}" value="Save" />
+	<br/>
+	<div class="graphcontainer" style="white-space:nowrap;">
+	
+	</div>
+	    
+</div>

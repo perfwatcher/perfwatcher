@@ -179,9 +179,6 @@ if(is_numeric($_GET['end']) and $_GET['begin'] > 0 and  $_GET['end'] - $_GET['be
         else
                 $xconfig = array('--x-grid', 'DAY:1:DAY:7:DAY:14:0:%d/%m');
 }
-$xcenter = $_GET['begin'] < 0 ? $xcenter = time() + ($_GET['begin'] / 2) : $xcenter = $_GET['end'] - (($_GET['end'] - $_GET['begin']) / 2);
-$xcenter = intval($xcenter);
-
 
 $logscale   = (boolean)read_var('logarithmic', $_GET, false);
 $tinylegend = (boolean)read_var('tinylegend', $_GET, false);

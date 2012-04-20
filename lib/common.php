@@ -111,6 +111,9 @@ function get_grouped_type_instances($type) {
 }
 
 function split_pluginstr($pluginstr) {
+	if (strpos($pluginstr, '/') === false) {
+		return array('', '', '', '');
+	}
 	list($g, $d) = split('/', $pluginstr, 2);
 	if (strpos($g, '-') !== false) {
 		list($plugin, $plugin_instance) = split('-', $g, 2);

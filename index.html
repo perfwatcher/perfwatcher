@@ -1,0 +1,69 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>PerfWatcher</title>
+        <style type="text/css" media="screen">
+        @import "js/vendor/jqwidgets/styles/jqx.base.css";
+        @import "css/jquery.ui.all.css";
+        @import "css/jquery.contextMenu.css";
+        @import "css/jquery.multiselect.css";
+        @import "css/jquery.multiselect.filter.css";
+        @import "css/perfwatcher.css";
+        </style>
+		<link rel="icon" type="image/ico" href="img/perfwatcher.ico">
+        <script type="text/javascript" src="js/vendor/jquery/jquery.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.cookie.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.hotkeys.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.jstree.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery-ui.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/ICanHaz.min.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxcore.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxwindow.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxmenu.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxpanel.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxtabs.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxscrollbar.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxbuttons.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxsplitter.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxcheckbox.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxcalendar.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxdocking.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxdatetimeinput.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/globalization/jquery.global.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/gettheme.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.multiselect.min.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.multiselect.filter.js"></script>
+        <script type="text/javascript" src="js/pwgraph.js"></script>
+        <script type="text/javascript" src="js/config.jstree.js"></script>
+        <script type="text/javascript" src="js/perfwatcher.functions.js"></script>
+        <script type="text/javascript" src="js/perfwatcher.js"></script>
+		<script id="custom_view_default" src="html/custom_view_default.html" type="text/html"></script>
+		<script id="custom_view_folder" src="html/custom_view_folder.html" type="text/html"></script>
+		<script id="information_tab" src="html/information_tab.html" type="text/html"></script>
+		<script id="confirmfor" src="html/confirmfor.html" type="text/html"></script>
+		<script id="askfor" src="html/askfor.html" type="text/html"></script>
+		<script id="mainMenutpl" src="html/mainMenu.html" type="text/html"></script>
+		<script id="timebuttontpl" src="html/timebutton.html" type="text/html"></script>
+		<script id="widget" src="html/widget.html" type="text/html"></script>
+		<script type="text/javascript">
+			var theme;
+			$(document).ready(function() {
+				theme = getTheme();
+			});
+		</script>
+    </head>
+    <body>
+		<div id="mainMenu" style="visibility: hidden"></div>
+		<div id="modalwindow"><div id="modalwindowheader"><span></span></div><div style="overflow: hidden;" id="modalwindowcontent"></div></div>
+		<div id="datetime"></div>
+		<div id="timebutton"></div>
+		<div id="mainSplitter">
+			<div id="tree"></div>
+			<div id="items">
+				<div id="itemtab"></div>
+			</div>
+		</div>
+	</body>
+</html>
