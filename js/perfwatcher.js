@@ -23,7 +23,6 @@ var json_item_datas = new Array();
 var current_graph = null;
 var current_tab = null;
 graphid = 0;
-var now = Math.round((new Date()).getTime() / 1000);
 var treecollapsed = false;
 $(document).ready(function() {
 	$('#mainMenu').html(ich.mainMenutpl({}));
@@ -54,7 +53,8 @@ $(document).ready(function() {
 		treecollapsed = true;
 	});
 	
-	$('a[id^="menu_"]').click(function () {
+	$('li[id^="menu_"]').click(function () {
+		console.log($(this).attr("id"));
 		switch($(this).attr("id")) {
 			case 'menu_new_tab':
 				askfor({title: 'Enter a name for this new tab', oklabel: 'Create'}, function(title) {
@@ -136,6 +136,9 @@ $(document).ready(function() {
 			break;
 			case 'menu_refresh_status':
 				refresh_status();
+			break;
+			default:
+				console.log('Undefined stuff : '+ $(this).attr("id"));
 			break;
 		}
 	});

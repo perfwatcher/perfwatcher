@@ -4,8 +4,8 @@
 	begin		: -86400,
 	end			: null,
 	width		: 697,
-	gridXstart	: 68,
-	gridXend	: 668,
+	gridXstart	: 67,
+	gridXend	: 667,
 	gridYstart	: 35,
 	gridYend	: 155
   }
@@ -29,6 +29,12 @@
       });
 	  return this;
     },
+	set_options : function( initoptions) {
+		var myoptions = this.data();
+		$.extend(myoptions, initoptions);
+		this.data(myoptions);
+		return this;
+	},
     display : function( ) {
 	  var options = this.data();
 	  this.pwgraph('check_boundary');
@@ -48,6 +54,7 @@
     },
     check_boundary : function( ) { 
 	  var options = this.data();
+	  var now = Math.round((new Date()).getTime() / 1000);
       if (options['begin'] < 0) { 
 	  	options['begin'] += now;
 	  }
@@ -116,8 +123,8 @@
     },
 	setts : function() {
 	  var options = this.data();
-	  $('.graph').each(function (i, elem) {
-	  	$(elem).pwgraph({ begin: options['begin'], end: options['end']}).pwgraph('display');
+	  $('.graph').each(function (i) {
+	  	$(this).pwgraph('set_options', { begin: options['begin'], end: options['end'] }).pwgraph('display');
 	  });
 	  return this;
 	},
@@ -136,14 +143,10 @@
 	},
 	reposition : function(event) {
 	    var options = $(this).data();
-		var x = event.clientX - event.currentTarget.offsetLeft;
-		var y = event.clientY - event.currentTarget.offsetTop;
-		if (x < options['gridXstart'] || x > options['gridXend']) {
-			return this;
-		}
-		if (y < options['gridYstart'] || y > options['gridYend']) {
-			return this;
-		}
+		var x = event.clientX - $(event.target).position().left;
+		var y = event.clientY - $(event.target).position().top;
+		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
 		x -= options['gridXstart'];
 		x -= (options['gridXend'] - options['gridXstart']) / 2;
 		var diff = options['end'] - options['begin'];
@@ -154,13 +157,11 @@
 		$(this).pwgraph('display');
 	},
 	datetime : function(event) {
-		//console.log(event.pageX, event.currentTarget.offsetLeft, event.originalEvent.view.tempX1, event);
-		console.log($(event.target).position());
 		var options = $(this).data();
 		var x = event.pageX - $(event.target).position().left;
-		if (x < options['gridXstart'] || x > options['gridXend']) {
-			return this;
-		}
+		var y = event.pageY - $(event.target).position().top;
+		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
 		x -= options['gridXstart'];
 		//x -= (options['gridXend'] - options['gridXstart']);
 		var diff = options['end'] - options['begin'];

@@ -101,29 +101,29 @@
 		}
 
 		function hide_menu_for(node_type) {
-			$('a[id^="menu_"]').parent('li').hide();
-			$('a[id="menu_new_tab"]').parent('li').show();
-			$('a[id="menu_rename_node"]').parent('li').show();
-			$('a[id="menu_rename_tab"]').parent('li').show();
-			$('a[id="menu_delete_tab"]').parent('li').show();
-			$('a[id="menu_delete_node"]').parent('li').show();
-			$('a[id="menu_copy"]').parent('li').show();
-			$('a[id="menu_paste"]').parent('li').show();
-			$('a[id="menu_cut"]').parent('li').show();
-			$('a[id="menu_view_toogle_tree"]').parent('li').show();
-			$('a[id="menu_view_openinnewwindow"]').parent('li').show();
-			$('a[id="menu_refresh_tree"]').parent('li').show();
-			$('a[id="menu_refresh_status"]').parent('li').show();
-			$('a[id="menu_refresh_node"]').parent('li').show();
+			$('li[id^="menu_"]').hide();
+			$('li[id="menu_new_tab"]').show();
+			$('li[id="menu_rename_node"]').show();
+			$('li[id="menu_rename_tab"]').show();
+			$('li[id="menu_delete_tab"]').show();
+			$('li[id="menu_delete_node"]').show();
+			$('li[id="menu_copy"]').show();
+			$('li[id="menu_paste"]').show();
+			$('li[id="menu_cut"]').show();
+			$('li[id="menu_view_toogle_tree"]').show();
+			$('li[id="menu_view_openinnewwindow"]').show();
+			$('li[id="menu_refresh_tree"]').show();
+			$('li[id="menu_refresh_status"]').show();
+			$('li[id="menu_refresh_node"]').show();
 			switch (node_type) {
 				case 'default':
 				break;
 				case 'folder':
 				case 'drive':
-					$('a[id="menu_new_server"]').parent('li').show();
-					$('a[id="menu_new_container"]').parent('li').show();
-					$('a[id="menu_new_aggregator"]').parent('li').show();
-					$('a[id="menu_configure"]').parent('li').show();
+					$('li[id="menu_new_server"]').show();
+					$('li[id="menu_new_container"]').show();
+					$('li[id="menu_new_aggregator"]').show();
+					$('li[id="menu_configure"]').show();
 				break;
 			}
 		}
