@@ -801,6 +801,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 		$inst_name = str_replace('!', '_', $inst_data['name']);
 		$file      = $inst_data['file'];
 		$ds        = isset($inst_data['ds']) ? $inst_data['ds'] : 'value';
+		$reverse   = isset($inst_data['reverse']) && $inst_data['reverse'];
 
 		if (strlen($inst_name) > $max_inst_name)
 			$max_inst_name = strlen($inst_name);
@@ -809,13 +810,19 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 			continue;
 
 //		$cmd[] = 'DEF:'.$inst_name.'_min='.rrd_escape($file).':'.$ds.':MIN';
-		$cmd[] = 'DEF:'.$inst_name.'_avg='.rrd_escape($file).':'.$ds.':AVERAGE';
+		if ($reverse) {
+			$cmd[] = 'DEF:'.$inst_name.'_avg='.rrd_escape($file).':'.$ds.':AVERAGE';
+			$cmd[] = 'CDEF:rev'.$inst_name.'_avg=0,'.$inst_name.'_avg,-';
+		} else {
+			$cmd[] = 'DEF:'.$inst_name.'_avg='.rrd_escape($file).':'.$ds.':AVERAGE';
+		}
 //		$cmd[] = 'DEF:'.$inst_name.'_max='.rrd_escape($file).':'.$ds.':MAX';
 	}
 
 	foreach ($sources as &$inst_data) {
 		$inst_name = str_replace('!', '_', $inst_data['name']);
 		$legend = sprintf('%s', $inst_name);
+		$reverse   = isset($inst_data['reverse']) && $inst_data['reverse'];
 		while (strlen($legend) < $max_inst_name)
 			$legend .= ' ';
 		$number_format = isset($opts['number_format']) ? $opts['number_format'] : '%6.1lf';
@@ -825,7 +832,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 		else
 			$line_color = new CollectdColor('random');
 
-		$cmd[] = 'LINE1:'.$inst_name.'_avg#'.$line_color->as_string().':'.$legend;
+		$cmd[] = 'LINE1:'.($reverse ? 'rev' : '').$inst_name.'_avg#'.$line_color->as_string().':'.$legend;
 		if (!(isset($opts['tinylegend']) && $opts['tinylegend'])) {
 			$cmd[] = 'GPRINT:'.$inst_name.'_avg:LAST:Last\:'.$number_format.' ';
 			$cmd[] = 'GPRINT:'.$inst_name.'_avg:AVERAGE:Average\:'.$number_format.'\l';

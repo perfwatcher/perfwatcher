@@ -171,6 +171,9 @@ $_GET['end'] = read_var('end', $_GET, '');
 $_GET['begin'] = read_var('graph_start', $_GET, $_GET['begin']);
 $_GET['end'] = read_var('graph_end', $_GET, $_GET['end']);
 
+$xcenter = $_GET['begin'] < 0 ? $xcenter = time() + ($_GET['begin'] / 2) : $xcenter = $_GET['end'] - (($_GET['end'] - $_GET['begin']) / 2);
+$xcenter = intval($xcenter);
+
 $xconfig = array();
 if(is_numeric($_GET['end']) and $_GET['begin'] > 0 and  $_GET['end'] - $_GET['begin'] > 2160000 and $_GET['end'] - $_GET['begin'] < 12960000)
 {
@@ -202,19 +205,26 @@ if ($tinylegend)
 	$opts['tinylegend']  = 1;
 
 $rrd_cmd = false;
-if ((is_null($tinst) || $tinst == '@merge') && isset($MetaGraphDefs[$type])) {
+if (isset($MetaGraphDefs[$type])) {
+/*
 	$identifiers = array();
 	foreach ($all_tinst as &$atinst)
 		$identifiers[] = collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, $atinst);
 	collectd_flush($identifiers);
-	$rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
+*/
+	if ($type == '_') {
+		$rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
+	} else {
+		$rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $tinst, $opts);
+	}
 } else {
-	collectd_flush(collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, is_null($tinst) ? '' : $tinst));
+//	collectd_flush(collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, is_null($tinst) ? '' : $tinst));
 	if (isset($GraphDefs[$type]))
 		$rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst);
 	else
 		$rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst);
 }
+$rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 $rrd_cmd = array_merge($rrd_cmd,$xconfig);
 $rrd_cmd[] = "-m";
 $rrd_cmd[] = "1";

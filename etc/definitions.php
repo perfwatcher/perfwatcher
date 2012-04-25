@@ -101,6 +101,23 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 		"LINE1:avg#$FullBlue:Power",
 		'GPRINT:avg:AVERAGE:%5.1lf%sW Avg,',
 		'GPRINT:avg:LAST:%5.1lf%sW Last\l');
+
+	$GraphDefs['current'] = array(
+		'-v', 'Watt',
+		'DEF:avg_raw={file}:value:AVERAGE',
+		'CDEF:avg=avg_raw,3600,/',
+		'CDEF:mytime=avg_raw,TIME,TIME,IF',
+		'CDEF:sample_len_raw=mytime,PREV(mytime),-',
+		'CDEF:sample_len=sample_len_raw,UN,0,sample_len_raw,IF',
+		'CDEF:avg_sample=avg,UN,0,avg,IF,sample_len,*',
+		'CDEF:avg_sum=PREV,UN,0,PREV,IF,avg_sample,+',
+		'CDEF:price=avg_sum,1000,/,0.15,*',
+		"LINE1:avg_raw#$FullBlue:Bits/s",
+		'GPRINT:avg_raw:AVERAGE:%5.1lf%s Avg,',
+		'GPRINT:avg_raw:LAST:%5.1lf%s Last',
+		'GPRINT:avg_sum:LAST:(%.1lf%sW/h',
+		'GPRINT:price:LAST:%.1lf Euros)\l');
+
 	$GraphDefs['df'] = array(
 		'-v', 'Percent', '-l', '0',
 		'DEF:free_avg={file}:free:AVERAGE',
@@ -828,7 +845,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 		'GPRINT:rbyte_avg:AVERAGE:%5.1lf%s Avg,',
 		'GPRINT:rbyte_avg:LAST:%5.1lf%s Last\l');
 	$GraphDefs['percent'] = array(
-		'-v', 'Percent', '-r', '-u', '100',
+		'-v', 'Percent', '-r', '-l', '0', '-u', '100',
 		'DEF:avg={file}:value:AVERAGE',
 		"LINE1:avg#$FullBlue:Percent",
 		'GPRINT:avg:AVERAGE:%5.1lf%% Avg,',
@@ -1197,6 +1214,13 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 	$MetaGraphDefs['files_count']       = 'meta_graph_files_count';
 	$MetaGraphDefs['files_size']        = 'meta_graph_files_size';
 	$MetaGraphDefs['users']             = 'meta_graph_users';
+	$MetaGraphDefs['celerra_if_errors'] = 'meta_graph_celerra_if';
+	$MetaGraphDefs['celerra_if_octets'] = 'meta_graph_celerra_if';
+	$MetaGraphDefs['celerra_if_packets'] = 'meta_graph_celerra_if';
+	$MetaGraphDefs['celerra_io'] 		= 'meta_graph_celerra_io';
+	$MetaGraphDefs['celerra_octets']	= 'meta_graph_celerra_io';
+	$MetaGraphDefs['celerra_packetsize'] = 'meta_graph_celerra_io';
+	$MetaGraphDefs['celerra_percent'] = 'meta_graph_celerra_io';
 	$MetaGraphDefs['cpu']               = 'meta_graph_cpu';
 	$MetaGraphDefs['cpug']              = 'meta_graph_cpu';
 	$MetaGraphDefs['cpufreq']           = 'meta_graph_cpufreq';
@@ -1543,6 +1567,106 @@ function meta_graph_cpu($host, $plugin, $plugin_instance, $type, $type_instances
 	return collectd_draw_meta_stack($opts, $sources);
 }
 
+function meta_graph_celerra_io($host, $plugin, $plugin_instance, $type, $type_instance, $opts = array()) {
+	global $config;
+	$sources = array();
+	$title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	$title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type".($type_instance != '' ? "-$type_instance" : '');
+	if (!isset($opts['title']))
+		$opts['title'] = $title2;
+	switch($type) {
+		case 'celerra_io':
+			$opts['rrd_opts'] = array('-v', 'IO/s');
+		break;
+		case 'celerra_octets':
+			$opts['rrd_opts'] = array('-v', 'Byte/s', '--units=si');
+		break;
+		case 'celerra_packetsize':
+			$opts['rrd_opts'] = array('-v', 'Byte', '--units=si');
+		break;
+	}
+	$opts['number_format'] = '%5.1lf%s';
+
+	$files = array();
+	$opts['colors'] = array(
+		'read_min'      => '0000ff',
+		'read_avg'      => '0000af',
+		'read_max'      => '00005f',
+		'write_min'      => '00ff00',
+		'write_avg'      => '00af00',
+		'write_max'      => '005f00'
+	);
+
+	$file  = '';
+	foreach ($config['datadirs'] as $datadir)
+		if (is_file($datadir.'/'.$title.($type_instance != '' ? "-$type_instance" : '').'.rrd')) {
+			$file = $datadir.'/'.$title.($type_instance != '' ? "-$type_instance" : '').'.rrd';
+			break;
+		}
+	if ($file == '')
+		return;
+
+	$sources[] = array('name' => 'read_min', 'file' => $file, 'ds' => 'read_min');
+	$sources[] = array('name' => 'read_avg', 'file' => $file, 'ds' => 'read_avg');
+	$sources[] = array('name' => 'read_max', 'file' => $file, 'ds' => 'read_max');
+	$sources[] = array('name' => 'write_min', 'file' => $file, 'ds' => 'write_min', 'reverse' => true);
+	$sources[] = array('name' => 'write_avg', 'file' => $file, 'ds' => 'write_avg', 'reverse' => true);
+	$sources[] = array('name' => 'write_max', 'file' => $file, 'ds' => 'write_max', 'reverse' => true);
+
+
+	return collectd_draw_meta_line($opts, $sources);
+}
+
+function meta_graph_celerra_if($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
+	global $config;
+	$sources = array();
+
+	$title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	$title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	if (!isset($opts['title']))
+		$opts['title'] = $title2;
+	$opts['number_format'] = '%5.1lf%s';
+	switch($type) {
+		case 'celerra_if_errors':
+			$opts['rrd_opts'] = array('-v', 'Error/s');
+		break;
+		case 'celerra_if_octets':
+			$opts['rrd_opts'] = array('-v', 'Byte/s');
+		break;
+		case 'celerra_if_packets':
+			$opts['rrd_opts'] = array('-v', 'Packet/s');
+		break;
+	}
+
+	$files = array();
+	$opts['colors'] = array(
+		'min_in'      => '0000ff',
+		'avg_in'      => '0000af',
+		'max_in'      => '00005f',
+		'min_out'      => '00ff00',
+		'avg_out'      => '00af00',
+		'max_out'      => '005f00'
+	);
+
+	$type_instances = array('min', 'avg', 'max');
+	while (list($k, $inst) = each($type_instances)) {
+		$file  = '';
+		foreach ($config['datadirs'] as $datadir)
+			if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
+				$file = $datadir.'/'.$title.'-'.$inst.'.rrd';
+				break;
+			}
+		if ($file == '')
+			continue;
+
+		$sources[] = array('name' => $inst.'_in', 'file' => $file, 'ds' => 'rx');
+		$sources[] = array('name' => $inst.'_out', 'file' => $file, 'ds' => 'tx', 'reverse' => true);
+
+	}
+
+	return collectd_draw_meta_line($opts, $sources);
+}
+
 function meta_graph_swap_io($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
 	global $config;
 	$sources = array();
@@ -1864,14 +1988,16 @@ function meta_graph_ps_state($host, $plugin, $plugin_instance, $type, $type_inst
 	$files = array();
 	$opts['colors'] = array(
 		'running'  => '00e000',
+		'runnable'  => '00e000',
 		'sleeping' => '0000ff',
 		'paging'   => 'ffb000',
 		'zombies'  => 'ff0000',
+		'I_J_Z'  => 'ff0000',
 		'blocked'  => 'ff00ff',
 		'stopped'  => 'a000a0'
 	);
 
-	$type_instances = array('paging', 'blocked', 'zombies', 'stopped', 'running', 'sleeping');
+	$type_instances = array('paging', 'blocked', 'zombies', 'stopped', 'running', 'sleeping', 'I_J_Z', 'runnable');
 	while (list($k, $inst) = each($type_instances)) {
 		$file = '';
 		foreach ($config['datadirs'] as $datadir)
