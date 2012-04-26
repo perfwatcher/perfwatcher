@@ -855,6 +855,8 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 		"LINE1:ping_avg#$FullBlue:Ping",
 		'GPRINT:ping_avg:AVERAGE:%4.1lf ms Avg,',
 		'GPRINT:ping_avg:LAST:%4.1lf ms Last');
+	$GraphDefs['power'] = $GraphDefs['current'];
+/*
 	$GraphDefs['power'] = array(
 		'-v', 'Watt',
 		'DEF:avg={file}:value:AVERAGE',
@@ -865,6 +867,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
         "HRULE:max#$FullRed:Max:dashes",
 		'GPRINT:max:%5.1lf%sW\l'
 		);
+*/
 	$GraphDefs['processes'] = array(
 		"DEF:running_avg={file}:running:AVERAGE",
 		"DEF:sleeping_avg={file}:sleeping:AVERAGE",
@@ -1788,6 +1791,10 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
 		'cached'   => '0000ff',
 		'buffered' => 'ffb000',
 		'used'     => 'ff0000',
+		// Solaris 10
+		'kernel'   => 'F0A000',
+		'unusable' => '0000ff',
+		'locked'   => '00A0FF',
 		// Bind - Server memory
 		'TotalUse'    => '00e000',
 		'InUse'       => 'ff0000',
@@ -1796,7 +1803,7 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
 		'Lost'        => '222222'
 	);
 
-	$type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost');
+	$type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable');
 	while (list($k, $inst) = each($type_instances)) {
 		$file = '';
 		foreach ($config['datadirs'] as $datadir)
