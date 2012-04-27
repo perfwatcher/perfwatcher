@@ -115,11 +115,6 @@ $(document).ready(function() {
 			case 'menu_new_container':
 				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder" } });
 			break;
-			case 'menu_new_aggregator':
-				askfor({title: 'Coucou ?', cancellabel: 'Nan'}, function(text) {
-					console.log(text);
-				});
-			break;
 			case 'menu_view_toogle_tree':
 				if (treecollapsed) {
 					$('#mainSplitter').jqxSplitter('expandAt', 0);
@@ -142,5 +137,36 @@ $(document).ready(function() {
 			break;
 		}
 	});
+
+	$(function () {
+		var cache = {}, lastXhr;
+		$('#searchtext').autocomplete({
+			minLength: 2,
+			source: function( request, response ) {
+				var term = request.term;
+				if ( term in cache ) {
+					response( cache[ term ] );
+					return;
+				}
+
+				lastXhr = $.getJSON( "action.php?tpl=json_actions&action=search&id=0", request, function( data, status, xhr ) {
+					cache[ term ] = data;
+					if ( xhr === lastXhr ) {
+						response( data );
+					}
+				});
+			},
+			select: function(event, ui) { 
+				$('#tree').jstree("search", ui.item.label);
+			}
+		});
+		$('#searchtext').keypress(function(event) {
+			if ( event.which == 13 ) {
+				 $('#tree').jstree("search", $('#searchtext').val());
+				 $('#searchtext').autocomplete("close");
+			}
+		});
+	});
+
 });
 

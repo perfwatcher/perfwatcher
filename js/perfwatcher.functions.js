@@ -133,40 +133,18 @@
 		}
 		
 		function reload_datas() {
-			$.getJSON('action.php?tpl=json_node_datas&id='+json_item_datas['jstree']['id'], function(datas) {
-				json_item_datas = datas;
-			});
+       		$.ajax({
+       		    async : false,
+       		    type: 'POST',
+       		    url: 'action.php?tpl=json_node_datas&id='+json_item_datas['jstree']['id'],
+       		    complete : function (r) {
+       		        if(r.status) {
+	   					json_item_datas = jQuery.parseJSON(r.responseText);
+       		        }
+       		    }
+       		});
 		}
 
-$(function () {
-    var cache = {}, lastXhr;
-    $('#searchtext').autocomplete({
-        minLength: 2,
-        source: function( request, response ) {
-            var term = request.term;
-            if ( term in cache ) {
-                response( cache[ term ] );
-                return;
-            }
-
-            lastXhr = $.getJSON( "action.php?tpl=json_actions&action=search&id=0", request, function( data, status, xhr ) {
-                cache[ term ] = data;
-                if ( xhr === lastXhr ) {
-                    response( data );
-                }
-            });
-        },
-        select: function(event, ui) { 
-            $('#tree').jstree("search", ui.item.label);
-        }
-    });
-    $('#searchtext').keypress(function(event) {
-        if ( event.which == 13 ) {
-             $('#tree').jstree("search", $('#searchtext').val());
-             $('#searchtext').autocomplete("close");
-        }
-    });
-});
 
 function auto_refresh_status() {
 	refresh_status();
