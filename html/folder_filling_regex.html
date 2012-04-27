@@ -1,0 +1,40 @@
+<script type="text/javascript">
+    $('div[widget="folder_filling_regex"] button').button();
+    $('div[widget="folder_filling_regex"] button.test').click(function () {
+        $.ajax({
+            async : false, type: 'POST', url: "action.php?tpl=folder_filling_regex",
+            data : {
+				"action" : "test", 
+				"regex" : $('div[widget="folder_filling_regex"] input.regex').val(),
+				"id" : json_item_datas['jstree']['id']
+			},
+            complete : function (r) {
+                if(!r.status) { ('div[widget="folder_filling_regex"] div.result').html('Error, can\'t retrieve data from server !'); }
+                else { $('div[widget="folder_filling_regex"] div.result').html(r.responseText); }
+            }
+        });
+    });
+    $('div[widget="folder_filling_regex"] button.save').click(function () {
+        $.ajax({
+            async : false, type: 'POST', url: "action.php?tpl=folder_filling_regex",
+            data : {
+				"action" : "save", 
+				"regex" : $('div[widget="folder_filling_regex"] input.regex').val(),
+				"id" : json_item_datas['jstree']['id']
+			},
+            complete : function (r) {
+                if(!r.status) { ('div[widget="folder_filling_regex"] div.result').html('Error, can\'t retrieve data from server !'); }
+                else { $('div[widget="folder_filling_regex"] div.result').html(r.responseText); }
+            }
+        });
+    });
+	if (json_item_datas['datas'] && json_item_datas['datas']['serverslist'] && json_item_datas['datas']['serverslist']['servernameregex']) {
+		$('div[widget="folder_filling_regex"] input.regex').val(json_item_datas['datas']['serverslist']['servernameregex']);
+	}
+</script>
+Regex : <input type="text" class="regex" size="25" value="" />
+<button class="test">Test</button>
+<button class="save">Save</button>
+<br/>
+<br/>
+<div class="result"></div>

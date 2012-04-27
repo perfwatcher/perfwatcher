@@ -6,7 +6,7 @@
 			$('#items').html('<div id="itemtab"></div>');
 			$('#itemtab').html(ich.information_tab({ }));
 			$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697 });
-			$.getJSON('action.php?tpl=json_plugins_list&id='+nodeid, function(datas) {
+			$.getJSON('action.php?tpl=json_node_datas&id='+nodeid, function(datas) {
 				var tabid = 1;
 				json_item_datas = datas;
 				//console.log(json_item_datas);
@@ -27,19 +27,23 @@
 					current_tab = event.args.item;
 					load_tab(event.args.item);
 				});
-			});
-			for (i=panel=0; i < 6; i++) {
-				$(ich.widget({
-					widget_id : i,
-					widget_title : 'title n°'+i,
-					widget_content : 'content n°'+i
-				})).appendTo('#infodockpanel'+panel);
-				if (panel++ > 2) { panel = 0; }
-			}
-			$('#infodock').jqxDocking({
-				theme: theme,
-				orientation: 'horizontal',
-				mode: 'docked'
+				var panel = 0;
+				var i = 0;
+				$.each(json_item_datas['config']['widgets'], function (widget_name, widget_datas) {
+					$(ich.widget({
+						widget_id : i,
+						widget : widget_name,
+						widget_title : widget_datas['title'],
+					})).appendTo('#infodockpanel'+panel);
+					$('#widget_content'+i).load(widget_datas['content_url']);
+					if (panel++ > 0) { panel = 0; }
+					i++;
+				});
+				$('#infodock').jqxDocking({
+					theme: theme,
+					orientation: 'horizontal',
+					mode: 'docked'
+				});
 			});
 		}
 
@@ -129,7 +133,7 @@
 		}
 		
 		function reload_datas() {
-			$.getJSON('action.php?tpl=json_plugins_list&id='+json_item_datas['jstree']['id'], function(datas) {
+			$.getJSON('action.php?tpl=json_node_datas&id='+json_item_datas['jstree']['id'], function(datas) {
 				json_item_datas = datas;
 			});
 		}
@@ -182,7 +186,7 @@ function refresh_status() {
     $.ajax({
         async : true,
         type: 'POST',
-        url: "index.php?tpl=status",
+        url: "action.php?tpl=status",
         dataType : 'json',
         data : { 
             "nodes" : lst

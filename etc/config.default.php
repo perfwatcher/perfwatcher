@@ -28,16 +28,25 @@ $derive_type = array('apache_bytes','apache_requests','ath_stat','cache_operatio
 
 $not_grouped_type = array('current');
 
+$blacklisted_type = array('hyperthreading', 'nbcpu');
 
-$container_plugins = array();
-$container_plugins['aggregator'] = array('title' => 'Aggregator', 'url' => 'index.php?tpl=container_plugins_aggregator');
-$container_plugins['options']    = array('title' => 'Options', 'url' => 'index.php?tpl=container_plugins_options');
-$container_plugins['servername'] = array('title' => 'Autofill folder with server name filtering', 'url' => 'index.php?tpl=container_plugins_servername');
-$container_plugins['manuallist'] = array('title' => 'Autofill folder with manual server list', 'url' => 'index.php?tpl=container_plugins_manuallist');
+
+//$folder_filling_plugins = array();
+//$folder_filling_plugins['aggregator'] = array('title' => 'Aggregator', 'url' => 'index.php?tpl=container_plugins_aggregator');
+//$folder_filling_plugins['options']    = array('title' => 'Options', 'url' => 'index.php?tpl=container_plugins_options');
+//$folder_filling_plugins['servername'] = array('title' => 'Autofill folder with server name filtering', 'url' => 'index.php?tpl=container_plugins_servername');
+//$folder_filling_plugins['manuallist'] = array('title' => 'Autofill folder with manual server list', 'url' => 'index.php?tpl=container_plugins_manuallist');
 
 $rrdtool = '/usr/bin/rrdtool';
 
 $collectd_socket  = '/var/run/collectd-unixsock';
+
+$widgets = array();
+$widgets[] = 'folder_aggregator';
+$widgets[] = 'speedometer';
+$widgets[] = 'folder_options';
+$widgets[] = 'folder_filling_regex';
+$widgets[] = 'folder_filling_manual';
 
 if (file_exists("etc/config.php")) { include("etc/config.php"); } else { die('no etc/config.php'); }
 

@@ -54,7 +54,7 @@ $(document).ready(function() {
 	});
 	
 	$('li[id^="menu_"]').click(function () {
-		console.log($(this).attr("id"));
+		//console.log($(this).attr("id"));
 		switch($(this).attr("id")) {
 			case 'menu_new_tab':
 				askfor({title: 'Enter a name for this new tab', oklabel: 'Create'}, function(title) {

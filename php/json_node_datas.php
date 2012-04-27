@@ -63,6 +63,9 @@ array(
 	'host' => $host,
 	'plugins' => $plugins,
 	'jstree' => $res,
-	'datas' => $datas
+	'datas' => $datas,
+	'config' => array(
+		'widgets' => get_widget($res)
+	)
 ));
 ?>

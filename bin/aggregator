@@ -3,6 +3,8 @@
 $starttime = time();
 chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 
+if (file_exists('/var/www/html/perfwatcher/logs/collectd-aggregator')) { exit(0); }
+touch('/var/www/html/perfwatcher/logs/collectd-aggregator');
 
 require "lib/common.php";
 
@@ -77,6 +79,7 @@ if(count($containerstodo) == 0) {
 	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	unset($out);
 	fclose($socket);
+	unlink('/var/www/html/perfwatcher/logs/collectd-aggregator');
 	exit();
 }
 unset($jstree);

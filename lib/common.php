@@ -48,7 +48,7 @@ function connect_dbcollectd() {
 }
 
 function load_datas($host) {
-    global $rrds_path, $grouped_type;
+    global $rrds_path, $grouped_type, $blacklisted_type;
     $ret = array();
     $dh = scandir($rrds_path.'/'.$host, 1);
     foreach ($dh as $plugindir) {
@@ -62,7 +62,7 @@ function load_datas($host) {
                 if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
                 $type = $type_instance = '';
                 @list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
-                //echo "$type, $type_instance<br/>\n";
+                if (in_array($type, $blacklisted_type)) { continue; }
                 if ($type_instance == '') { $type_instance = '_'; }
                 //if ($type == $plugin) { $type_instance = '_'; }
                 if (in_array($type,$grouped_type)) {
@@ -79,6 +79,21 @@ function load_datas($host) {
 
 function purge_data() {
     
+}
+
+function get_widget($datas) {
+	global $widgets;
+	$json = array();
+	foreach($widgets as $widget) {
+		if (!file_exists("lib/class.$widget.php")) { continue; }
+		if (class_exists ($widget)) { continue; }
+		if (!include ("lib/class.$widget.php")) { continue; }
+		if (!class_exists ($widget)) { continue; }
+		$owidget = new $widget($datas);
+		if (!$owidget->is_compatible()) { continue; }
+		$json[$widget] = $owidget->get_info();
+	}
+	return $json;
 }
 
 function get_types() {
