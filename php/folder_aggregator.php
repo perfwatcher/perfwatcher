@@ -1,6 +1,6 @@
 <?php
 
-require 'lib/class.folder_filling_gprime.php';
+require 'lib/class.folder_aggregator.php';
 
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
     die('Error : POST or GET id missing !!');
@@ -17,15 +17,18 @@ if (!isset($_POST['action'])) { die('No action submited !'); }
 
 $jstree = new json_tree();
 $res = $jstree->_get_node($id);
-$owidget = new folder_filling_gprime($res);
+$owidget = new folder_aggregator($res);
 switch($_POST['action']) {
-	case 'test':
-			echo nl2br($owidget->test($_POST['regex']));
+	case 'add_plugin':
+			$owidget->add_plugin($_POST['plugin'], $_POST['cf']);
 	break;
-	case 'save':
-			if ($owidget->save($_POST['regex'])) {
-				die('Regex saved');
-			}
+	case 'del_plugin':
+			$owidget->del_plugin($_POST['plugin']);
+	break;
+	case 'get_plugins':
+		$pluginlist = get_childrens_plugins($jstree, 'aggregator_'.$id);
+		sort(&$pluginlist);
+		echo json_encode($pluginlist);
 	break;
 	default:
 		die('No valid action submited !');

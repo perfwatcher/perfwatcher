@@ -42,41 +42,26 @@ class folder_aggregator {
 	function get_info() {
 		global $folder_filling_plugins;
 		return array(
-			'title' => "Aggregated data from from under this ".$this->datas['type'],
+			'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
 			'content_url' => 'html/folder_aggregator.html'
 		);
 	}
 
-	function test ($regex) {
-		global $gprimeserver;
-		$out = '';
-        $list = file($gprimeserver);
-        $i=0;
-        foreach($list as $line) {
-            if ($i == 0) {
-                list($header, $line) = split('<br>', $line, 2);
-                $out .= "$header<br/><br/>";
-                $out .= "2000 First results<br/><br/>";
-                $i++;
-            }
-            $line = trim(str_replace('<br>', '', $line));
-            if ($i == 100) { break; }
-            if ($line == '') { continue; }
-            if (@ereg($regex, $line)) {
-                $out .= "$line<br/>";
-                $i++;
-            }
-        }
-		return $out;
+	function add_plugin($plugin, $cf) {
+		global $jstree;
+		$datas = $jstree->get_datas($this->datas['id']);
+    	if (!isset($datas['plugins'])) { $datas['plugins'] = array(); }
+    	if (!isset($datas['plugins'][$plugin[0].'-'.$cf])) {
+    	    $datas['plugins'][$plugin[0].'-'.$cf] = true;
+    	    $jstree->set_datas($this->datas['id'], $datas);
+    	}
 	}
 
-	function save ($regex) {
-		global $jstree, $id;
+	function del_plugin($plugin) {
+		global $jstree;
 		$datas = $jstree->get_datas($this->datas['id']);
-		if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
-		$datas['serverslist']['gprimeregex'] = $regex;
-        $jstree->set_datas($id, $datas);
-		return true;
+		unset($datas['plugins'][$plugin]);
+    	$jstree->set_datas($this->datas['id'], $datas);
 	}
 }
 

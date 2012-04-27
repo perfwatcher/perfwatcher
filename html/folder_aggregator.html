@@ -1,52 +1,73 @@
 <script id="folder_aggregator_pl" type="text/html">
-    <li><a href="#" id="del_{{ plugin }}" style="color:gray; text-decoration:underline;">delete</a> {{ plugin_name }} ({{ plugin_cf }}) </li>
+    <li><a href="#" plugin="{{ plugin }}" style="color:gray; text-decoration:underline;">delete</a> {{ plugin_name }} ({{ plugin_cf }}) </li>
 </script>
 <script type="text/javascript">
 	ich.grabTemplates();
-	if (json_item_datas['datas'] && json_item_datas['datas']['plugins']) {
-		for (plugin in json_item_datas['datas']['plugins']) {
-			var plugin_name = plugin.substring(0, plugin.length - 4)
-			var plugin_cf = plugin.substring(plugin.length - 3)
-			ich.folder_aggregator_pl({ plugin: plugin, plugin_name: plugin_name, plugin_cf: plugin_cf }).appendTo('div[widget="folder_aggregator"] div[class="plugin_list"]');
+	function folder_aggregator_fill_pl() {
+		$('div[widget="folder_aggregator"] div[class="plugin_list"]').html('<ul></ul>');
+		if (json_item_datas['datas'] && json_item_datas['datas']['plugins']) {
+			for (plugin in json_item_datas['datas']['plugins']) {
+				var plugin_name = plugin.substring(0, plugin.length - 4)
+				var plugin_cf = plugin.substring(plugin.length - 3)
+				ich.folder_aggregator_pl({ plugin: plugin, plugin_name: plugin_name, plugin_cf: plugin_cf }).appendTo('div[widget="folder_aggregator"] div[class="plugin_list"] ul');
+			}
 		}
+		$('div[widget="folder_aggregator"] div.plugin_list ul a').click(function () {
+			$.ajax({
+				async : false,
+				type: 'POST',
+				url: "action.php?tpl=folder_aggregator",
+				data : { 
+					"action" : "del_plugin", 
+					"plugin" : $(this).attr('plugin'),
+					"id" : json_item_datas['jstree']['id']
+				},
+				complete : function (r) {
+					if(!r.status) {
+						('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !');
+					} else { reload_datas(); folder_aggregator_fill_pl(); }
+				}
+			});
+		});
 	}
-    $('div[widget="folder_aggregator"] input[type="button"]').button();
-	/*
-    $('div[widget="folder_aggregator"] button.test').click(function () {
+	folder_aggregator_fill_pl();
+	$('div[widget="folder_aggregator"] input[type="button"][class="add"]').button().click(function () {
         $.ajax({
             async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
-            data : {
-				"action" : "test", 
-				"regex" : $('div[widget="folder_aggregator"] input.regex').val(),
+            data : { 
+                "action" : "add_plugin", 
+                "plugin" : $('div[widget="folder_aggregator"] select[class=select_plugin]').val(),
+                "cf" : $('input[type=radio][name=plugin_type]:checked').val(),
 				"id" : json_item_datas['jstree']['id']
-			},
+            },
             complete : function (r) {
-                if(!r.status) { ('div[widget="folder_aggregator"] div.result').html('Error, can\'t retrieve data from server !'); }
-                else { $('div[widget="folder_aggregator"] div.result').html(r.responseText); }
+                if(!r.status) { $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !'); }
+                else { reload_datas(); folder_aggregator_fill_pl(); }
             }
         });
     });
-    $('div[widget="folder_aggregator"] button.save').click(function () {
-        $.ajax({
-            async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
-            data : {
-				"action" : "save", 
-				"regex" : $('div[widget="folder_aggregator"] input.regex').val(),
+	$('div[widget="folder_aggregator"] select[class=select_plugin]').hide();
+	$('div[widget="folder_aggregator"] input[type="button"][class="load"]').button().click(function () {
+		$.ajax({
+			async : true, type: 'POST', url: "action.php?tpl=folder_aggregator",
+			data : { 
+				"action" : "get_plugins", 
 				"id" : json_item_datas['jstree']['id']
 			},
-            complete : function (r) {
-                if(!r.status) { ('div[widget="folder_aggregator"] div.result').html('Error, can\'t retrieve data from server !'); }
-                else { $('div[widget="folder_aggregator"] div.result').html(r.responseText); }
-            }
-        });
-    });
-	if (json_item_datas['datas'] && json_item_datas['datas']['serverslist'] && json_item_datas['datas']['serverslist']['gprimeregex']) {
-		$('div[widget="folder_aggregator"] input.regex').val(json_item_datas['datas']['serverslist']['gprimeregex']);
-	}
-	*/
+			complete : function (r) {
+				if(r.status) {
+					pluginlist = jQuery.parseJSON(r.responseText);
+					$(pluginlist).each(function(i, plugin) {
+						$('<option>'+plugin[4]+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin]');
+					});
+					$('div[widget="folder_aggregator"] select[class=select_plugin]').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter();
+				}
+			}
+		});
+		$(this).hide();
+	});
 </script>
-<select class="select_plugin" multiple="multiple">
-</select>
+<select class="select_plugin" multiple="multiple"></select><input type="button" class="load" value="Load plugin list" />
 <input type="radio" name="plugin_type" value="AVG" checked="true" /> AVG
 <input type="radio" name="plugin_type" value="SUM" /> SUM
 <input type="button" class="add" value="Add" />
