@@ -1,0 +1,18 @@
+<script type="text/javascript" src="js/swfobject.js"></script>
+<script type="text/javascript">
+		function piesliceclicked( index )
+		{
+			var status;
+			switch(index) {
+				case 0: status = 'up';  break;
+				case 1: status = 'down'; break;
+				case 2: status = 'unknown'; break;
+			}
+			window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );
+		}
+        swfobject.embedSWF('open-flash-chart.swf', 'statuschart', '250', '150','9.0.0', 'expressInstall.swf',
+		{
+			'data-file': 'action.php?tpl=statuschart%26action=get_status%26id='+json_item_datas['jstree']['id']
+		});
+</script>
+<center><div id="statuschart"></div></center>
