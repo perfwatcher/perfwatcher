@@ -178,20 +178,31 @@ function get_childrens_plugins($jstree, $parentid, $grouped = true) {
     return $plugins;
 }
 
-function get_load($host) {
-    global $dbcollectd;
+function get_load($host_id)
+{
+    global $jstree, $dbcollectd, $childrens_cache;
     connect_dbcollectd();
-    $load = 0;
-    $query = "SELECT value FROM  snap_data_view WHERE  host LIKE  '$host' 
-    AND  plugin LIKE  'load' AND  type LIKE  'load' AND  dataset_name LIKE  'shortterm'";
-    $res = $dbcollectd->query($query);
-    if (PEAR::isError($res)) {
-        return $load;
-    }
+	$childrens = $jstree->_get_children($host_id, true);
+    if (count($childrens) != 0) {
+        $hosts = array();
+        foreach($childrens as $children) {
+            if ($children['type'] == 'default') {
+                $hosts[] = $children['title'];
+            }
+        }
+        $hostsstr = implode("','", $hosts);
+    } else { $hostsstr = get_node_name_by_id($host_id); }
+	$query = "SELECT SUM(value) as value  FROM snap_data_view WHERE type = 'load' AND plugin = 'load' AND dataset_name = 'shortterm' AND host IN ('$hostsstr')";
+	//echo $query;
+	$res = $dbcollectd->query($query);
+	if (PEAR::isError($res)) {
+	    print("[DB Collectd query] " . $res->getMessage()."\n");
+		return(0);
+	}
     while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-        return $row['value'];
+        return is_numeric($row['value']) ? $row['value'] : 0;
     }
-    return $load;
+    return 0;
 }
 
 function get_status($arrayid, $return_title = false) {
