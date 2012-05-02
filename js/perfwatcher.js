@@ -43,11 +43,16 @@ $(document).ready(function() {
 
 	$('#timebutton').html(ich.timebuttontpl({}));
 	$('#timebutton').hide();
+	$('#timespan').hide();
+	$('#timespan').dblclick(function() {
+		$(current_graph).pwgraph('applytimespan').pwgraph('display');
+		$(this).hide();
+	});
 	$('#timebutton div div').click(function () {
 		var method = $(this).attr('class');
 		$(current_graph).pwgraph(method).pwgraph('display');
 	});
-	$('#datetime').html((new Date).toLocaleString()).hide();
+	$('#datetime').html((new Date).toString()).hide();
 	
 	$('#mainSplitter').bind('collapsed', function (event) {
 		treecollapsed = true;

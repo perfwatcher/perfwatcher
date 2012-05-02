@@ -15,10 +15,14 @@
 	  var myoptions = options;
 	  $.extend(myoptions, initoptions);
 	  this.data(myoptions);
-	  $(this).bind('dblclick', methods.reposition);
-	  $(this).bind('click', methods.datetime);
+	  //$(this).bind('dblclick', methods.reposition);
+	  //$(this).bind('click', methods.timespan);
+	  $(this).single_double_click(methods.timespan, methods.reposition);
 	  $(this).bind('mousemove', methods.datetime);
       $(this).hover(function () {
+	  	if (current_graph != '#'+$(this).attr('id')) {
+			 $('#timespan').hide();
+		}
 	  	current_graph = '#'+$(this).attr('id');
       	var timebuttontop = $(this).offset().top + $(this).height() - $('#timebutton').height();
       	var timebuttonleft = $(this).offset().left + $(this).width() - $('#timebutton').width();
@@ -155,6 +159,79 @@
 		options['end'] += Math.round(step * x);
 	    $(this).data(options);
 		$(this).pwgraph('display');
+	    return this;
+	},
+	applytimespan : function() {
+	    var options = $(this).data();
+		x = $('#timespan').position().left - $(this).position().left - options['gridXstart'];
+		var diff = options['end'] - options['begin'];
+		var step = diff / (options['gridXend'] - options['gridXstart']);
+		options['begin'] += Math.round(step * x);
+		options['end'] = options['begin'] + Math.round(step * $('#timespan').width());
+	    $(this).data(options);
+	  	return this;
+	},
+	timespan : function(event) {
+	    var options = $(this).data();
+		var x = event.clientX - $(event.target).position().left;
+		var y = event.clientY - $(event.target).position().top;
+		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+		x -= 40;
+		if ($('#timespan').css('display') != 'none') {
+			$('#timespan').hide();
+			return;
+		}
+		$('#timespan').show();
+		$('#timespan').animate({ 
+			top: $(event.target).position().top + options['gridYstart'] - 3, 
+			left: $(event.target).position().left + x,
+			width: 80,
+			height: options['gridYend'] - options['gridYstart'] + 1
+		}, { 
+			queue: false, duration: 200,
+			complete : function() {
+				if ($('#timespan').position().left < $(event.target).position().left + options['gridXstart']) {
+					$('#timespan').animate({ left: $(event.target).position().left + options['gridXstart'] } , { queue: true, duration: 300 });
+				}
+				if ($('#timespan').position().left + $('#timespan').width() > $(event.target).position().left + options['gridXend']) {
+					$('#timespan').animate({ left: $(event.target).position().left + options['gridXend'] - $('#timespan').width() } , { queue: true, duration: 300 });
+				}
+			}
+		});
+		$('#timespan').resizable({
+            autoHide:   true,
+            minHeight:  options['gridYend'] - options['gridYstart'],
+            maxHeight:  options['gridYend'] - options['gridYstart'],
+            maxWidth:   (options['gridXend'] - x ),
+            minWidth:   20,
+            stop: function(e2, ui) {
+                $('#timespan').clearQueue().draggable('option', 'containment', [
+                    $(event.currentTarget).offset().left + options['gridXstart'],
+                    $(event.currentTarget).offset().top + options['gridYstart'],
+                    $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
+                    $(event.currentTarget).offset().top + options['gridYstart']
+                ]
+                );
+            }
+		}).draggable({
+            axis: "x",
+            appendTo: event.currentTarget,
+            containment: [
+                $(event.currentTarget).offset().left + options['gridXstart'],
+                $(event.currentTarget).offset().top + options['gridYstart'],
+                $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
+                $(event.currentTarget).offset().top + options['gridYstart']
+            ],
+            stop: function() {
+                $('#timespan').clearQueue().resizable('option', 'maxWidth', 
+                $(event.currentTarget).offset().left 
+                + event.currentTarget.clientWidth 
+                - parseInt($('#timespan').css('left')) 
+                -29
+                );
+            }
+		});
 	},
 	datetime : function(event) {
 		var options = $(this).data();
@@ -166,8 +243,8 @@
 		//x -= (options['gridXend'] - options['gridXstart']);
 		var diff = options['end'] - options['begin'];
 		var step = diff / (options['gridXend'] - options['gridXstart']);
-		var date = new Date((options['begin'] + Math.round(step * x)) * 1000);
-		$('#datetime').html(date.toLocaleString());
+		var curdate = new Date((options['begin'] + Math.round(step * x)) * 1000);
+		$('#datetime').html(curdate.toString());
 	}
   };
 
