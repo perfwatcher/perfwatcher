@@ -2693,7 +2693,7 @@ of the horizontal scrollbar.*/
     height: auto;
     white-space: nowrap;
     overflow: hidden;  
-    background: #e8e8e8 url(images/imaglass.png) left center scroll repeat-x;
+    background: #e8e8e8 url(images/glass.png) left center scroll repeat-x;
 }
 /*applied to the window’s header when the window is disabled*/
 .jqx-window-header-disabled
