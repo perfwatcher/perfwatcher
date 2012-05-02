@@ -42,8 +42,9 @@ $rrdtool = '/usr/bin/rrdtool';
 $collectd_socket  = '/var/run/collectd-unixsock';
 
 $widgets = array();
+$widgets[] = 'speedometer_cpu';
+$widgets[] = 'folder_status';
 $widgets[] = 'folder_aggregator';
-$widgets[] = 'speedometer';
 $widgets[] = 'folder_options';
 $widgets[] = 'folder_filling_regex';
 $widgets[] = 'folder_filling_manual';
