@@ -1,0 +1,39 @@
+<div>
+	<script type="text/javascript">
+		var tabid = {{ tabid }};
+		var plugin = "{{ plugin }}";
+		var select_selector = 'select[tabid="'+tabid+'"]';
+		$.each(json_item_datas['plugins'][plugin], function (plugin_instance_name, plugin_instance) {
+			$.each(plugin_instance, function (type_name, type) {
+				var option = document.createElement('option');
+				var value = new Array(plugin, plugin_instance_name, type_name, type);
+				option.innerHTML = 'cpu-'+plugin_instance_name;
+				$(option).data(value);
+				$(option).appendTo(select_selector);
+			});
+		});
+		$(select_selector).multiselect({ noneSelectedText: 'Select cpu(s)', selectedList: 0 }).multiselectfilter();
+		var input_selector = 'input[tabid="{{ tabid }}"]';
+		$(input_selector).click(function () {
+			$('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]').html('');
+			$(select_selector+' option:selected').each(function() {
+				graphid++;
+				$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/><br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+				$('#graph_{{ tabid }}_'+graphid).pwgraph({
+					host: json_item_datas['host'],
+					plugin: $(this).data()[0],
+					plugin_instance: $(this).data()[1],
+					type: $(this).data()[2],
+					type_instance: $(this).data()[3]
+				}).pwgraph('display');
+			});
+		}).jqxButton({ theme: theme });
+	</script>
+    <select multiple="multiple" tabid="{{ tabid }}"></select>
+	<input type="button" action="apply" tabid="{{ tabid }}" value="Apply" />
+	<br/>
+	<div class="graphcontainer">
+	
+	</div>
+	    
+</div>
