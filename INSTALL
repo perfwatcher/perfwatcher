@@ -11,8 +11,6 @@
 - if you use rrdcached, make sure socket is writable by group of your webserver
 - Make sure PHP >= 5.3 is compiled with rrd > 1.4 support (pecl install rrd)
 - Make sure PHP in command line is installed in /usr/bin/php
-- Install Smarty PEAR lib (yum install php-Smarty.noarch on RHEL or
- aptitude install smarty on Debian)
 - Install MDB2 PEAR lib (pear install MDB2_Driver_mysql on RHEL or
  aptitude install php-mdb2-driver-mysql on Debian)
 - run ./bin/peuplator and check for error

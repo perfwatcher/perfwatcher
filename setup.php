@@ -12,14 +12,15 @@
 require 'etc/config.default.php';
 function printok($txt) { return "<font color='green'>$txt</font>"; }
 function printko($txt) { return "<font color='red'>$txt</font>"; }
+function printoo($txt) { return "<font color='orange'>$txt</font>"; }
 
 $ok = "Your version of php is >= 5.3.0 (".PHP_VERSION.")";
-$ko = "Your version of php is < 5.3.0 (".PHP_VERSION.")";
-echo "<li>".(version_compare(PHP_VERSION, '5.3.0', '>=') ? printok ($ok) : printko ($ko))."</li><br/>";
+$oo = "Your version of php is < 5.3.0 (".PHP_VERSION."), so no PHP RRD module, Perfwatcher will use rrdtool in command-line";
+echo "<li>".(version_compare(PHP_VERSION, '5.3.0', '>=') ? printok ($ok) : printoo ($oo))."</li><br/>";
 
-$ok = "Your RRD module is present (".phpversion("rrd").")";
-$ko = "Your RRD module is not present";
-echo "<li>".(version_compare(phpversion("rrd"), '0.0.0', '>=') ? printok ($ok) : printko ($ko))."</li><br/>";
+$ok = "PHP RRD module is present (".phpversion("rrd").")";
+$oo = "PHP RRD module is not present, Perfwatcher will use rrdtool in command-line";
+echo "<li>".(version_compare(phpversion("rrd"), '0.0.0', '>=') ? printok ($ok) : printoo ($oo))."</li><br/>";
 
 $ok = "rrdtool is present at $rrdtool";
 $ko = "No rrdtool found at $rrdtool please install or modify \$rrdtool in etc/config.php";
@@ -34,14 +35,6 @@ if (isset($rrdcached)) {
 $ok = "$rrds_path is present ";
 $ko = "$rrds_path does not exists, check $rrds_path in etc/config.php and your collectd installation";
 echo "<li>".(isset($rrds_path) && is_dir($rrds_path) ? printok ($ok) : printko ($ko))."</li><br/>";
-
-$smarty_path = array('Smarty/Smarty.class.php', 'smarty/libs/Smarty.class.php');
-foreach ($smarty_path as $path) {
-    @include $path;
-}
-$ok = "Smarty PEAR module is present ";
-$ko = "Smarty PEAR module is not present see <a href=\"INSTALL\">INSTALL</a>";
-echo "<li>".(class_exists('Smarty') ? printok ($ok) : printko ($ko))."</li><br/>";
 
 ?>
 		</ul>

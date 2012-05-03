@@ -239,10 +239,15 @@ if (isset($_GET['debug'])) {
 } else if ($rrd_cmd) {
 	header('Content-Type: image/png');
 	header('Cache-Control: max-age=60');
-    $tmpfile = tempnam('/dev/shm/','rrd-phpcollectd-');
-    $ret = rrd_graph($tmpfile, $rrd_cmd);
-    readfile($tmpfile);
-    unlink($tmpfile);
+	if (version_compare(phpversion("rrd"), '0.0.0', '>=')) {
+    	$tmpfile = tempnam('/dev/shm/','rrd-phpcollectd-');
+    	$ret = rrd_graph($tmpfile, $rrd_cmd);
+    	readfile($tmpfile);
+    	unlink($tmpfile);
+	} else {
+		$cmd = "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'";
+		echo `$cmd`;
+	}
     exit();
 	if (!is_array($ret))
 		return error500($graph_identifier, "RRD failed to generate the graph");
