@@ -68,6 +68,9 @@ switch ($action) {
 	case 'search':
 		echo $jstree->searchfield($_GET['term']);
 	break;
+	case 'get_js':
+		echo json_encode($extra_jsfile);
+	break;
 }
 
 ?>
