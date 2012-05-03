@@ -25,6 +25,18 @@ var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
 $(document).ready(function() {
+	$.ajax({
+		async : false, type: 'GET', url: 'action.php',
+		data : { 'action': 'get_js', 'tpl': 'json_actions', '_': (new Date()).getTime(), 'id': 0 },
+		complete : function (r) {
+			if(r.status) {
+				var jsfiles = jQuery.parseJSON(r.responseText);
+				for (i in jsfiles) {
+					$(document).find('head').append('<script type="text/javascript" src="'+jsfiles[i]+'"></script>');
+				}
+			}
+		}
+	});
 	$('#mainMenu').html(ich.mainMenutpl({}));
 	theme = getTheme();
 	$('#mainMenu').jqxMenu({ theme: theme });
