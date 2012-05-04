@@ -19,9 +19,7 @@
 - put in cron * * * * * /<path to perfwatcher>/bin/aggregator
 - Check installation at http://<your server>/setup.php
 - cd /<an arbitrary directory to compile a custom version of collectd>
-- git clone -b cf/perfwatcher http://github.com/feraudet/collectd.git
-or
-- wget http://github.com/downloads/feraudet/collectd/collectd-5.0.3-perfwatcher.tgz
-and
-- tar xzf collectd-5.0.3-perfwatcher.tgz
-- cd collectd  
+- wget https://github.com/downloads/feraudet/collectd/collectd-5.1.0-perfwatcher.tgz
+- tar xzf collectd-5.1.0-perfwatcher.tgz
+- cd collectd 
+- ./configure --enable-write_mysql
