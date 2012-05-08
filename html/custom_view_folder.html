@@ -3,23 +3,51 @@
 	$(function () {
 		var custom_tab_id = $('div[tabid="{{ tabid }}"]').attr('custom_tab_id');
 		var json_data = null;
-		var selecthosts_selector = 'select[tabid="{{ tabid }}"][name="hosts"]';
-		var selectplugins_selector = 'select[tabid="{{ tabid }}"][name="plugins"]';
+		var aggregators_selector = 'select[tabid="{{ tabid }}"][name="aggregators"]';
+		var hosts_selector = 'select[tabid="{{ tabid }}"][name="hosts"]';
+		var plugins_selector = 'select[tabid="{{ tabid }}"][name="plugins"]';
+		$.each(json_item_datas['plugins'], function (plugin_name, plugin) {
+			$.each(plugin, function (plugin_instance_name, plugin_instance) {
+				$.each(plugin_instance, function (type_name, type) {
+					$.each(type, function (type_instance_name, type) {
+						var value = new Array( plugin_name, plugin_instance_name, type_name, type_instance_name );
+						var name = plugin_name;
+						name = name+(plugin_instance_name == '_' ? '/' : '-'+plugin_instance_name+'/');
+						name = name+type_name;
+						name = name+(type_instance_name == '_' ? '' : '-'+type_instance_name);
+						var option = document.createElement('option');
+						option.innerHTML = name;
+						$(option).data(value);
+						$(option).appendTo(aggregators_selector);
+					});
+				});
+			});
+		});
+		$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_aggregators']).each(function (devnull, plugin) {
+			$(aggregators_selector+' option').each(function () {
+				var data = $(this).data()
+				var datas = new Array(data[0],data[1],data[2],data[3]);
+				if ($(plugin).compare(datas)) {
+					$(this).attr('selected', 'selected');
+				}
+			});
+		});
+		$(aggregators_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
 		$.getJSON('action.php?tpl=custom_view_folder&action=get_datas&id='+json_item_datas['jstree']['id'], function(datas) {
 			json_datas = datas;
 			$.each(json_datas['hosts'], function (hostn, host) {
 				var option = document.createElement('option');
 				option.innerHTML = host;
-				$(option).appendTo(selecthosts_selector);
+				$(option).appendTo(hosts_selector);
 			});
 			$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_hosts']).each(function (devnull, host) {
-				$(selecthosts_selector+' option').each(function () {
+				$(hosts_selector+' option').each(function () {
 					if ($(this).val() == host) {
 						$(this).attr('selected', 'selected');
 					}
 				});
 			});
-			$(selecthosts_selector).multiselect({ noneSelectedText: 'Select host(s)', selectedList: 0 }).multiselectfilter();
+			$(hosts_selector).multiselect({ noneSelectedText: 'Select host(s)', selectedList: 0 }).multiselectfilter();
 			$.each(json_datas['plugins'], function (pluginitemn, pluginitem) {
 				var name = pluginitem[0];
 				name = name+(pluginitem[1] == '' ? '/' : '-'+pluginitem[1]+'/');
@@ -28,10 +56,10 @@
 				var option = document.createElement('option');
 				option.innerHTML = name;
 				$(option).data(pluginitem);
-				$(option).appendTo(selectplugins_selector);
+				$(option).appendTo(plugins_selector);
 			});
 			$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_graph']).each(function (devnull, plugin) {
-				$(selectplugins_selector+' option').each(function () {
+				$(plugins_selector+' option').each(function () {
 					var data = $(this).data()
 					var datas = new Array(data[0],data[1],data[2],data[3],data[4]);
 					if ($(plugin).compare(datas)) {
@@ -39,16 +67,28 @@
 					}
 				});
 			});
-			$(selectplugins_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
+			$(plugins_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
 		});
 		var input_selector = 'input[tabid="{{ tabid }}"]';
 		$(input_selector).click(function () {
 			switch($(this).attr('action')) {
 				case 'apply':
 					$('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]').html('');
-					$(selecthosts_selector+' option:selected').each(function() {
+					$(aggregators_selector+' option:selected').each(function() {
+						graphid++;
+						$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+						$('#graph_{{ tabid }}_'+graphid).pwgraph({
+							host: json_item_datas['host'],
+							plugin: $(this).data()[0],
+							plugin_instance: $(this).data()[1],
+							type: $(this).data()[2],
+							type_instance: $(this).data()[3]
+						}).pwgraph('display');
+					});
+					$('<br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+					$(hosts_selector+' option:selected').each(function() {
 						var host = $(this).val();
-						$(selectplugins_selector+' option:selected').each(function() {
+						$(plugins_selector+' option:selected').each(function() {
 							graphid++;
 							$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
 							$('#graph_{{ tabid }}_'+graphid).pwgraph({
@@ -63,17 +103,28 @@
 					});
 				break;
 				case 'save':
+        			var aggregators = new Array();
         			var plugins = new Array();
         			var hosts = new Array();
-					$(selectplugins_selector+' option:selected').each(function() {
+					$(aggregators_selector+' option:selected').each(function() {
+						aggregators.push($(this).data());
+					});
+					$(plugins_selector+' option:selected').each(function() {
 						plugins.push($(this).data());
 					});
-					$(selecthosts_selector+' option:selected').each(function() {
+					$(hosts_selector+' option:selected').each(function() {
 						hosts.push($(this).val());
 					});
 					$.ajax({
 					    async : false, type: 'POST', url: "action.php?tpl=custom_view_folder",
-					    data : { "action" : "save_tab", "id" : json_item_datas['jstree']['id'], "tab_id" : custom_tab_id, 'selected_graph' : plugins, 'selected_hosts' : hosts },
+					    data : { 
+							action : "save_tab",
+							id : json_item_datas['jstree']['id'],
+							tab_id : custom_tab_id,
+							selected_graph : plugins,
+							selected_hosts : hosts,
+							selected_aggragators : aggregators
+						},
 					    complete : function (r) {
 					        if(!r.status) {
 								notify_ko('Error, can\'t retrieve data from server !');
@@ -87,7 +138,8 @@
 		}).jqxButton({ theme: theme });
 	});
 	</script>
-    <select multiple="multiple" name="hosts" tabid="{{ tabid }}"></select>
+    Aggregators <select multiple="multiple" name="aggregators" tabid="{{ tabid }}"></select><br/>
+    Hosts <select multiple="multiple" name="hosts" tabid="{{ tabid }}"></select> &#x2192; Plugins
     <select multiple="multiple" name="plugins" tabid="{{ tabid }}"></select><br/>
 	<input type="button" action="apply" tabid="{{ tabid }}" value="Apply" />
 	<input type="button" action="save" tabid="{{ tabid }}" value="Save" />

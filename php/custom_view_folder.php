@@ -63,9 +63,8 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
 		break;
         case 'save_tab':
             $datas['tabs'][$_POST['tab_id']]['selected_graph'] = $_POST['selected_graph'];
-            if (isset($_POST['selected_hosts'])) {
-                $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
-            }
+            $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
+            $datas['tabs'][$_POST['tab_id']]['selected_aggregators'] = $_POST['selected_aggragators'];
             $jstree->set_datas($id, $datas);
         break;
     }
