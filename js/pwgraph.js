@@ -31,6 +31,68 @@
       	var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
       	$('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
       });
+	  $(this).contextMenu({ menu: 'graphmenu' }, function(action, el, pos) {
+		switch(action) {
+        	case 'top':
+				var x = pos.docX - $(current_graph).position().left;
+				var y = pos.docY - $(current_graph).position().top;
+				var options = $(current_graph).data();
+				if (y < options['gridYstart'] || y > options['gridYend']) { break; }
+				if (x < options['gridXstart'] || x > options['gridXend']) { break; }
+				x -= options['gridXstart'];
+				var diff = options['end'] - options['begin'];
+				var step = diff / (options['gridXend'] - options['gridXstart']);
+				var toptime = options['begin'] + Math.round(step * x);
+	  			$('#modalwindow').jqxWindow({ title: 'Top process', isModal: false, theme: theme, width: 537, height: 600 }).show();
+	  			$('#modalwindowcontent').html('<div id="table"></div>');
+				var url = 'action.php?tpl=top&id='+json_item_datas['jstree']['id']+'&time='+toptime;
+				var source = { 
+					datatype: "json", 
+					datafields: [ 
+						{ name: 'userlabel' }, 
+						{ name: 'grouplabel' }, 
+						{ name: 'rss', type: 'int' },
+						{ name: 'process' } ,
+						{ name: 'pid', type: 'int' }, 
+						{ name: 'cpu', type: 'int' }
+					], 
+					id: 'id', 
+					url: url, 
+					root: "data",
+				};
+				var dataAdapter = new $.jqx.dataAdapter(source);
+				console.log(dataAdapter);
+				var cpurenderer = function (row, column, value) {
+					return '<span style="margin: 4px; float: right;">'+value+'%</span>';
+				}
+				var rssrenderer = function (row, column, value) {
+					return '<span style="margin: 4px; float: right;">'+bytesToSize(value)+'</span>';
+				}
+				$('#table').jqxGrid({
+					width: 525,
+					height: 564,
+				    source: dataAdapter,
+				    theme: theme,
+					sortable: true,
+					altrows: true,
+				    columns: [
+				      { text: 'PID', datafield: 'pid', cellsalign: 'right', width: 45 },
+				      { text: 'User', datafield: 'userlabel', width: 70 },
+				      { text: 'Group', datafield: 'grouplabel', width: 70 },
+				      { text: 'Memory', datafield: 'rss', cellsalign: 'right', width: 70, cellsrenderer: rssrenderer },
+				      { text: 'CPU', datafield: 'cpu', cellsalign: 'right', width: 50, cellsrenderer: cpurenderer },
+				      { text: 'Process', datafield: 'process', width: 200 }
+				  	],
+					ready: function () {
+                    	$("#table").jqxGrid('sortby', 'cpu', 'desc');
+                	}
+				});
+			break;
+			default:
+				alert('Available soon ...');
+			break;
+		}
+	  });
 	  return this;
     },
 	set_options : function( initoptions) {

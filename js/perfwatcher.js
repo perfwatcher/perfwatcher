@@ -24,6 +24,7 @@ var current_graph = null;
 var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
+var contextMenu;
 $(document).ready(function() {
 	$.ajax({
 		async : false, type: 'GET', url: 'action.php',
@@ -38,6 +39,7 @@ $(document).ready(function() {
 		}
 	});
 	$('#mainMenu').html(ich.mainMenutpl({}));
+	$(ich.contextmenutpl({})).appendTo('body');
 	theme = getTheme();
 	$('#mainMenu').jqxMenu({ theme: theme });
 	$('#mainSplitter').jqxSplitter({

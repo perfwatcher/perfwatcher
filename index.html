@@ -31,12 +31,15 @@
     	<script type="text/javascript" src="js/vendor/jqwidgets/jqxcalendar.js"></script>
     	<script type="text/javascript" src="js/vendor/jqwidgets/jqxdocking.js"></script>
     	<script type="text/javascript" src="js/vendor/jqwidgets/jqxdatetimeinput.js"></script>
-    	<!--script type="text/javascript" src="js/vendor/jqwidgets/jqxexpander.js"></script-->
-    	<!--script type="text/javascript" src="js/vendor/jqwidgets/jqxnavigationbar.js"></script-->
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxgrid.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxgrid.selection.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxgrid.sort.js"></script>
+    	<script type="text/javascript" src="js/vendor/jqwidgets/jqxdata.js"></script>
     	<script type="text/javascript" src="js/vendor/jqwidgets/globalization/jquery.global.js"></script>
     	<script type="text/javascript" src="js/vendor/jqwidgets/gettheme.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/jquery.multiselect.min.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/jquery.multiselect.filter.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.contextMenu.js"></script>
         <script type="text/javascript" src="js/pwgraph.js"></script>
         <script type="text/javascript" src="js/config.jstree.js"></script>
         <script type="text/javascript" src="js/perfwatcher.functions.js"></script>
@@ -49,6 +52,7 @@
 		<script id="mainMenutpl" src="html/mainMenu.html" type="text/html"></script>
 		<script id="timebuttontpl" src="html/timebutton.html" type="text/html"></script>
 		<script id="widget" src="html/widget.html" type="text/html"></script>
+		<script id="contextmenutpl" src="html/contextmenu.html" type="text/html"></script>
 		<script type="text/javascript">
 			var theme;
 			$(document).ready(function() {
@@ -62,6 +66,7 @@
 		<div id="datetime"></div>
 		<div id="timebutton"></div>
 		<div id="timespan"></div>
+		<div id="contextmenu"></div>
 		<div id="mainSplitter">
 			<div id="tree"></div>
 			<div id="items">

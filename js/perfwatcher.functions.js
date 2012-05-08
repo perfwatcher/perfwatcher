@@ -232,6 +232,14 @@ function confirmfor(optionsarg, func) {
 	});
 }
 
+function isRightClick(event) {
+	var rightclick;
+	if (!event) var event = window.event;
+	if (event.which) rightclick = (event.which == 3);
+	else if (event.button) rightclick = (event.button == 2);
+	return rightclick;
+}
+
 // Author:  Jacek Becela
 // Source:  http://gist.github.com/399624
 // License: MIT
@@ -253,3 +261,11 @@ jQuery.fn.single_double_click = function(single_click_callback, double_click_cal
     });
   });
 }
+
+// Grabed from http://codeaid.net/javascript/convert-size-in-bytes-to-human-readable-format-(javascript)
+function bytesToSize(bytes) {
+    var sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+	if (bytes == 0) return 'n/a';
+	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+	return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+};
