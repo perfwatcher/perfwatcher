@@ -46,6 +46,13 @@ class folder_filling_manual {
 			'content_url' => 'html/folder_filling_manual.html'
 		);
 	}
+	
+	function get() {
+		global $jstree;
+		if (isset($this->datas['serverslist']) &&  isset($this->datas['serverslist']['manuallist'])) {
+			return split("\n", trim($this->datas['serverslist']['manuallist']));
+		} else { return array(); }
+	}
 
 	function save ($list) {
 		global $jstree, $id;

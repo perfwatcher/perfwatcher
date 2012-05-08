@@ -21,6 +21,7 @@ $collectd_db_config = array(
 );
 
 $rrds_path = "/var/lib/collectd";
+$notification_path = "/var/lib/collectd/_notification";
 
 $grouped_type = array('apache_bytes','apache_requests','apache_scoreboard','cache_ratio','cpu','cpug','cpufreq','df_complex','dns_opcode','conntrack','entropy','frequency','humidity','invocations','ipt_bytes','ipt_packets','irq','java_memory','memory','mysql_commands','mysql_handler','ping', 'ps_state', 'swap','table_size','tcp_connections','threads','total_requests','total_time_in_ms','users','wirkleistung','specs','swap_io', 'grid','nfs_procedure','panfs_procedure','panfs_procedure_time');
 
@@ -41,6 +42,10 @@ $widgets[] = 'folder_aggregator';
 $widgets[] = 'folder_options';
 $widgets[] = 'folder_filling_regex';
 $widgets[] = 'folder_filling_manual';
+
+$peuplator_plugins = array();
+$peuplator_plugins[] = 'folder_filling_regex';
+$peuplator_plugins[] = 'folder_filling_manual';
 
 $extra_jsfile = array();
 $extra_jsfile[] = 'js/custom_plugin_view.js';

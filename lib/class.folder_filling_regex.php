@@ -48,13 +48,23 @@ class folder_filling_regex {
 	}
 
 	function test ($regex) {
-		global $rrds_path;
-		$out = '';
+		global $rrds_path, $jstree;
+		return implode("\n", $this->get($regex));;
+	}
+
+	function get ($regex = null) {
+		global $rrds_path, $jstree;
+		if ($regex === null) {
+			if (isset($this->datas['serverslist']) && isset($this->datas['serverslist']['servernameregex'])) {
+				$regex = $this->datas['serverslist']['servernameregex'];
+			}
+		}
+		$out = array();
         $dh = opendir($rrds_path);
         while ($hostdir = readdir($dh)) {
             if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
             if (substr($hostdir,0,11) != 'aggregator_' && @ereg($regex, $hostdir)) {
-                $out .= "$hostdir\n";
+                $out[] = $hostdir;
             }
         }
         closedir($dh);
