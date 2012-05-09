@@ -42,7 +42,7 @@ class folder_filling_regex {
 	function get_info() {
 		global $folder_filling_plugins;
 		return array(
-			'title' => "Autofill ".$this->datas['type']." using regex",
+			'title' => "Autofill this ".$this->datas['type']." using regex",
 			'content_url' => 'html/folder_filling_regex.html'
 		);
 	}

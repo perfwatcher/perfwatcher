@@ -21,7 +21,7 @@ $owidget = new folder_filling_manual($res);
 switch($_POST['action']) {
 	case 'save':
 			if ($owidget->save($_POST['list'])) {
-				die('Server list saved');
+				die('Server list saved. Wait a minute then refresh the tree');
 			}
 	break;
 	default:

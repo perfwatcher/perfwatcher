@@ -24,7 +24,7 @@ switch($_POST['action']) {
 	break;
 	case 'save':
 			if ($owidget->save($_POST['regex'])) {
-				die('Regex saved');
+				die('Regex saved. Wait a minute then refresh the tree');
 			}
 	break;
 	default:

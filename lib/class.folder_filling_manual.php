@@ -42,7 +42,7 @@ class folder_filling_manual {
 	function get_info() {
 		global $folder_filling_plugins;
 		return array(
-			'title' => "Autofill ".$this->datas['type']." using manual list",
+			'title' => "Autofill this ".$this->datas['type']." using manual list",
 			'content_url' => 'html/folder_filling_manual.html'
 		);
 	}
