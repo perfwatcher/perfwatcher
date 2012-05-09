@@ -401,4 +401,4 @@ CREATE TABLE `tree` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 INSERT INTO `tree` (`id`, `parent_id`, `position`, `title`, `type`, `datas`) VALUES
 (1, 0, 0, NULL, 'drive', 'a:0:{}'),
-(2, 1, 0, 'ROOT', 'drive', 'a:0:{}');
+(2, 1, 0, 'ROOT', 'folder', 'a:1:{s:11:"serverslist";a:1:{s:15:"servernameregex";s:2:".*";}}');
