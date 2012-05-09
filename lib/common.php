@@ -50,6 +50,7 @@ function connect_dbcollectd() {
 function load_datas($host) {
     global $rrds_path, $grouped_type, $blacklisted_type;
     $ret = array();
+	if (!is_dir($rrds_path.'/'.$host)) { return $ret; }
     $dh = scandir($rrds_path.'/'.$host, 1);
     foreach ($dh as $plugindir) {
         if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
