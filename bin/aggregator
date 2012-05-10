@@ -79,7 +79,7 @@ if(count($containerstodo) == 0) {
 	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
 	unset($out);
 	fclose($socket);
-	unlink('/var/www/html/perfwatcher/logs/collectd-aggregator');
+	unlink('/tmp/collectd-aggregator');
 	exit();
 }
 unset($jstree);
