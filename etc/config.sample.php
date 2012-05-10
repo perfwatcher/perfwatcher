@@ -42,6 +42,13 @@
  */
 #$rrdtool = '/usr/bin/rrdtool';
 
+/**
+ *
+ *	rrdcached socket (if used)
+ *
+ */
+#$rrdcached = "/var/run/rrdcached/rrdcached.sock";
+
 /** 
  *
  *	Path to Collectd unix socket (see unixsock plugin) 
