@@ -16,8 +16,6 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-if (isset($_GET['blank']))  { exit(); }
-
 //error_reporting(E_ALL | E_NOTICE | E_WARNING);
 
 if (isset($_GET['type_instance']) && $_GET['type_instance'] == '_') { unset($_GET['type_instance']); }
