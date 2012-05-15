@@ -36,7 +36,7 @@ $data = array_intersect_uassoc($data1, $data2, "strcmp");
 calc_time_derive($data, $data2);
 
 //$data = array_slice($data, 63);
-echo json_encode(array('data' => array_values($data), 'date' => $t1));
+echo json_encode(array('data' => array_values($data), 'date1' => $t1, 'date2' => $t2));
 
 function get_ps_hash($data) {
     $ret = array();

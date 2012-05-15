@@ -61,7 +61,6 @@
 					root: "data",
 				};
 				var dataAdapter = new $.jqx.dataAdapter(source);
-				console.log(dataAdapter);
 				var cpurenderer = function (row, column, value) {
 					return '<span style="margin: 4px; float: right;">'+value+'%</span>';
 				}
