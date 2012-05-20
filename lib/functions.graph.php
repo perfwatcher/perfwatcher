@@ -769,9 +769,6 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
         $cmd[] = '-e';
         $cmd[] = $_GET['end'];
     }
-	$rrdcmd = array();
-	for ($i = 1; $i < count($cmd); $i++)
-		$rrdcmd .= ' '.escapeshellarg($cmd[$i]);
 	return $cmd;
 }
 
