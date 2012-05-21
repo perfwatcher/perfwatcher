@@ -58,6 +58,20 @@
 
 /** 
  *
+ *	Hostname used by aggregator. If not set, hostname from posix_uname() is used
+ *
+ */
+# $aggregator_hostname  = 'my_custom_hostname';
+
+/** 
+ *
+ *	Hostname used by aggregator
+ *
+ */
+# $aggregator_hostname  = 'my_custom_hostname';
+
+/** 
+ *
  *	Custom widget. 
  *	Have a look to the wiki to sea how to create custom widget 
  *

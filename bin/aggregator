@@ -8,8 +8,12 @@ touch('/tmp/collectd-aggregator');
 
 require "lib/common.php";
 
-$hostname = posix_uname();
-$hostname = $hostname['nodename'];
+if (isset($aggregator_hostname)) {
+	$hostname = $aggregator_hostname;
+} else {
+	$hostname = posix_uname();
+	$hostname = $hostname['nodename'];
+}
 $debug=false;
 $debug2=false;
 $foreground=false;
