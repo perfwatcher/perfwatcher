@@ -60,14 +60,13 @@ while($containerstodo = array_splice($containers, 0, $containersbychildren)) {
 	} else if ($pid) {
 		$parent = true;
 		$childs[] = $pid;
-		//pcntl_wait($pid, &$status);
 	} else {
 		break;
 	}
 }
 if (isset($parent)) {
 	foreach ($childs as $child) {
-		pcntl_wait($child, &$status);
+		pcntl_wait($child, $status);
 	}
 }
 if(count($containerstodo) == 0) {
