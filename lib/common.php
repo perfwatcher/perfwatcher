@@ -49,30 +49,37 @@ function connect_dbcollectd() {
 
 function load_datas($host) {
     global $rrds_path, $grouped_type, $blacklisted_type;
+    if (is_array($rrds_path)) {
+	$array_rrds_path = $rrds_path;
+    } else {
+	$array_rrds_path = array($rrds_path);
+    }
     $ret = array();
-	if (!is_dir($rrds_path.'/'.$host)) { return $ret; }
-    $dh = scandir($rrds_path.'/'.$host, 1);
-    foreach ($dh as $plugindir) {
-        if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
-        $plugin = $plugin_instance = '';
-        @list($plugin, $plugin_instance ) = split('-', $plugindir, 2);
-        if ($plugin_instance == '') { $plugin_instance = '_'; }
-        $ret[$plugin][$plugin_instance] = array();
-        $dh2 = scandir($rrds_path.'/'.$host.'/'.$plugindir);
-        foreach ($dh2 as $rrd) {
-                if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
-                $type = $type_instance = '';
-                @list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
-                if (in_array($type, $blacklisted_type)) { continue; }
-                if ($type_instance == '') { $type_instance = '_'; }
-                //if ($type == $plugin) { $type_instance = '_'; }
-                if (in_array($type,$grouped_type)) {
-                    $ret[$plugin][$plugin_instance][$type]['_'] = true;
-                } else {
-                    $ret[$plugin][$plugin_instance][$type][$type_instance] = true;
-                }
-                ksort($ret[$plugin]);
-        }
+    foreach($array_rrds_path as $rrds_path) {
+	if (!is_dir($rrds_path.'/'.$host)) { continue; }
+	$dh = scandir($rrds_path.'/'.$host, 1);
+	foreach ($dh as $plugindir) {
+	    if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
+	    $plugin = $plugin_instance = '';
+	    @list($plugin, $plugin_instance ) = split('-', $plugindir, 2);
+	    if ($plugin_instance == '') { $plugin_instance = '_'; }
+	    $ret[$plugin][$plugin_instance] = array();
+	    $dh2 = scandir($rrds_path.'/'.$host.'/'.$plugindir);
+	    foreach ($dh2 as $rrd) {
+	    	if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
+	    	$type = $type_instance = '';
+	    	@list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
+	    	if (in_array($type, $blacklisted_type)) { continue; }
+	    	if ($type_instance == '') { $type_instance = '_'; }
+	    	//if ($type == $plugin) { $type_instance = '_'; }
+	    	if (in_array($type,$grouped_type)) {
+	    	    $ret[$plugin][$plugin_instance][$type]['_'] = true;
+	    	} else {
+	    	    $ret[$plugin][$plugin_instance][$type][$type_instance] = true;
+	    	}
+	    	ksort($ret[$plugin]);
+	    }
+	}
     }
     ksort($ret);
     return $ret;
@@ -207,7 +214,7 @@ function get_load($host_id)
 }
 
 function get_status($arrayid, $return_title = false) {
-    global $jstree, $rrds_path, $dbcollectd;
+    global $jstree, $dbcollectd;
     connect_dbcollectd();
     $ret = array('up' => array(), 'down' => array(), 'unknown' => array());
     foreach ($arrayid as $key => $val) {
