@@ -66,6 +66,7 @@ while($containerstodo = array_splice($containers, 0, $containersbychildren)) {
 }
 if (isset($parent)) {
 	foreach ($childs as $child) {
+		$status = false;
 		pcntl_wait($child, $status);
 	}
 }

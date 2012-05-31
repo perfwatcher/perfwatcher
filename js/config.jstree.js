@@ -174,12 +174,6 @@ $(function () {
 				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "folder" } }); }
 			    }
 			}
-		    },
-		    "setting" : {
-			"separator_before"	: true,
-			"separator_after"	: false,
-			"label"			: "Configure",
-			"action"            	: function () { $('#configure').click(); }
 		    }
 		}
 	    }
