@@ -1236,6 +1236,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 	$MetaGraphDefs['irq']               = 'meta_graph_irq';
 	$MetaGraphDefs['memory']            = 'meta_graph_memory';
 	$MetaGraphDefs['vs_memory']         = 'meta_graph_vs_memory';
+	$MetaGraphDefs['threads']        	= 'meta_graph_mysql_threads';
 	$MetaGraphDefs['vs_threads']        = 'meta_graph_vs_threads';
 	$MetaGraphDefs['nfs_procedure']     = 'meta_graph_nfs_procedure';
 	$MetaGraphDefs['ps_state']          = 'meta_graph_ps_state';
@@ -1924,6 +1925,36 @@ function meta_graph_if_rx_errors($host, $plugin, $plugin_instance, $type, $type_
 	return collectd_draw_meta_stack($opts, $sources);
 }
 
+function meta_graph_mysql_threads($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
+	global $config;
+	$sources = array();
+
+	$title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	$title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	if (!isset($opts['title']))
+		$opts['title'] = $title2;
+	$opts['rrd_opts'] = array('-v', 'Issues/s');
+	$opts['number_format'] = '%5.2lf';
+
+	$files = array();
+	$type_instances = array('cached','connected','running');
+
+	while (list($k, $inst) = each($type_instances)) {
+		$file  = '';
+		foreach ($config['datadirs'] as $datadir)
+			if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
+				$file = $datadir.'/'.$title.'-'.$inst.'.rrd';
+				break;
+			}
+		if ($file == '')
+			continue;
+
+		$sources[] = array('name'=>$inst, 'file'=>$file);
+	}
+
+	return collectd_draw_meta_stack($opts, $sources);
+}
+
 function meta_graph_mysql_commands($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
 	global $config;
 	$sources = array();
@@ -1936,6 +1967,7 @@ function meta_graph_mysql_commands($host, $plugin, $plugin_instance, $type, $typ
 	$opts['number_format'] = '%5.2lf';
 
 	$files = array();
+	$type_instances = array('admin_commands','alter_table','change_db','delete','flush','insert','insert_select','kill','lock_tables','optimize','repair','replace','select','set_option','show_binlogs','show_charsets','show_collations','show_create_db','show_create_table','show_databases','show_fields','show_grants','show_keys','show_master_status','show_plugins','show_processlist','show_slave_status','show_status','show_storage_engines','show_tables','show_table_status','show_triggers','show_variables','truncate','unlock_tables','update','commit','read_first','read_key','read_next','read_rnd_next','read_rnd','rollback','write');
 
 	while (list($k, $inst) = each($type_instances)) {
 		$file  = '';
@@ -1965,7 +1997,7 @@ function meta_graph_nfs_procedure($host, $plugin, $plugin_instance, $type, $type
 	$opts['rrd_opts'] = array('-v', 'Ops/s');
 
 	$files = array();
-
+	$type_instances = array('access','commit','create','fsinfo','fsstat','getattr','link','lookup','mkdir','mknod','null','pathconf','readdirplus','readdir','readlink','read','remove','rename','rmdir','setattr','symlink','write');
 	while (list($k, $inst) = each($type_instances)) {
 		$file  = '';
 		foreach ($config['datadirs'] as $datadir)
