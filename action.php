@@ -32,6 +32,8 @@ if (!isset($_GET['tpl']) && !isset($_POST['tpl'])) {
     $tplfile = $_POST['tpl']; 
 }
 
+if (!eregi("^[a-z0-9_\-]+$", $tplfile)) { $tplfile = 'index'; }
+
 if (file_exists("php/$tplfile.php")) {
     include "php/$tplfile.php";
 }
