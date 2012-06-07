@@ -25,7 +25,7 @@ $config['rrd_interval']  = 10;
 // Average rows/rra (currently ignored)
 $config['rrd_rows']      = 2400;
 // Additional options to pass to rrdgraph
-$config['rrd_opts']      = array();
+$config['rrd_opts']      = $rrdtool_options;
 // Predefined set of colors for use by collectd_draw_rrd()
 $config['rrd_colors']    = array(
 		 'h_1'=>'F7B7B7',  'f_1'=>'FF0000', // Red
