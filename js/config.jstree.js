@@ -180,7 +180,7 @@ $(function () {
 	})
 	.bind("create.jstree", function (e, data) {
 	    $.post(
-		"admin/action.php?tpl=json_tree", 
+		"action.php?tpl=json_tree", 
 		{ 
 		    "operation" : "create_node", 
 		    "id" : data.rslt.parent.attr("id").replace("node_",""), 
@@ -202,7 +202,7 @@ $(function () {
 		    $.ajax({
 			async : false,
 			type: 'POST',
-			url: "admin/action.php?tpl=json_tree",
+			url: "action.php?tpl=json_tree",
 			data : { 
 			    "operation" : "remove_node", 
 			    "id" : this.id.replace("node_","")
@@ -216,7 +216,7 @@ $(function () {
 		});
 	    }).bind("rename.jstree", function (e, data) {
 		$.post(
-		    "admin/action.php?tpl=json_tree", 
+		    "action.php?tpl=json_tree", 
 		    { 
 			"operation" : "rename_node", 
 			"id" : data.rslt.obj.attr("id").replace("node_",""),
@@ -233,7 +233,7 @@ $(function () {
 		$.ajax({
 		    async : false,
 		    type: 'POST',
-		    url: "admin/action.php?tpl=json_tree",
+		    url: "action.php?tpl=json_tree",
 		    data : { 
 			"operation" : "move_node", 
 			"id" : $(this).attr("id").replace("node_",""), 
