@@ -48,7 +48,6 @@ $(document).ready(function() {
 		height: $(document).height() - $('#mainMenu').height() - 1,
 		splitBarSize: '2px'
 	});
-	notify_ok('Welcome');
 	window.setTimeout(function () {
 		auto_refresh_status();
 	}, 5000);

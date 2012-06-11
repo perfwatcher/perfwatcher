@@ -189,22 +189,27 @@ function refresh_status() {
 }
 
 function notify_ko(text) {
-	$('[tag="message"] b').css('color', 'red').html(text);
-	window.setTimeout(function () {
-		$('[tag="message"] b').html('');
-	}, 3000);
+	noty({
+		"text":text, "layout":"center", "type":"error",
+		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
+		"speed":500, "timeout":5000, "closeButton":false,
+		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
+	});
 }
 
 function notify_ok(text) {
-	$('[tag="message"] b').css('color', 'green').html(text);
-	window.setTimeout(function () {
-		$('[tag="message"] b').html('');
-	}, 3000);
+	noty({
+		"text":text, "layout":"center", "type":"success",
+		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
+		"speed":500, "timeout":5000, "closeButton":false,
+		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
+	});
 }
 
 function askfor(optionsarg, func) {
 	var options = { label: '', cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
 	$.extend(options, optionsarg);
+	/*
 	$('#modalwindow').jqxWindow({ height: 150, width: 350, title: options['title'], isModal: true, theme: theme }).show();
 	$('#modalwindowcontent').html(ich.askfor(options));
 	$('#modalwindowcontent input[type="button"]').jqxButton({ theme: theme });
@@ -215,21 +220,50 @@ function askfor(optionsarg, func) {
 		$('#modalwindow').jqxWindow('hide');
 		func($('#modalwindowcontent input[type="text"]').val());
 	});
+	*/
+  noty({
+	"layout":"center",
+    text: options['title'], 
+    buttons: [
+      {type: 'button green', text: options['oklabel'], click: function($noty) {
+		  func();
+          $noty.close();
+        }
+      },
+      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
+          $noty.close();
+          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
+        }
+      }
+      ],
+    closable: false,
+    timeout: false
+  });
+  return false;
 }
 
 function confirmfor(optionsarg, func) {
-	var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
-	$.extend(options, optionsarg);
-	$('#modalwindow').jqxWindow({ height: 70, width: 350, title: options['title'], isModal: true, theme: theme }).show();
-	$('#modalwindowcontent').html(ich.confirmfor(options));
-	$('#modalwindowcontent input[type="button"]').jqxButton({ theme: theme });
-	$('#modalwindowcontent input[tag="cancel"]').click(function () {
-		$('#modalwindow').jqxWindow('hide');
-	});
-	$('#modalwindowcontent div input[tag="ok"]').click(function () {
-		$('#modalwindow').jqxWindow('hide');
-		func();
-	});
+  var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
+  $.extend(options, optionsarg);
+  noty({
+	"layout":"center",
+    text: options['title'], 
+    buttons: [
+      {type: 'button green', text: options['oklabel'], click: function($noty) {
+		  func();
+          $noty.close();
+        }
+      },
+      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
+          $noty.close();
+          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
+        }
+      }
+      ],
+    closable: false,
+    timeout: false
+  });
+  return false;
 }
 
 function isRightClick(event) {
