@@ -1792,8 +1792,10 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
 		'cached'   => '0000ff',
 		'buffered' => 'ffb000',
 		'used'     => 'ff0000',
+		'user'   => '00A0FF',
 		// Solaris 10
 		'kernel'   => 'F0A000',
+		'system'   => 'F0A000',
 		'unusable' => '0000ff',
 		'locked'   => '00A0FF',
 		// Bind - Server memory
@@ -1804,7 +1806,7 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
 		'Lost'        => '222222'
 	);
 
-	$type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable');
+	$type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable', 'user', 'system');
 	while (list($k, $inst) = each($type_instances)) {
 		$file = '';
 		foreach ($config['datadirs'] as $datadir)
