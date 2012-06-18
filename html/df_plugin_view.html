@@ -5,11 +5,17 @@
 		var select_selector = 'select[tabid="'+tabid+'"]';
 		$.each(json_item_datas['plugins'][plugin], function (plugin_instance_name, plugin_instance) {
 			$.each(plugin_instance, function (type_name, type) {
-				var option = document.createElement('option');
-				var value = new Array(plugin, plugin_instance_name, type_name, type);
-				option.innerHTML = '/'+plugin_instance_name.replace('-', '/');
-				$(option).data(value);
-				$(option).appendTo(select_selector);
+				$.each(type, function (type_instance_name, type_instance) {
+					var option = document.createElement('option');
+					var value = new Array(plugin, plugin_instance_name, type_name, type_instance_name);
+					if (plugin_instance_name == '_') {
+						option.innerHTML = '/'+type_instance_name.replace('-', '/');
+					} else {
+						option.innerHTML = '/'+plugin_instance_name.replace('-', '/');
+					}
+					$(option).data(value);
+					$(option).appendTo(select_selector);
+				});
 			});
 		});
 		$(select_selector).multiselect({ noneSelectedText: 'Select filesystem(s)', selectedList: 0 }).multiselectfilter();
@@ -24,7 +30,7 @@
 					plugin: $(this).data()[0],
 					plugin_instance: $(this).data()[1],
 					type: $(this).data()[2],
-					type_instance: ''
+					type_instance: $(this).data()[3]
 				}).pwgraph('display');
 			});
 		}).jqxButton({ theme: theme });
