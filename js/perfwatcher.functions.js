@@ -223,10 +223,11 @@ function askfor(optionsarg, func) {
 	*/
   noty({
 	"layout":"center",
-    text: options['title'], 
+    text: options['title']+' <input type="text" id="askforinput" value="">', 
     buttons: [
       {type: 'button green', text: options['oklabel'], click: function($noty) {
-		  func();
+	  	  var name = $('#askforinput').val();
+		  func($('#askforinput').val());
           $noty.close();
         }
       },
