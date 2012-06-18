@@ -1,21 +1,33 @@
 <div>
 	<script type="text/javascript">
+		var collectdv4 = false;
 		var tabid = {{ tabid }};
 		var plugin = "{{ plugin }}";
 		var select_selector1 = 'select[tabid="'+tabid+'"][part="plugin_instance"]';
 		var select_selector2 = 'select[tabid="'+tabid+'"][part="type"]';
+		var select_selector3 = 'select[tabid="'+tabid+'"][part="type_instance"]';
 		var pi_list = new Array();
 		var t_list = new Array();
+		var ti_list = new Array();
 		$.each(json_item_datas['plugins'][plugin], function (plugin_instance_name, plugin_instance) {
 			$.each(plugin_instance, function (type_name, type) {
 				if ($.inArray(plugin_instance_name, pi_list) == -1) { pi_list.push(plugin_instance_name); }
 				if ($.inArray(type_name, t_list) == -1) { t_list.push(type_name); }
+				$.each(type, function (type_instance_name, type_instance) {
+					if ($.inArray(type_instance_name, ti_list) == -1) { ti_list.push(type_instance_name); }
+				});
 			});
 		});
 		$.each(pi_list, function (i, pi) {
 			var option = document.createElement('option');
 			option.innerHTML = pi;
+			if (pi == '_' && pi_list.length == 1) { collectdv4 = true; }
 			$(option).appendTo(select_selector1);
+		});
+		$.each(ti_list, function (i, ti) {
+			var option = document.createElement('option');
+			option.innerHTML = ti;
+			$(option).appendTo(select_selector3);
 		});
 		$.each(t_list, function (i, t) {
 			var option = document.createElement('option');
@@ -23,28 +35,50 @@
 			$(option).appendTo(select_selector2);
 		});
 		$(select_selector1).multiselect({ noneSelectedText: 'Select interface(s)', selectedList: 0 }).multiselectfilter();
+		$(select_selector3).multiselect({ noneSelectedText: 'Select interface(s)', selectedList: 0 }).multiselectfilter();
 		$(select_selector2).multiselect({ noneSelectedText: 'Select metric(s)', selectedList: 0 }).multiselectfilter();
+		if (collectdv4) { $(select_selector1).remove(); } else {$(select_selector3).remove(); }
 		var input_selector = 'input[tabid="{{ tabid }}"]';
 		$(input_selector).click(function () {
 			$('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]').html('');
-			$(select_selector1+' option:selected').each(function() {
-				pi = $(this).val();
-				$(select_selector2+' option:selected').each(function() {
-					t = $(this).val();
-					graphid++;
-					$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/><br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
-					$('#graph_{{ tabid }}_'+graphid).pwgraph({
-						host: json_item_datas['host'],
-						plugin: plugin,
-						plugin_instance: pi,
-						type: t,
-						type_instance: ''
-					}).pwgraph('display');
+			if (!collectdv4) {
+				$(select_selector1+' option:selected').each(function() {
+					pi = $(this).val();
+					$(select_selector2+' option:selected').each(function() {
+						t = $(this).val();
+						graphid++;
+						$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/><br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+						$('#graph_{{ tabid }}_'+graphid).pwgraph({
+							host: json_item_datas['host'],
+							plugin: plugin,
+							plugin_instance: pi,
+							type: t,
+							type_instance: ''
+						}).pwgraph('display');
+					});
 				});
-			});
+			} else {
+				$(select_selector3+' option:selected').each(function() {
+					ti = $(this).val();
+					$(select_selector2+' option:selected').each(function() {
+						t = $(this).val();
+						graphid++;
+						$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/><br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
+						$('#graph_{{ tabid }}_'+graphid).pwgraph({
+							host: json_item_datas['host'],
+							plugin: plugin,
+							plugin_instance: '',
+							type: t,
+							type_instance: ti
+						}).pwgraph('display');
+					});
+				});
+				
+			}
 		}).jqxButton({ theme: theme });
 	</script>
     <select multiple="multiple" tabid="{{ tabid }}" part="plugin_instance"></select>
+    <select multiple="multiple" tabid="{{ tabid }}" part="type_instance"></select>
     <select multiple="multiple" tabid="{{ tabid }}" part="type"></select>
 	<input type="button" action="apply" tabid="{{ tabid }}" value="Apply" />
 	<br/>
