@@ -43,49 +43,7 @@
 				var diff = options['end'] - options['begin'];
 				var step = diff / (options['gridXend'] - options['gridXstart']);
 				var toptime = options['begin'] + Math.round(step * x);
-	  			$('#modalwindow').jqxWindow({ title: 'Top process', isModal: false, theme: theme, width: 537, height: 600 }).show();
-	  			$('#modalwindowcontent').html('<div id="table"></div>');
-				var url = 'action.php?tpl=top&id='+json_item_datas['jstree']['id']+'&time='+toptime;
-				var source = { 
-					datatype: "json", 
-					datafields: [ 
-						{ name: 'userlabel' }, 
-						{ name: 'grouplabel' }, 
-						{ name: 'rss', type: 'int' },
-						{ name: 'process' } ,
-						{ name: 'pid', type: 'int' }, 
-						{ name: 'cpu', type: 'int' }
-					], 
-					id: 'id', 
-					url: url, 
-					root: "data",
-				};
-				var dataAdapter = new $.jqx.dataAdapter(source);
-				var cpurenderer = function (row, column, value) {
-					return '<span style="margin: 4px; float: right;">'+value+'%</span>';
-				}
-				var rssrenderer = function (row, column, value) {
-					return '<span style="margin: 4px; float: right;">'+bytesToSize(value)+'</span>';
-				}
-				$('#table').jqxGrid({
-					width: 525,
-					height: 564,
-				    source: dataAdapter,
-				    theme: theme,
-					sortable: true,
-					altrows: true,
-				    columns: [
-				      { text: 'PID', datafield: 'pid', cellsalign: 'right', width: 45 },
-				      { text: 'User', datafield: 'userlabel', width: 70 },
-				      { text: 'Group', datafield: 'grouplabel', width: 70 },
-				      { text: 'Memory', datafield: 'rss', cellsalign: 'right', width: 70, cellsrenderer: rssrenderer },
-				      { text: 'CPU', datafield: 'cpu', cellsalign: 'right', width: 50, cellsrenderer: cpurenderer },
-				      { text: 'Process', datafield: 'process', width: 200 }
-				  	],
-					ready: function () {
-                    	$("#table").jqxGrid('sortby', 'cpu', 'desc');
-                	}
-				});
+				showtop(toptime);
 			break;
 			default:
 				alert('Available soon ...');
@@ -322,6 +280,58 @@
   };
 })( jQuery );
 
+function showtop (toptime) {
+	var topdate = new Date(toptime * 1000).toString();
+	$('#modalwindow').jqxWindow({ title: 'Top process at '+topdate, isModal: false, theme: theme, width: 537, height: 600 }).show();
+	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
+	$('#topprocess .prev').click(function() {
+		showtop(toptime - 60);
+	});
+	$('#topprocess .next').click(function() {
+		showtop(toptime + 60);
+	});
+	var url = 'action.php?tpl=top&id='+json_item_datas['jstree']['id']+'&time='+toptime;
+	var source = { 
+		datatype: "json", 
+		datafields: [ 
+			{ name: 'userlabel' }, 
+			{ name: 'grouplabel' }, 
+			{ name: 'rss', type: 'int' },
+			{ name: 'process' } ,
+			{ name: 'pid', type: 'int' }, 
+			{ name: 'cpu', type: 'int' }
+		], 
+		id: 'id', 
+		url: url, 
+		root: "data",
+	};
+	var dataAdapter = new $.jqx.dataAdapter(source);
+	var cpurenderer = function (row, column, value) {
+		return '<span style="margin: 4px; float: right;">'+value+'%</span>';
+	}
+	var rssrenderer = function (row, column, value) {
+		return '<span style="margin: 4px; float: right;">'+bytesToSize(value)+'</span>';
+	}
+	$('#table').jqxGrid({
+		width: 525,
+		height: 564,
+	    source: dataAdapter,
+	    theme: theme,
+		sortable: true,
+		altrows: true,
+	    columns: [
+	      { text: 'PID', datafield: 'pid', cellsalign: 'right', width: 45 },
+	      { text: 'User', datafield: 'userlabel', width: 70 },
+	      { text: 'Group', datafield: 'grouplabel', width: 70 },
+	      { text: 'Memory', datafield: 'rss', cellsalign: 'right', width: 70, cellsrenderer: rssrenderer },
+	      { text: 'CPU', datafield: 'cpu', cellsalign: 'right', width: 50, cellsrenderer: cpurenderer },
+	      { text: 'Process', datafield: 'process', width: 200 }
+	  	],
+		ready: function () {
+	    	$("#table").jqxGrid('sortby', 'cpu', 'desc');
+		}
+	});
+}
 // From http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
 (function( $ ){
 	$.fn.compare = function(t) {
