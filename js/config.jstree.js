@@ -26,7 +26,7 @@ $(function () {
 	// All those configuration options are documented at http://www.jstree.com/
 	$('#tree').jstree({ 
 	    // the list of plugins to include
-	    "plugins" : [ "themes", "json_data", "ui", "crrm", "cookies", "dnd", "search", "types", "hotkeys", "contextmenu" ],
+	    "plugins" : [ "themes", "json_data", "ui", "crrm", "dnd", "search", "types", "hotkeys", "contextmenu" ],
 	    // Plugin configuration
 
 	    "themes" : {
@@ -38,39 +38,39 @@ $(function () {
 
 	    // I usually configure the plugin that handles the data first - in this case JSON as it is most common
 	    "json_data" : { 
-		// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
-		// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
-		"ajax" : {
-		// the URL to fetch the data
-		    "url" : "action.php?tpl=json_tree",
-		    // this function is executed in the instance's scope (this refers to the tree instance)
-		    // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
-		    "data" : function (n) { 
-			// the result is fed to the AJAX request `data` option
-			return { 
-			    "operation" : "get_children", 
-			    "id" : n.attr ? n.attr("id").replace("node_","") : 1 
-			}; 
-		    },
-		    "error" : function (data) {
-		    	$('body').html(data.responseText);
-		    }
-		}
+			// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+			// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+			"ajax" : {
+			// the URL to fetch the data
+			    "url" : "action.php?tpl=json_tree",
+			    // this function is executed in the instance's scope (this refers to the tree instance)
+			    // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+			    "data" : function (n) { 
+				// the result is fed to the AJAX request `data` option
+					return { 
+						"operation" : "get_children", 
+						"id" : n.attr ? n.attr("id").replace("node_","") : 1 
+					}; 
+			    },
+			    "error" : function (data) {
+			    	$('body').html(data.responseText);
+			    }
+			}
 	    },
 	    // Configuring the search plugin
 	    "search" : {
-		// As this has been a common question - async search
-		// Same as above - the `ajax` config option is actually jQuery's object (only `data` can be a function)
-		"case_insensitive" : true,
-		"ajax" : {
-		    "url" : "action.php?tpl=json_tree",
-		    "data" : function (str) {
-			return { 
-			    "operation" : "search", 
-			    "search_str" : str 
-			}; 
-		    }
-		}
+			// As this has been a common question - async search
+			// Same as above - the `ajax` config option is actually jQuery's object (only `data` can be a function)
+			"case_insensitive" : true,
+			"ajax" : {
+		    	"url" : "action.php?tpl=json_tree",
+		    	"data" : function (str) {
+					return { 
+			    		"operation" : "search", 
+			    		"search_str" : str 
+					}; 
+		    	}
+			}
 	    },
 	    // Using types - most of the time this is an overkill
 	    // Still meny people use them - here is how
@@ -249,7 +249,7 @@ $(function () {
 			else {
 			    $(data.rslt.oc).attr("id", "node_" + r.id);
 			    if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
-				data.inst.refresh(data.inst._get_parent(data.rslt.oc));
+					data.inst.refresh(data.inst._get_parent(data.rslt.oc));
 			    }
 			}
 		    }
@@ -257,5 +257,25 @@ $(function () {
 	    });
 	}).bind("select_node.jstree", function (e, data) {
 	    select_node(data.rslt.obj.attr("id").replace("node_",""));
-	});
+		//location.hash = data.rslt.obj.attr("id").replace("node_","");
+		var path = $("#tree").jstree("get_path", data.rslt.obj, true);
+		var hash = '';
+		for (n in path) {
+			hash = hash + '_' + path[n].replace('node_', '');
+		}
+		location.hash = hash.substr(1);
+	}).bind("loaded.jstree", function (event, data) {
+		if (!location.hash) { return; }
+		var nodes = location.hash.substr(1).split('_');
+		recurse_open_node(nodes);
+    });
+
+	function recurse_open_node (nodes) {
+		var node = nodes.shift();
+		if (nodes.length == 0) { 
+			$('#node_'+node+' a').click();
+		} else {
+			$('#tree').jstree("open_node", $('#node_'+node), function (event, data) { recurse_open_node (nodes); }, true);
+		}
+	}
 });
