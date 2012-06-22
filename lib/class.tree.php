@@ -290,7 +290,7 @@ class json_tree extends _tree_struct {
 			$result[] = array(
 				"attr" => array("id" => "node_".$v['id'], "rel" => $v[$this->fields["type"]]),
 				"data" => $v[$this->fields["title"]],
-				"state" => "closed"
+				"state" => ($v[$this->fields["type"]] == "default" ? "leaf" : "closed")
 			);
 		}
 		return json_encode($result);

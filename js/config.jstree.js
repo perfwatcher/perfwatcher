@@ -81,57 +81,35 @@ $(function () {
 		"max_children" : -2,
 		// I want only `drive` nodes to be root nodes 
 		// This will prevent moving or creating any other type as a root node
-		"valid_children" : [ "drive", "folder" ],
+		"valid_children" : [ "folder" ],
 		"types" : {
 		    // The default type
 		    "default" : {
-			// I want this type to have no children (so only leaf nodes)
-			// In my case - those are files
-			"valid_children" : "none",
-			// If we specify an icon for the default type it WILL OVERRIDE the theme icons
-			"icon" : {
-			    "image" : "img/file-grey.png"
-			}
+				// I want this type to have no children (so only leaf nodes)
+				// In my case - those are files
+				"valid_children" : "none",
+				// If we specify an icon for the default type it WILL OVERRIDE the theme icons
+				"icon" : { "image" : "img/file-grey.png" }
 		    },
-		    "default-red" : {
-			// I want this type to have no children (so only leaf nodes)
-			// In my case - those are files
-			"valid_children" : "none",
-			// If we specify an icon for the default type it WILL OVERRIDE the theme icons
-			"icon" : {
-			    "image" : "img/file-red.png"
-			}
-		    },
-		    "default-green" : {
-			// I want this type to have no children (so only leaf nodes)
-			// In my case - those are files
-			"valid_children" : "none",
-			// If we specify an icon for the default type it WILL OVERRIDE the theme icons
-			"icon" : {
-			    "image" : "img/file-green.png"
-			}
-		    },
+		    "default-red" : { "valid_children" : "none", "icon" : { "image" : "img/file-red.png" } },
+		    "default-green" : { "valid_children" : "none", "icon" : { "image" : "img/file-green.png" } },
 		    // The `folder` type
 		    "folder" : {
-			// can have files and other folders inside of it, but NOT `drive` nodes
-			"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
-			"icon" : {
-			    "image" : "img/folder.png"
-			}
+				// can have files and other folders inside of it, but NOT `drive` nodes
+				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
+				"icon" : { "image" : "img/folder.png" }
 		    },
 		    // The `drive` nodes 
 		    "drive" : {
-			// can have files and folders inside, but NOT other `drive` nodes
-			"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
-			"icon" : {
-			    "image" : "img/folder.png"
-			},
-			// those options prevent the functions with the same name to be used on the `drive` type nodes
-			// internally the `before` event is used
-			"start_drag" : false,
-			"move_node" : false,
-			"delete_node" : false,
-			"remove" : false
+				// can have files and folders inside, but NOT other `drive` nodes
+				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
+				"icon" : { "image" : "img/folder.png" },
+				// those options prevent the functions with the same name to be used on the `drive` type nodes
+				// internally the `before` event is used
+				"start_drag" : false,
+				"move_node" : false,
+				"delete_node" : false,
+				"remove" : false
 		    }
 		}
 	    },
