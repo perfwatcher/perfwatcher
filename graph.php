@@ -235,7 +235,17 @@ if (isset($_GET['debug'])) {
 	printf("Would have executed:\n%s\n", is_array($rrd_cmd) ? "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'" : $rrd_cmd);
 	return 0;
 } else if ($rrd_cmd) {
-	header('Content-Type: image/png');
+	if (!isset($_GET['download'])) {
+		header('Content-Type: image/png');
+	} else {
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+		header("Cache-Control: private",false);
+		header("Content-Type: application/octet-stream");
+		header("Content-Disposition: attachment; filename=\"graph.png\";" );
+		header("Content-Transfer-Encoding: binary"); 
+	}
 	header('Cache-Control: max-age=60');
 	if (version_compare(phpversion("rrd"), '0.0.0', '>=')) {
     	$tmpfile = tempnam('/dev/shm/','rrd-phpcollectd-');

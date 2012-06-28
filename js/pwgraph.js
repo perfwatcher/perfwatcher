@@ -34,20 +34,24 @@
 	  $(this).contextMenu({ menu: 'graphmenu' }, function(action, el, pos) {
 		switch(action) {
         	case 'top':
-				var x = pos.docX - $(current_graph).position().left;
-				var y = pos.docY - $(current_graph).position().top;
-				var options = $(current_graph).data();
-				if (y < options['gridYstart'] || y > options['gridYend']) { break; }
-				if (x < options['gridXstart'] || x > options['gridXend']) { break; }
-				x -= options['gridXstart'];
-				var diff = options['end'] - options['begin'];
-				var step = diff / (options['gridXend'] - options['gridXstart']);
-				var toptime = options['begin'] + Math.round(step * x);
-				showtop(toptime);
-			break;
-			default:
-				alert('Available soon ...');
-			break;
+			var x = pos.docX - $(current_graph).position().left;
+			var y = pos.docY - $(current_graph).position().top;
+			var options = $(current_graph).data();
+			if (y < options['gridYstart'] || y > options['gridYend']) { break; }
+			if (x < options['gridXstart'] || x > options['gridXend']) { break; }
+			x -= options['gridXstart'];
+			var diff = options['end'] - options['begin'];
+			var step = diff / (options['gridXend'] - options['gridXstart']);
+			var toptime = options['begin'] + Math.round(step * x);
+			showtop(toptime);
+		break;
+        	case 'save':
+			var url = $(current_graph).attr('src') + '&download';
+			document.location = url;
+		break;
+		default:
+			alert('Available soon ...');
+		break;
 		}
 	  });
 	  return this;
