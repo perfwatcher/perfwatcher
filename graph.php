@@ -164,18 +164,16 @@ foreach ($config['timespan'] as &$ts)
 if (!$timespan_ok)
 	return error400($graph_identifier, "Unknown timespan requested");
 
-$_GET['begin'] = read_var('begin', $_GET, '-86400');
-$_GET['end'] = read_var('end', $_GET, '');
-$_GET['begin'] = read_var('graph_start', $_GET, $_GET['begin']);
-$_GET['end'] = read_var('graph_end', $_GET, $_GET['end']);
+$begin = read_var('begin', $_GET, -86400);
+$end = read_var('end', $_GET, null);
 
-$xcenter = $_GET['begin'] < 0 ? $xcenter = time() + ($_GET['begin'] / 2) : $xcenter = $_GET['end'] - (($_GET['end'] - $_GET['begin']) / 2);
+$xcenter = $begin < 0 ? $xcenter = time() + ($begin / 2) : $xcenter = $end - (($end - $begin) / 2);
 $xcenter = intval($xcenter);
 
 $xconfig = array();
-if(is_numeric($_GET['end']) and $_GET['begin'] > 0 and  $_GET['end'] - $_GET['begin'] > 2160000 and $_GET['end'] - $_GET['begin'] < 12960000)
+if(is_numeric($end) and $begin > 0 and  $end - $begin > 2160000 and $end - $begin < 12960000)
 {
-        if($_GET['end'] - $_GET['begin'] < 12960000 - (86400*7))
+        if($end - $begin < 12960000 - (86400*7))
                 $xconfig = array('--x-grid', 'DAY:1:DAY:7:DAY:7:0:%d/%m');
         else
                 $xconfig = array('--x-grid', 'DAY:1:DAY:7:DAY:14:0:%d/%m');

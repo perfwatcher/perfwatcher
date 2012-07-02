@@ -552,7 +552,7 @@ function rrd_get_color($code, $line = true) {
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
 function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, $opts = array()) {
-	global $config;
+	global $config, $begin, $end;
 
 	if (!isset($opts['rrd_opts']))
 		$opts['rrd_opts'] = array();
@@ -628,10 +628,10 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
 	$rrd_cmd = array('-W', 'PERFWATCHER', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle);
 //    $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
     $rrd_cmd[] = '-s';
-    $rrd_cmd[] = $_GET['begin'];
-    if ($_GET['end'] != '') {
+    $rrd_cmd[] = $begin;
+    if ($end != '') {
         $rrd_cmd[] = '-e';
-        $rrd_cmd[] = $_GET['end'];
+        $rrd_cmd[] = $end;
     }
 	$rrd_cmd = array_merge($rrd_cmd, $config['rrd_opts'], $opts['rrd_opts'], $graph);
 
@@ -654,7 +654,7 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
 function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, $tinst = null) {
-	global $config, $GraphDefs;
+	global $config, $GraphDefs, $begin, $end;
 
 	if (!isset($GraphDefs[$type]))
 		return false;
@@ -663,10 +663,10 @@ function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, 
 	$rrdtitle = sprintf('%s/%s%s%s/%s%s%s', get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
 	$rrd_cmd  = array('-W', 'PERFWATCHER', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle);
     $rrd_cmd[] = '-s';
-    $rrd_cmd[] = $_GET['begin'];
-    if ($_GET['end'] != '') {
+    $rrd_cmd[] = $begin;
+    if ($end != '') {
         $rrd_cmd[] = '-e';
-        $rrd_cmd[] = $_GET['end'];
+        $rrd_cmd[] = $end;
     }
 	$rrd_cmd  = array_merge($rrd_cmd, $config['rrd_opts']);
 	$rrd_args = $GraphDefs[$type];
@@ -697,7 +697,7 @@ function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, 
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
 function collectd_draw_meta_stack(&$opts, &$sources) {
-	global $config;
+	global $config, $begin, $end;
 
 	if (!isset($opts['title']))
 		$opts['title'] = 'Unknown title';
@@ -764,10 +764,10 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
 //    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
     $cmd[] = '-s';
-    $cmd[] = $_GET['begin'];
-    if ($_GET['end'] != '') {
+    $cmd[] = $begin;
+    if ($end != '') {
         $cmd[] = '-e';
-        $cmd[] = $_GET['end'];
+        $cmd[] = $end;
     }
 	return $cmd;
 }
@@ -779,7 +779,7 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
 function collectd_draw_meta_line(&$opts, &$sources) {
-	global $config;
+	global $config, $begin, $end;
 
 	if (!isset($opts['title']))
 		$opts['title'] = 'Unknown title';
@@ -838,10 +838,10 @@ function collectd_draw_meta_line(&$opts, &$sources) {
 //    $cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 
     $cmd[] = '-s';
-    $cmd[] = $_GET['begin'];
-    if ($_GET['end'] != '') {
+    $cmd[] = $begin;
+    if ($end != '') {
         $cmd[] = '-e';
-        $cmd[] = $_GET['end'];
+        $cmd[] = $end;
     }
 	return $cmd;
 }
