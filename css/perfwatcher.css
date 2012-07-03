@@ -22,3 +22,5 @@ li[tag="message"] b { color: green; }
 .ui-widget-content { background: white repeat-x scroll 100% 100% #FFFFFF; border: 1px solid #AAAAAA; color: #222222; }
 .widget { height: 220px; }
 #timespan { background-color:#AAAAAA; opacity:0.6; filter:alpha(opacity=60); position:absolute; }
+li { white-space: nowrap; }
+.contextMenu { width: 145px; }
