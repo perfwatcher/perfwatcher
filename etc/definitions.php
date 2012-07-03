@@ -24,7 +24,7 @@ $MetaGraphDefs = array();
 if (is_file('etc/definitions.local.php'))
 	require_once('etc/definitions.local.php');
 
-function load_graph_definitions($logarithmic = false, $tinylegend = false) {
+function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero = false) {
 	global $GraphDefs, $MetaGraphDefs;
 
 	$Canvas   = 'FFFFFF';
@@ -105,6 +105,40 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 	$GraphDefs['current'] = array(
 		'-v', 'Watt',
 		'DEF:avg_raw={file}:value:AVERAGE',
+		'CDEF:avg=avg_raw,3600,/',
+		'CDEF:mytime=avg_raw,TIME,TIME,IF',
+		'CDEF:sample_len_raw=mytime,PREV(mytime),-',
+		'CDEF:sample_len=sample_len_raw,UN,0,sample_len_raw,IF',
+		'CDEF:avg_sample=avg,UN,0,avg,IF,sample_len,*',
+		'CDEF:avg_sum=PREV,UN,0,PREV,IF,avg_sample,+',
+		'CDEF:price=avg_sum,1000,/,0.15,*',
+		"LINE1:avg_raw#$FullBlue:Bits/s",
+		'GPRINT:avg_raw:AVERAGE:%5.1lf%s Avg,',
+		'GPRINT:avg_raw:LAST:%5.1lf%s Last',
+		'GPRINT:avg_sum:LAST:(%.1lf%sW/h',
+		'GPRINT:price:LAST:%.1lf Euros)\l');
+
+	$GraphDefs['percentidtplx'] = array(
+		'-v', 'Percent', '-r', '-l', '0', '-u', '100',
+		'DEF:avg_AC={pathplugin}current-AC Avg Power power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_A={pathplugin}current-Domain A AvgPwr power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_B={pathplugin}current-Domain B AvgPwr power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_FAN={pathplugin}current-Chassis Fan Pwr power_management_board (21.0).rrd:value:AVERAGE',
+		'CDEF:avg_rawa=avg_FAN,avg_A,-',
+		'CDEF:avg_rawb=avg_rawa,avg_B,-',
+		'CDEF:avg=0,avg_rawb,-,avg_AC,/,100,*',
+		"LINE1:avg#$FullBlue:Percent",
+		'GPRINT:avg:AVERAGE:%5.1lf%% Avg,',
+		'GPRINT:avg:LAST:%5.1lf%% Last\l');
+	$GraphDefs['currentidtplx'] = array(
+		'-v', 'Watt',
+		'DEF:avg_AC={pathplugin}current-AC Avg Power power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_A={pathplugin}current-Domain A AvgPwr power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_B={pathplugin}current-Domain B AvgPwr power_management_board (21.0).rrd:value:AVERAGE',
+		'DEF:avg_FAN={pathplugin}current-Chassis Fan Pwr power_management_board (21.0).rrd:value:AVERAGE',
+		'CDEF:avg_rawa=avg_AC,avg_A,-',
+		'CDEF:avg_rawb=avg_rawa,avg_B,-',
+		'CDEF:avg_raw=avg_rawb,avg_FAN,-',
 		'CDEF:avg=avg_raw,3600,/',
 		'CDEF:mytime=avg_raw,TIME,TIME,IF',
 		'CDEF:sample_len_raw=mytime,PREV(mytime),-',
@@ -1260,16 +1294,29 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false) {
 	$MetaGraphDefs['dns_transfer']      = 'meta_graph_dns_event';
 
 	if (function_exists('load_graph_definitions_local'))
-		load_graph_definitions_local($logarithmic, $tinylegend);
+		load_graph_definitions_local($logarithmic, $tinylegend, $zero);
 
-	if ($logarithmic)
-		foreach ($GraphDefs as &$GraphDef)
+	if ($logarithmic) {
+		foreach ($GraphDefs as &$GraphDef) {
 			array_unshift($GraphDef, '-o');
-	if ($tinylegend)
-		foreach ($GraphDefs as &$GraphDef)
-			for ($i = count($GraphDef)-1; $i >=0; $i--)
-				if (strncmp('GPRINT:', $GraphDef[$i], 7) == 0)
+		}
+	}
+	if ($zero) {
+		foreach ($GraphDefs as &$GraphDef) {
+			array_unshift($GraphDef, '0');
+			array_unshift($GraphDef, '-l');
+			array_unshift($GraphDef, '-r');
+		}
+	}
+	if ($tinylegend) {
+		foreach ($GraphDefs as &$GraphDef) {
+			for ($i = count($GraphDef)-1; $i >=0; $i--) {
+				if (strncmp('GPRINT:', $GraphDef[$i], 7) == 0) {
 					unset($GraphDef[$i]);
+				}
+			}
+		}
+	}
 }
 
 function meta_graph_files_count($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {

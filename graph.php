@@ -181,6 +181,7 @@ if(is_numeric($end) and $begin > 0 and  $end - $begin > 2160000 and $end - $begi
 
 $logscale   = (boolean)read_var('logarithmic', $_GET, false);
 $tinylegend = (boolean)read_var('tinylegend', $_GET, false);
+$zero 		= (boolean)read_var('zero', $_GET, false);
 
 // Check that at least 1 RRD exists for the specified request
 $all_tinst = collectd_list_types($host, $plugin, $pinst, $type);
@@ -188,7 +189,7 @@ if (count($all_tinst) == 0)
 	return error404($graph_identifier, "No rrd file found for graphing : $host, $plugin, $pinst, $type");
 
 // Now that we are read, do the bulk work
-load_graph_definitions($logscale, $tinylegend);
+load_graph_definitions($logscale, $tinylegend, $zero);
 
 $pinst = strlen($pinst) == 0 ? null : $pinst;
 $tinst = strlen($tinst) == 0 ? null : $tinst;
@@ -199,15 +200,11 @@ if ($logscale)
 	$opts['logarithmic'] = 1;
 if ($tinylegend)
 	$opts['tinylegend']  = 1;
+if ($zero)
+	$opts['zero']  = 1;
 
 $rrd_cmd = false;
 if (isset($MetaGraphDefs[$type])) {
-/*
-	$identifiers = array();
-	foreach ($all_tinst as &$atinst)
-		$identifiers[] = collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, $atinst);
-	collectd_flush($identifiers);
-*/
 	if ($type == '_') {
 		$rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
 	} else {
@@ -216,9 +213,9 @@ if (isset($MetaGraphDefs[$type])) {
 } else {
 //	collectd_flush(collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, is_null($tinst) ? '' : $tinst));
 	if (isset($GraphDefs[$type]))
-		$rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst);
+		$rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst, $opts);
 	else
-		$rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst);
+		$rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst, $opts);
 }
 $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 $rrd_cmd = array_merge($rrd_cmd,$xconfig);

@@ -558,6 +558,11 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
 		$opts['rrd_opts'] = array();
 	if (isset($opts['logarithmic']) && $opts['logarithmic'])
 		array_unshift($opts['rrd_opts'], '-o');
+	if (isset($opts['zero']) && $opts['zero']) {
+		array_unshift($opts['rrd_opts'], '0');
+		array_unshift($opts['rrd_opts'], '-l');
+		array_unshift($opts['rrd_opts'], '-r');
+	}
 
 	$rrdinfo = null;
 	$rrdfile = sprintf('%s/%s%s%s/%s%s%s', $host, $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);

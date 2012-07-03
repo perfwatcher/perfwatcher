@@ -16,7 +16,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-function load_graph_definitions_local($logarithmic = false, $tinylegend = false) {
+function load_graph_definitions_local($logarithmic = false, $tinylegend = false, $zero = false) {
 	global $GraphDefs, $MetaGraphDefs;
 
 	// Define 1-rrd Graph definitions here

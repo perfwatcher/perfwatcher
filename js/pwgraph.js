@@ -3,6 +3,9 @@
   var options = {
 	begin		: -86400,
 	end			: null,
+	zero		: 0,
+	logarithmic	: 0,
+	tinylegend	: 0,
 	width		: 697,
 	gridXstart	: 67,
 	gridXend	: 667,
@@ -45,16 +48,21 @@
 			var toptime = options['begin'] + Math.round(step * x);
 			showtop(toptime);
 		break;
-        	case 'save':
+       	case 'save':
 			var url = $(current_graph).attr('src') + '&download';
 			document.location = url;
 		break;
-        	case 'export':
+       	case 'export':
 			var url = $(current_graph).attr('src');
 			document.location = url.replace('graph.php', 'export.php');
 		break;
+		case 'tinylegend':
+		case 'zero':
+		case 'logarithmic':
+			$(current_graph).pwgraph(action).pwgraph('display');
+		break;
 		default:
-			alert('Available soon ...');
+			alert(action + ' Available soon ...');
 		break;
 		}
 	  });
@@ -79,6 +87,9 @@
 		+ '&begin=' + options['begin']
 		+ (options['end'] != null ? '&end=' + options['end'] : '')
 		+ '&width=' + options['width']
+		+ '&zero=' + options['zero']
+		+ '&logarithmic=' + options['logarithmic']
+		+ '&tinylegend=' + options['tinylegend']
 		+ '&t=' + (new Date()).getTime()
 	  );
       return this;
@@ -149,6 +160,33 @@
 	  var options = this.data();
 	  options['begin'] = -86400 * 366;
 	  options['end'] = null;
+	  this.data(options);
+      return this;
+    },
+    zero : function() { 
+	  var options = this.data();
+	  if (options['zero'] == 1)
+	  	options['zero'] = 0;
+	  else
+	  	options['zero'] = 1;
+	  this.data(options);
+      return this;
+    },
+    logarithmic : function() { 
+	  var options = this.data();
+	  if (options['logarithmic'] == 1)
+	  	options['logarithmic'] = 0;
+	  else
+	  	options['logarithmic'] = 1;
+	  this.data(options);
+      return this;
+    },
+    tinylegend : function() { 
+	  var options = this.data();
+	  if (options['tinylegend'] == 1)
+	  	options['tinylegend'] = 0;
+	  else
+	  	options['tinylegend'] = 1;
 	  this.data(options);
       return this;
     },
