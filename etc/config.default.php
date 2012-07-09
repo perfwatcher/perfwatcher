@@ -33,7 +33,7 @@ $blacklisted_type = array('hyperthreading', 'nbcpu');
 
 $rrdtool = '/usr/bin/rrdtool';
 
-$rrdtool_options = array('--border', '0', '-c', 'BACK#FFFFFF', '-v', '');
+$rrdtool_options = array('--border', '0', '-c', 'BACK#FFFFFF', '-v', ' ');
 
 $collectd_socket  = '/var/run/collectd-unixsock';
 
