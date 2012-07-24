@@ -334,7 +334,7 @@ class json_tree extends _tree_struct {
 		$this->create_node(array(
 			"id" => 1,
 			"position" => 0,
-			"title" => "BNP Arbitrage",
+			"title" => "ROOT",
 			"type" => "drive"
 		));
 	}
