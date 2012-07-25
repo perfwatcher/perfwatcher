@@ -181,3 +181,31 @@ DROP TABLE IF EXISTS `types_db`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `types_db` AS select `type`.`name` AS `type`,`dataset`.`name` AS `ds` from (`type` join `dataset`) where (`dataset`.`type_id` = `type`.`id`) order by `type`.`name`,`dataset`.`id`;
 
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `jsTree` /*!40100 DEFAULT CHARACTER SET latin1 */;
+
+USE `jsTree`;
+
+--
+-- Table structure for table `tree`
+--
+
+DROP TABLE IF EXISTS `tree`;
+/*!40101 SET @saved_cs_client = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tree` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint(20) unsigned NOT NULL,
+  `position` bigint(20) unsigned NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `datas` varchar(8192) NOT NULL DEFAULT 'a:0:{}',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`,`parent_id`),
+  KEY `title` (`title`),
+  KEY `type` (`type`),
+  KEY `id_2` (`id`,`title`)
+) ENGINE=MyISAM AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+INSERT INTO `tree` (`id`, `parent_id`, `position`, `title`, `type`, `datas`) VALUES
+(1, 0, 0, NULL, 'drive', 'a:0:{}'),
+(2, 1, 0, 'ROOT', 'drive', 'a:0:{}');
