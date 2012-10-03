@@ -51,16 +51,40 @@
 		$.ajax({
 			async : true, type: 'POST', url: "action.php?tpl=folder_aggregator",
 			data : { 
-				"action" : "get_plugins", 
+				"action" : "get_hosts", 
 				"id" : json_item_datas['jstree']['id']
 			},
 			complete : function (r) {
 				if(r.status) {
-					pluginlist = jQuery.parseJSON(r.responseText);
-					$(pluginlist).each(function(i, plugin) {
-						$('<option>'+plugin[4]+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin]');
+					var hosts = jQuery.parseJSON(r.responseText);
+					$.ajax({
+						async: true,
+						type: 'POST',
+						url: 'json-rpc',
+						data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_metric", "params": hosts, "id": 0}),
+						dataType: 'json',
+						cache: false, 
+						success: function(result, textStatus, XMLHttpRequest) {
+							var alreadytreated = new Array();
+							$(result['result']).each(function(i, metric) {
+								m = splitMetric(metric);
+								p = m[0]; pi = m[1]; t = m[2]; ti = m[3];
+								var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
+								if (grouped_type != -1) {
+									if (alreadytreated[p+pi+t]) {
+										return;
+									} else {
+										alreadytreated[p+pi+t] = true;
+									}
+								}
+								$('<option>'+p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '')+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin]');
+							});
+							$('div[widget="folder_aggregator"] select[class=select_plugin]').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter();
+						},
+						error: function(XMLHttpRequest, textStatus, errorThrown) {
+							console.log('error', XMLHttpRequest, textStatus, errorThrown);
+						},
 					});
-					$('div[widget="folder_aggregator"] select[class=select_plugin]').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter();
 				}
 			}
 		});

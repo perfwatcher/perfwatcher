@@ -33,6 +33,7 @@
 			});
 		});
 		$(aggregators_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
+
 		$.getJSON('action.php?tpl=custom_view_folder&action=get_datas&id='+json_item_datas['jstree']['id'], function(datas) {
 			json_datas = datas;
 			$.each(json_datas['hosts'], function (hostn, host) {
@@ -48,6 +49,51 @@
 				});
 			});
 			$(hosts_selector).multiselect({ noneSelectedText: 'Select host(s)', selectedList: 0 }).multiselectfilter();
+			$.ajax({
+				async: true,
+				type: 'POST',
+				url: 'json-rpc',
+				data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_metric", "params": json_datas['hosts'], "id": 0}),
+				dataType: 'json',
+				cache: false, 
+				success: function(result, textStatus, XMLHttpRequest) {
+					var alreadytreated = new Array();
+					$(result['result']).each(function(i, metric) {
+						m = splitMetric(metric);
+						p = m[0]; pi = m[1]; t = m[2]; ti = m[3];
+						var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
+						if (grouped_type != -1) {
+							if (alreadytreated[p+pi+t]) {
+								return;
+							} else {
+								alreadytreated[p+pi+t] = true;
+							}
+						}
+						var option = document.createElement('option');
+						option.innerHTML = p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '');
+						$(option).attr('plugin', p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : ''));
+						$(option).data(m);
+						$(option).appendTo(plugins_selector);
+					});
+					$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_graph']).each(function (devnull, plugin) {
+						p = plugin[0]; pi = plugin[1]; t = plugin[2]; ti = plugin[3];
+						var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
+						var metric = p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '');
+						$(plugins_selector+' option').each(function () {
+							//console.log($(this).attr('plugin') , metric);
+							if ($(this).attr('plugin') == metric) {
+								$(this).attr('selected', 'selected');
+							}
+						});
+					});
+					$(plugins_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
+
+				},
+				error: function(XMLHttpRequest, textStatus, errorThrown) {
+					console.log('error', XMLHttpRequest, textStatus, errorThrown);
+				},
+			});
+			/*
 			$.each(json_datas['plugins'], function (pluginitemn, pluginitem) {
 				var name = pluginitem[0];
 				name = name+(pluginitem[1] == '' ? '/' : '-'+pluginitem[1]+'/');
@@ -58,16 +104,7 @@
 				$(option).data(pluginitem);
 				$(option).appendTo(plugins_selector);
 			});
-			$(json_item_datas['datas']['tabs'][custom_tab_id]['selected_graph']).each(function (devnull, plugin) {
-				$(plugins_selector+' option').each(function () {
-					var data = $(this).data()
-					var datas = new Array(data[0],data[1],data[2],data[3],data[4]);
-					if ($(plugin).compare(datas)) {
-						$(this).attr('selected', 'selected');
-					}
-				});
-			});
-			$(plugins_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
+			*/
 		});
 		var input_selector = 'input[tabid="{{ tabid }}"]';
 		$(input_selector).click(function () {

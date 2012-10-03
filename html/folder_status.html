@@ -1,18 +1,71 @@
 <script type="text/javascript" src="js/swfobject.js"></script>
 <script type="text/javascript">
+		var hosts_up = hosts_down = hosts_unknown = '';
 		function piesliceclicked( index )
 		{
 			var status;
 			switch(index) {
-				case 0: status = 'up';  break;
-				case 1: status = 'down'; break;
-				case 2: status = 'unknown'; break;
+				case 0: status = 'up';
+					showserverlist (hosts_up, 'success');
+				break;
+				case 1: status = 'down';
+					showserverlist (hosts_down, 'error');
+				break;
+				case 2: status = 'unknown';
+					showserverlist (hosts_unknown, 'warning');
+				break;
 			}
-			window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );
+			//window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );
+
 		}
-        swfobject.embedSWF('open-flash-chart.swf', 'statuschart', '250', '150','9.0.0', 'expressInstall.swf',
+        swfobject.embedSWF('open-flash-chart.swf', 'statuschart', '250', '150','9.0.0', 'expressInstall.swf');
+		function open_flash_chart_data()
 		{
-			'data-file': 'action.php?tpl=statuschart%26action=get_status%26id='+json_item_datas['jstree']['id']
-		});
+			var up = 0;
+			var down = 0;
+			var unknown = 0;
+			$.ajax({
+				async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
+				data : { 
+					"action" : "get_hosts", 
+					"id" : json_item_datas['jstree']['id']
+				},
+				complete : function (r) {
+					if(r.status) {
+						var hosts = jQuery.parseJSON(r.responseText);
+						$.ajax({
+						    async : false,
+						    type: 'POST',
+						    url: "json-rpc",
+							data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": hosts}, "id": 0}),
+						    dataType : 'json',
+						    complete : function (r) {
+						        if(r.status) {
+						            var res = jQuery.parseJSON(r.responseText);
+									for(var host in res['result']) {
+										switch(res['result'][host]) {
+											case 'up':
+												up++;
+												hosts_up = hosts_up + host + "<br/>\n";
+											break;
+											case 'down':
+												down++;
+												hosts_down = hosts_down + host + "<br/>\n";
+											break;
+											case 'unknown':
+												unknown++;
+												hosts_unknown = hosts_unknown + host + "<br/>\n";
+											break;
+										}
+									}
+						        }
+						    }
+						});
+					}
+				}
+			});
+			var data = JSON.stringify({"elements": [{"type": "pie", "animate": [{"type": "fade"}], "label-colour": "#432BAF", "start-angle": 35, "tip": "#label#<br>#val# hosts (#percent#)", "colours": ["#77CC6D", "#FF5973", "#838282" ], "values": [ { "value": up, "label": "Up" }, { "value": down, "label": "Down" }, { "value": unknown, "label": "Unknown" }], "on-click": "piesliceclicked" }], "bg_colour": "#FFFFFF"});
+			return data;
+		}
 </script>
 <center><div id="statuschart"></div></center>

@@ -40,10 +40,11 @@ class folder_aggregator {
 	}
 
 	function get_info() {
-		global $folder_filling_plugins;
+		global $folder_filling_plugins, $grouped_type;
 		return array(
 			'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
-			'content_url' => 'html/folder_aggregator.html'
+			'content_url' => 'html/folder_aggregator.html',
+			'grouped_type' => $grouped_type
 		);
 	}
 

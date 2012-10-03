@@ -26,7 +26,7 @@ header('Content-type: text/json; charset=utf-8');
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Pragma: no-cache");
-
+/*
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
     die('Error : POST or GET id missing !!');
 }
@@ -44,7 +44,9 @@ $res = $jstree->_get_node($id);
 $load = get_load($res['id']);
 $process = get_process_count($res['id']);
 $nbcpu = get_cpu_count($res['id']);
+*/
 
+$load = $process = $nbcpu = 1;
 
 echo json_encode(
 array(

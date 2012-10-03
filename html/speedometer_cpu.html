@@ -3,6 +3,76 @@
 <script type="text/javascript" src="js/excanvas-modified.js"></script>
 <script type="text/javascript">
 	var displayme = false;
+	$.ajax({
+		async : true, type: 'POST', url: "action.php?tpl=folder_aggregator",
+		data : { 
+			"action" : "get_hosts", 
+			"id" : json_item_datas['jstree']['id']
+		},
+		complete : function (r) {
+			if(r.status) {
+				var metrics = new Array();
+				var hosts = jQuery.parseJSON(r.responseText);
+				if(hosts.length == 0) {
+					hosts = [json_item_datas['host']];
+				}
+				$(hosts).each(function (key, val) {
+					metrics.push(val+'/load/load');
+					metrics.push(val+'/cpu-total/nbcpu');
+					metrics.push(val+'/processes/ps_state-running');
+				});
+				var nbcpu = load = process = 0;
+				$.ajax({
+					async: true,
+					type: 'POST',
+					url: 'json-rpc',
+					data: JSON.stringify({"jsonrpc": "2.0", "method": "getval", "params": metrics, "id": 0}),
+					dataType: 'json',
+					cache: false, 
+					success: function(result, textStatus, XMLHttpRequest) {
+						for (val in result['result']) {
+							if(val, result['result'][val] == null) { continue; }
+							switch(val.substring(val.length - 5)) {
+								case '/load':
+									if (!isNaN(result['result'][val]['shortterm'])) {
+										load += result['result'][val]['shortterm'];
+									}
+								break;
+								case 'nbcpu':
+									nbcpu += result['result'][val]['value'];
+								break;
+								case 'nning':
+									process += result['result'][val]['value'];
+								break;
+							}
+						}
+						json_item_datas['config']['widgets']['speedometer_cpu']['load'] = load;
+						json_item_datas['config']['widgets']['speedometer_cpu']['nbcpu'] = nbcpu;
+						json_item_datas['config']['widgets']['speedometer_cpu']['process'] = process;
+						if (nbcpu > 0) {
+							displayme = true;
+							var percent = load / nbcpu * 100;
+							$('div[widget="speedometer_cpu"] div.speedometer_cpu').speedometer({ percentage: Math.round(percent) });
+							$('<li>'+nbcpu+' core(s)</li>').appendTo('div[widget="speedometer_cpu"] div.information ul');
+						}
+						if (load > 0 || nbcpu > 0 || process > 0) {
+							displayme = true;
+							$('<li><b>Load average</b> '+Math.round(load)+'</li>').appendTo('div[widget="speedometer_cpu"] div.information ul');
+							$('<li>'+process+' processe(s) running</li>').appendTo('div[widget="speedometer_cpu"] div.information ul');
+						}
+						if (!displayme) {
+							$('#infodock').jqxDocking('closeWindow', $('div[widget="speedometer_cpu"]').attr('id'));
+						}
+
+							},
+							error: function(XMLHttpRequest, textStatus, errorThrown) {
+								console.log('error', XMLHttpRequest, textStatus, errorThrown);
+							},
+						});
+			}
+		}
+	});
+	/*
     $.ajax({
         async : true, type: 'GET', url: "action.php?tpl=speedometer_cpu",
         data : {
@@ -32,6 +102,7 @@
 			}
         }
     });
+	*/
 </script>
 <table>
 	<tr><td><div class="information" style=""><ul></ul></div></td>

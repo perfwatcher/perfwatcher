@@ -156,33 +156,37 @@ function auto_refresh_status() {
 }
 
 function refresh_status() {
-    var lst = '';
+    var hosts = new Array();
     $('li[id^="node_"]').each(function(index, element) {
             if ($('#'+this.id).attr('rel') != 'drive' && $('#'+this.id).attr('rel') != 'folder') {
-                lst = lst + this.id.substr(5) + "\n";
+				var host = $('#'+this.id+' a').html().substr(37);
+				$('#'+this.id).attr('host', host);
+                hosts.push(host);
             }
         }
     );
     $.ajax({
         async : true,
         type: 'POST',
-        url: "action.php?tpl=status",
+        url: "json-rpc",
+		data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": hosts}, "id": 0}),
         dataType : 'json',
-        data : { 
-            "nodes" : lst
-        },
         complete : function (r) {
             if(r.status) {
                 var res = jQuery.parseJSON(r.responseText);
-                for(i in res['up']) {
-                    $('#node_'+res['up'][i]).attr('rel', 'default-green');
-                }
-                for(i in res['down']) {
-                    $('#node_'+res['down'][i]).attr('rel', 'default-red');
-                }
-                for(i in res['unknown']) {
-                    $('#node_'+res['unknown'][i]).attr('rel', 'default-grey');
-                }
+				for(var host in res['result']) {
+					switch(res['result'][host]) {
+						case 'up':
+							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-green');
+						break;
+						case 'down':
+							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-red');
+						break;
+						case 'unknown':
+							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-grey');
+						break;
+					}
+				}
             }
         }
     });
@@ -205,22 +209,17 @@ function notify_ok(text) {
 		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
 	});
 }
-
+function showserverlist(list, type) {
+	noty({
+		"text":list, "layout":"center", "type":type,
+		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
+		"speed":500, "timeout":60000, "closeButton":true,
+		"closeOnSelfClick":false, "closeOnSelfOver":false,"modal":true
+	});
+}
 function askfor(optionsarg, func) {
 	var options = { label: '', cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
 	$.extend(options, optionsarg);
-	/*
-	$('#modalwindow').jqxWindow({ height: 150, width: 350, title: options['title'], isModal: true, theme: theme }).show();
-	$('#modalwindowcontent').html(ich.askfor(options));
-	$('#modalwindowcontent input[type="button"]').jqxButton({ theme: theme });
-	$('#modalwindowcontent input[tag="cancel"]').click(function () {
-		$('#modalwindow').jqxWindow('hide');
-	});
-	$('#modalwindowcontent div input[tag="ok"]').click(function () {
-		$('#modalwindow').jqxWindow('hide');
-		func($('#modalwindowcontent input[type="text"]').val());
-	});
-	*/
   noty({
 	"layout":"center",
     text: options['title']+' <input type="text" id="askforinput" value="">', 
@@ -304,3 +303,28 @@ function bytesToSize(bytes) {
 	var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
 	return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
 };
+
+function splitMetric (metric) {
+	var p;
+	var pi;
+	var t;
+	var ti;
+	g = metric.split('/')[0];
+	d = metric.split('/')[1];
+	if (g.indexOf('-') == -1) {
+		p = g;
+		pi = '';
+	} else {
+		p = g.substring(0, g.indexOf('-'));
+		pi = g.substring(g.indexOf('-') + 1);
+	}
+	if (d.indexOf('-') == -1) {
+		t = d;
+		ti = '';
+	} else {
+		t = d.substring(0, d.indexOf('-'));
+		ti = d.substring(d.indexOf('-') + 1);
+	}
+	
+	return [p, pi, t, ti];
+}
