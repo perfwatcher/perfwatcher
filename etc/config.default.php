@@ -12,14 +12,6 @@ $db_config = array(
 	"database"	=> "jsTree"
 );
 
-$collectd_db_config = array(
-	'phptype'  => 'mysql',
-	"hostspec"=> "localhost",
-	"username"	=> "root",
-	"password"	=> "",
-	"database"	=> "collectd"
-);
-
 $rrds_path = "/var/lib/collectd";
 $notification_path = "/var/lib/collectd/_notification";
 

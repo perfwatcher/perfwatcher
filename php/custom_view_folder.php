@@ -53,12 +53,9 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
 						$hostlist[] = $children['title'];
 					}
 				}
-//				$plugins = get_childrens_plugins($jstree,"aggregator_$id");
 				sort(&$hostlist);
-//				sort(&$plugins);
 				echo json_encode(array(
-					'hosts' => $hostlist,
-//					'plugins' => $plugins
+					'hosts' => $hostlist
 				));
 		break;
         case 'save_tab':

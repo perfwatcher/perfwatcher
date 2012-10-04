@@ -29,7 +29,6 @@ class speedometer_cpu {
 
 	function is_compatible() {
 		return true;
-		//return get_cpu_count($this->datas['id']) > 0;
 	}
 
 	function get_info() {
