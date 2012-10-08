@@ -167,7 +167,7 @@ function auto_refresh_status() {
 	refresh_status();
 	window.setTimeout(function () {
 	        auto_refresh_status();
-    }, 60000);
+    }, 10000);
 }
 
 function refresh_status() {
