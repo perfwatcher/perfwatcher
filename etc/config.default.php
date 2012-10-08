@@ -30,7 +30,7 @@ $rrdtool_options = array('--border', '0', '-c', 'BACK#FFFFFF', '-v', ' ');
 $collectd_socket  = '/var/run/collectd-unixsock';
 
 $widgets = array();
-$widgets[] = 'speedometer_cpu';
+$widgets[] = 'vu_cpu_memory';
 $widgets[] = 'folder_status';
 $widgets[] = 'folder_aggregator';
 $widgets[] = 'folder_options';

@@ -1,59 +1,106 @@
-<script type="text/javascript" src="js/swfobject.js"></script>
-<script type="text/javascript">
-		var hosts_up = hosts_down = hosts_unknown = '';
-		function piesliceclicked( index )
-		{
-			var status;
-			switch(index) {
-				case 0: status = 'up';
-					showserverlist (hosts_up, 'success');
-				break;
-				case 1: status = 'down';
-					showserverlist (hosts_down, 'error');
-				break;
-				case 2: status = 'unknown';
-					showserverlist (hosts_unknown, 'warning');
-				break;
-			}
-			//window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );
 
-		}
-        swfobject.embedSWF('open-flash-chart.swf', 'statuschart', '250', '150','9.0.0', 'expressInstall.swf');
-		function open_flash_chart_data()
-		{
-			var up = 0;
-			var down = 0;
-			var unknown = 0;
-			$.ajax({
-			    async : false,
-			    type: 'POST',
-			    url: "json-rpc",
-				data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": json_item_datas['hosts']}, "id": 0}),
-			    dataType : 'json',
-			    complete : function (r) {
-			        if(r.status) {
-			            var res = jQuery.parseJSON(r.responseText);
-						for(var host in res['result']) {
-							switch(res['result'][host]) {
-								case 'up':
-									up++;
-									hosts_up = hosts_up + host + "<br/>\n";
-								break;
-								case 'down':
-									down++;
-									hosts_down = hosts_down + host + "<br/>\n";
-								break;
-								case 'unknown':
-									unknown++;
-									hosts_unknown = hosts_unknown + host + "<br/>\n";
-								break;
+<script type="text/javascript">
+var hosts_up = hosts_down = hosts_unknown = '';
+function piesliceclicked( index )
+{
+	switch(index) {
+		case 'UP':
+			showserverlist (hosts_up, 'success');
+		break;
+		case 'DOWN':
+			showserverlist (hosts_down, 'error');
+		break;
+		case 'UNKNOWN':
+			showserverlist (hosts_unknown, 'warning');
+		break;
+	}
+	//window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );
+
+}
+
+var chart;
+var up = 0;
+var down = 0;
+var unknown = 0;
+$.ajax({
+    async : true,
+    type: 'POST',
+    url: "json-rpc",
+	data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": json_item_datas['hosts']}, "id": 0}),
+    dataType : 'json',
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+		var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+		notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+	},
+    complete : function (r) {
+        if(r.status) {
+            var res = jQuery.parseJSON(r.responseText);
+			for(var host in res['result']) {
+				switch(res['result'][host]) {
+					case 'up':
+						up++;
+						hosts_up = hosts_up + host + "<br/>\n";
+					break;
+					case 'down':
+						down++;
+						hosts_down = hosts_down + host + "<br/>\n";
+					break;
+					case 'unknown':
+						unknown++;
+						hosts_unknown = hosts_unknown + host + "<br/>\n";
+					break;
+				}
+			}
+			
+			Highcharts.setOptions({
+				colors: ['#77CC6D', '#FF5973', '#838282']
+			});
+        	chart = new Highcharts.Chart({
+				chart: {
+				    renderTo: 'status_chart',
+				    plotBackgroundColor: null,
+				    plotBorderWidth: null,
+				    plotShadow: false,
+					height: 180
+				},
+				title: {
+				    text: ' '
+				},
+				tooltip: {
+				    pointFormat: '{series.name}: <b>{point.y}</b>',
+					percentageDecimals: 1
+				},
+				plotOptions: {
+				    pie: {
+				        allowPointSelect: true,
+				        cursor: 'pointer',
+				        dataLabels: {
+				            enabled: true,
+				            color: '#000000',
+				            connectorColor: '#000000',
+				            formatter: function() {
+				                return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
+				            }
+				        },
+						events: {
+							click: function (e) {
+								piesliceclicked(e['point']['config'][0]);
 							}
 						}
-			        }
-			    }
+				    }
+				},
+				series: [{
+					type: 'pie',
+					name: 'Server(s)',
+					data: [
+						['UP',   up],
+						['DOWN', down],
+						['UNKNOWN',   unknown]
+					]
+				}]
 			});
-			var data = JSON.stringify({"elements": [{"type": "pie", "animate": [{"type": "fade"}], "label-colour": "#432BAF", "start-angle": 35, "tip": "#label#<br>#val# hosts (#percent#)", "colours": ["#77CC6D", "#FF5973", "#838282" ], "values": [ { "value": up, "label": "Up" }, { "value": down, "label": "Down" }, { "value": unknown, "label": "Unknown" }], "on-click": "piesliceclicked" }], "bg_colour": "#FFFFFF"});
-			return data;
 		}
+	}
+});
 </script>
-<center><div id="statuschart"></div></center>
+<center><div id="status_chart"></div></center>
