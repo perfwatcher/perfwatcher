@@ -79,7 +79,7 @@ $(function () {
 	    },
 	
 	    title: {
-	        text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + current_load
+	        text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + (Math.round(current_load * 100)/100)
 	    },
 	    
 	    pane: [{
@@ -181,7 +181,7 @@ $(function () {
 			chart.yAxis[1].axisTitle.attr({
 			        text: 'MEM<br/><span style="font-size:8px">'+Math.round(rightVal)+'%</span>'
 			});
-			chart.setTitle({ text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + current_load });
+			chart.setTitle({ text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + (Math.round(current_load * 100)/100) });
 
 	        chart.redraw();
 	
