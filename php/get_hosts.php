@@ -13,7 +13,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 $jstree = new json_tree();
 $res = $jstree->_get_node($id);
-
+$hosts = array();
 $data = $jstree->_get_children($id, true);
 foreach($data as $host) {
 	if ($host['type'] == 'default') { $hosts[] = $host['title']; }
