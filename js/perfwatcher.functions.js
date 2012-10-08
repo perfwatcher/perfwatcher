@@ -12,7 +12,7 @@ function select_node(nodeid) {
 		json_item_datas = datas;
 		//console.log(json_item_datas);
 		$.ajax({
-			async : true, type: 'POST', url: "action.php?tpl=get_hosts",
+			async : false, type: 'POST', url: "action.php?tpl=get_hosts",
 			data : { 
 				"id" : json_item_datas['jstree']['id']
 			},

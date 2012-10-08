@@ -1,6 +1,8 @@
 <script type="text/javascript">
 var current_cpu = 0;
 var current_mem = 0;
+var current_nbcpu = 0;
+var current_load = 0;
 $(function () {
 	get_cpu_memory(json_item_datas['hosts']);
 	window.setInterval(function() { get_cpu_memory(json_item_datas['hosts']); }, 60000);
@@ -48,6 +50,8 @@ $(function () {
 				}
 				current_cpu = load / nbcpu * 100;
 				current_mem = memory_u / (memory_u + memory_f + memory_c) * 100;
+				current_nbcpu = nbcpu;
+				current_load = load;
 			},
 			error: function(XMLHttpRequest, textStatus, errorThrown) {
 				var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
@@ -56,7 +60,6 @@ $(function () {
 		});
 	}
 
-	$('div[widget="vu_cpu_memory"]').css('overflow', 'hidden');
 	var chart = new Highcharts.Chart({
 	
 	    chart: {
@@ -76,7 +79,7 @@ $(function () {
 	    },
 	
 	    title: {
-	        text: json_item_datas['jstree']['title']
+	        text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + current_load
 	    },
 	    
 	    pane: [{
@@ -178,6 +181,7 @@ $(function () {
 			chart.yAxis[1].axisTitle.attr({
 			        text: 'MEM<br/><span style="font-size:8px">'+Math.round(rightVal)+'%</span>'
 			});
+			chart.setTitle({ text: json_item_datas['jstree']['title'] + ' ' + current_nbcpu + ' core(s) / Load: ' + current_load });
 
 	        chart.redraw();
 	
