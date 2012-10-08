@@ -1,0 +1,189 @@
+<script type="text/javascript">
+var current_cpu = 0;
+var current_mem = 0;
+$(function () {
+	get_cpu_memory(json_item_datas['hosts']);
+	window.setInterval(function() { get_cpu_memory(json_item_datas['hosts']); }, 60000);
+
+	function get_cpu_memory(hosts) {
+		var metrics = new Array();
+		$(hosts).each(function (key, val) {
+			metrics.push(val+'/load/load');
+			metrics.push(val+'/cpu-total/nbcpu');
+			metrics.push(val+'/memory/memory-free');
+			metrics.push(val+'/memory/memory-used');
+			metrics.push(val+'/memory/memory-buffered');
+			metrics.push(val+'/memory/memory-cached');
+		});
+		$.ajax({
+			async: true,
+			type: 'POST',
+			url: 'json-rpc',
+			data: JSON.stringify({"jsonrpc": "2.0", "method": "getval", "params": metrics, "id": 0}),
+			dataType: 'json',
+			cache: false, 
+			success: function(result, textStatus, XMLHttpRequest) {
+				var nbcpu = load = process = memory_c = memory_f = memory_u = 0;
+				for (val in result['result']) {
+					if(val, result['result'][val] == null) { continue; }
+					switch(val.substring(val.length - 5)) {
+						case '/load':
+							if (!isNaN(result['result'][val]['shortterm'])) {
+								load += result['result'][val]['shortterm'];
+							}
+						break;
+						case 'nbcpu':
+							nbcpu += result['result'][val]['value'];
+						break;
+						case '-free':
+							memory_f += result['result'][val]['value'];
+						case 'fered':
+						case 'ached':
+							memory_c += result['result'][val]['value'];
+						break;
+						case '-used':
+							memory_u += result['result'][val]['value'];
+						break;
+					}
+				}
+				current_cpu = load / nbcpu * 100;
+				current_mem = memory_u / (memory_u + memory_f + memory_c) * 100;
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+				notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+			},
+		});
+	}
+
+	$('div[widget="vu_cpu_memory"]').css('overflow', 'hidden');
+	var chart = new Highcharts.Chart({
+	
+	    chart: {
+	        renderTo: 'vu_cpu_memory',
+	        type: 'gauge',
+	        plotBorderWidth: 1,
+	        plotBackgroundColor: {
+	        	linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+	        	stops: [
+	        		[80, '#FFF4C6'],
+	        		[80, '#FFFFFF'],
+	        		[100, '#FFF4C6']
+	        	]
+	        },
+	        plotBackgroundImage: null,
+	        height: 150
+	    },
+	
+	    title: {
+	        text: json_item_datas['jstree']['title']
+	    },
+	    
+	    pane: [{
+	        startAngle: -45,
+	        endAngle: 45,
+	        background: null,
+	        center: ['25%', '145%'],
+	        size: 200
+	    }, {
+	    	startAngle: -45,
+	    	endAngle: 45,
+	    	background: null,
+	        center: ['75%', '145%'],
+	        size: 200
+	    }],	    		        
+	
+	    yAxis: [{
+	        min: 0,
+	        max: 100,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 80,
+	        	to: 100,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 0,
+	        title: {
+	        	text: 'CPU',
+	        	y: -40
+	        }
+	    }, {
+	        min: 0,
+	        max: 100,
+	        minorTickPosition: 'outside',
+	        tickPosition: 'outside',
+	        labels: {
+	        	rotation: 'auto',
+	        	distance: 20
+	        },
+	        plotBands: [{
+	        	from: 80,
+	        	to: 100,
+	        	color: '#C02316',
+	        	innerRadius: '100%',
+	        	outerRadius: '105%'
+	        }],
+	        pane: 1,
+	        title: {
+	        	text: 'Memory',
+	        	y: -40
+	        }
+	    }],
+	    
+	    plotOptions: {
+	    	gauge: {
+	    		dataLabels: {
+	    			enabled: false
+	    		},
+	    		dial: {
+	    			radius: '100%'
+	    		}
+	    	}
+	    },
+	    	
+	
+	    series: [{
+	        data: [0],
+	        yAxis: 0
+	    }, {
+	        data: [0],
+	        yAxis: 1
+	    }]
+	
+	},
+	
+	// Let the music play
+	function(chart) {
+	    setInterval(function() {
+	        var left = chart.series[0].points[0],
+	            right = chart.series[1].points[0],
+	            leftVal, rightVal,
+	            inc = (Math.random() - 0.5) * 3;
+	
+	        leftVal =  current_cpu + inc;
+	        rightVal = current_mem + inc ;
+	
+	        left.update(leftVal, false);
+	        right.update(rightVal, false);
+			chart.yAxis[0].axisTitle.attr({
+			        text: 'CPU<br/><span style="font-size:8px">'+Math.round(leftVal)+'%</span>'
+			});
+			chart.yAxis[1].axisTitle.attr({
+			        text: 'MEM<br/><span style="font-size:8px">'+Math.round(rightVal)+'%</span>'
+			});
+
+	        chart.redraw();
+	
+	    }, 500);
+	
+	});
+});
+</script>
+<div id="vu_cpu_memory"></div>
