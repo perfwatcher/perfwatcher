@@ -90,7 +90,8 @@
 
 				},
 				error: function(XMLHttpRequest, textStatus, errorThrown) {
-					console.log('error', XMLHttpRequest, textStatus, errorThrown);
+					var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+					notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
 				},
 			});
 			/*

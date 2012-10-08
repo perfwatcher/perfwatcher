@@ -11,6 +11,21 @@ function select_node(nodeid) {
 		var tabid = 1;
 		json_item_datas = datas;
 		//console.log(json_item_datas);
+		$.ajax({
+			async : true, type: 'POST', url: "action.php?tpl=get_hosts",
+			data : { 
+				"id" : json_item_datas['jstree']['id']
+			},
+			complete : function (r) {
+				if(r.status) {
+					hosts = jQuery.parseJSON(r.responseText);
+					if(hosts.length == 0) {
+						hosts = [json_item_datas['host']];
+					}
+					json_item_datas['hosts'] = hosts;
+				}
+			}
+		});
 		$('[tag="hostname"] b').html(datas['jstree']['title']);
 		if (datas['plugins']) {
 			$.each(datas['plugins'], function(plugin, plugin_instance) {
@@ -188,7 +203,11 @@ function refresh_status() {
 					}
 				}
             }
-        }
+        },
+		error: function(XMLHttpRequest, textStatus, errorThrown) {
+			var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+			notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+		},
     });
 }
 
