@@ -3,183 +3,59 @@
 $starttime = time();
 chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 
-if (file_exists('/tmp/collectd-aggregator')) { exit(0); }
-touch('/tmp/collectd-aggregator');
-
 require "lib/common.php";
-
-if (isset($aggregator_hostname)) {
-	$hostname = $aggregator_hostname;
-} else {
-	$hostname = posix_uname();
-	$hostname = $hostname['nodename'];
-}
-$debug=false;
-$debug2=false;
-$foreground=false;
-$clildren_number = 24;
-
-if (isset($argv[1])) {
-    foreach($argv as $key => $val) {
-        if ($key == 0) { continue; }
-        switch($val) {
-            case '-v':
-                $debug=true;
-            break;
-            case '-vv':
-                $debug=true;
-                $debug2=true;
-            break;
-            case '-f':
-                $foreground=true;
-            break;
-        }
-    }
-}
 
 $jstree = new json_tree();
 $containers = $jstree->get_containers();
-$jstree->db->destroy();
-connect_dbcollectd();
-$dbcopytime = time();
-$dbcollectd->query("TRUNCATE TABLE snap_data");
-$dbcollectd->query("INSERT INTO snap_data SELECT * FROM data");
-$dbcollectd->disconnect();
-$dbcopytime = time() - $dbcopytime;
-unset($dbcollectd);
+$conf = '';
+foreach ($containers as $container) {
 
-$nbcontainers = count($containers);
-$containersbychildren = (intval($nbcontainers / $clildren_number) + 1);
-$child = 0;
-$childs = array();
-while($containerstodo = array_splice($containers, 0, $containersbychildren)) {
-	$child++;
-	$pid = pcntl_fork();
-	if ($pid == -1) {
-	     die('could not fork');
-	} else if ($pid) {
-		$parent = true;
-		$childs[] = $pid;
-	} else {
-		break;
-	}
-}
-if (isset($parent)) {
-	foreach ($childs as $child) {
-		$status = false;
-		pcntl_wait($child, $status);
-	}
-}
-if(count($containerstodo) == 0) {
-	$socket = fsockopen("unix://".$collectd_socket,  0, $u_errno, $u_errmsg);
-	$out = '';
-	$out .= "PUTVAL ".$hostname."/collectd/gauge-aggregator $starttime:".(time() - $starttime)."\n";
-	$out .= "PUTVAL ".$hostname."/collectd/gauge-db_copy_aggregator $starttime:$dbcopytime\n";
-	fwrite($socket, $out, strlen($out));
-	if ($debug) { echo $out; }
-	$resp = fgets($socket);
-	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-	$resp = fgets($socket);
-	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-	unset($out);
-	fclose($socket);
-	unlink('/tmp/collectd-aggregator');
-	exit();
-}
-unset($jstree);
-$jstree = new json_tree();
-$socket = fsockopen("unix://".$collectd_socket,  0, $u_errno, $u_errmsg);
-foreach ($containerstodo as $container) {
     $container_host = 'aggregator_'.$container['id'];
     $datas = $jstree->get_datas($container['id']);
+
     $nodes = 0;
-    if (!isset($datas['plugins']) || count($datas['plugins']) == 0) {
-        continue;
-    } 
+    if (!isset($datas['plugins']) || count($datas['plugins']) == 0) { continue; } 
+
 	$childrens = $jstree->_get_children($container['id'], true);
-	$hosts = array();
-    foreach($childrens as $children) {
-        if ($children['type'] == 'default') {
-            $hosts[] = $children['title'];
-        }
-    }
-	$hostsstr = implode("','", $hosts);
-    $cpus = get_cpu_count($container['id']);
-    $processes = get_process_count($container['id']);
-    $nodes = count($hosts);
-	$out = '';
-    $out .= "PUTVAL $container_host/grid/grid-cpus ".time().":$cpus\n";
-    $out .= "PUTVAL $container_host/grid/grid-processes ".time().":$processes\n";
-    $out .= "PUTVAL $container_host/grid/grid-nodes ".time().":$nodes\n";
-	fwrite($socket, $out, strlen($out));
-	if ($debug) { echo $out; }
-	$resp = fgets($socket);
-	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-	$resp = fgets($socket);
-	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-	$resp = fgets($socket);
-	if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-	unset($out);
+	foreach($childrens as $idc => $children) {
+		if ($children['type'] != 'default') { unset($childrens[$idc]); }
+	}
+	if (count($childrens) == 0) { continue; }
+	$alreadydoes = array();
 	foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
+		if (isset($alreadydoes[$pluginandcalc])) { continue; }
 		$pluginstr = substr($pluginandcalc, 0, -4);
 		$calc = substr($pluginandcalc, -3);
 		list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
-		if (in_array($type, $grouped_type)) {
-			$query = "SELECT SUM(value) AS value, type_instance, dataset_name AS ds, COUNT(value) AS nbval
-					FROM snap_data_view 
-					WHERE plugin = '$plugin'
-					AND plugin_instance = '$plugin_instance'
-					AND type = '$type'
-					AND host IN ('$hostsstr')
-					GROUP BY type_instance, dataset_name
-					";
-		} else {
-			$query = "SELECT SUM(value) AS value, dataset_name AS ds, COUNT(value) AS nbval
-					FROM snap_data_view
-					WHERE plugin = '$plugin'
-					AND plugin_instance = '$plugin_instance'
-					AND type = '$type'
-					AND type_instance = '$type_instance'
-					AND host IN ('$hostsstr')
-					GROUP BY dataset_name
-					";
+$conf .= "	<aggregator>
+		resultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n";
+		$conf .= "		operation \"$calc\"\n";
+		if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
+		if (isset($datas['plugins'][$pluginstr.'-'.$testcalc])) {
+			$conf .= "		operation \"$testcalc\"\n";
+			$alreadydoes[$pluginstr.'-'.$testcalc] = true;
 		}
-		$res = $dbcollectd->query($query);
-		//echo "$query\n";
-		if (PEAR::isError($res)) {
-		    print("[DB Collectd query] " . $res->getMessage()."\n");
-			continue;
-		}
-		if (in_array($type, $grouped_type)) {
-			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-				$row['type_instance'] = str_replace(' ', '_', $row['type_instance']);
-				if (in_array($type, $derive_type)) { $type .= 'g'; }
-				$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($row['type_instance'] == '' ? '' : '-'.$row['type_instance']);
-				$out .= " ".time().":".($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value'])."\n";
-				fwrite($socket, $out, strlen($out));
-				if ($debug) { echo $out; }
-				$resp = fgets($socket);
-				if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
-			}
-		} else {
-			$type_instance = str_replace(' ', '_', $type_instance);
-			if (in_array($type, $derive_type)) { $type .= 'g'; }
-			$out = "PUTVAL $container_host/$plugin".($plugin_instance == '' ? '-'.strtolower($calc) : '-'.$plugin_instance.'_'.strtolower($calc))."/$type".($type_instance == '' ? '' : '-'.$type_instance)." ".time();
-			$outok = false;
-			while ($row = $res->fetchRow(MDB2_FETCHMODE_ASSOC)) {
-				$outok = true;
-				$out .= ':'.($calc == 'AVG' ? $row['value'] / $row['nbval'] : $row['value']);	
-			}
-			$out .= "\n";
-			if ($outok) {
-				fwrite($socket, $out, strlen($out));
-				if ($debug) { echo $out; }
-				$resp = fgets($socket);
-				if ($debug2 || trim($resp) != '0 Success: 1 value has been dispatched.') { echo $resp; }
+		$conf .= "		<valuelist manual>\n";
+		foreach($childrens as $children) {
+			if ($children['type'] != 'default') { continue; }
+			if (in_array($type, $grouped_type)) {
+				$conf .= "			alltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+			} else {
+				$conf .= "			type	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
 			}
 		}
+		$conf .= "		</valuelist>\n";
+	$conf .= "	</aggregator>\n";
 	}
 }
-fclose($socket);
+
+file_put_contents('etc/aggregator.conf.tmp', $conf);
+$oldconf = file_get_contents('etc/aggregator.conf');
+if ($oldconf != $conf) {
+	rename('etc/aggregator.conf.tmp', 'etc/aggregator.conf');
+	echo "etc/aggregator.conf updated\n";
+} else {
+	unlink('etc/aggregator.conf.tmp');
+}
 
 ?>
