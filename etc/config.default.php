@@ -32,6 +32,7 @@ $collectd_socket  = '/var/run/collectd-unixsock';
 $widgets = array();
 $widgets[] = 'vu_cpu_memory';
 $widgets[] = 'folder_status';
+$widgets[] = 'load_meter';
 $widgets[] = 'folder_aggregator';
 $widgets[] = 'folder_options';
 $widgets[] = 'folder_filling_regex';

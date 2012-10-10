@@ -1,0 +1,186 @@
+<script type="text/javascript">
+var current_load1 = 0;
+var current_load5 = 0;
+var current_load15 = 0;
+$(function () {
+	get_load(json_item_datas['hosts']);
+	window.setInterval(function() { get_load(json_item_datas['hosts']); }, 60000);
+
+	function get_load(hosts) {
+		var metrics = new Array();
+		$(hosts).each(function (key, val) {
+			metrics.push(val+'/load/load');
+		});
+		$.ajax({
+			async: true,
+			type: 'POST',
+			url: 'json-rpc',
+			data: JSON.stringify({"jsonrpc": "2.0", "method": "getval", "params": metrics, "id": 0}),
+			dataType: 'json',
+			cache: false, 
+			success: function(result, textStatus, XMLHttpRequest) {
+				var load1 = load5 = load15 = 0;
+				for (val in result['result']) {
+					if(result['result'][val] == null) { continue; }
+					if (!isNaN(result['result'][val]['shortterm'])) {
+						load1 += result['result'][val]['shortterm'];
+					}
+					if (!isNaN(result['result'][val]['midterm'])) {
+						load5 += result['result'][val]['midterm'];
+					}
+					if (!isNaN(result['result'][val]['longterm'])) {
+						load15 += result['result'][val]['longterm'];
+					}
+					current_load1 = load1;
+					current_load5 = load5;
+					current_load15 = load15;
+				}
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+				var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+				notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+			},
+		});
+	}
+
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+
+    var chart;
+    chart = new Highcharts.Chart({
+        chart: {
+            renderTo: 'load_meter',
+            type: 'spline',
+            marginRight: 10,
+            events: {
+                load: function() {
+                    var series1 = this.series[0];
+                    var series5 = this.series[1];
+                    var series15 = this.series[2];
+                    setInterval(function() {
+                        var x = (new Date()).getTime();
+                        series1.addPoint([x, current_load1], true, true);
+                        series5.addPoint([x, current_load5], true, true);
+                        series15.addPoint([x, current_load15], true, true);
+                    }, 30000);
+                }
+            },
+			height: 180
+        },
+        title: {
+            text: json_item_datas['jstree']['title']
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 150
+        },
+        yAxis: {
+            title: {
+                text: 'load'
+            },
+            plotLines: [{
+                width: 0.5,
+                color: '#00E000'
+            },
+			{
+                width: 0.5,
+                color: '#0000FF'
+            },
+			{
+                width: 0.5,
+                color: '#FF0000'
+            }]
+        },
+        plotOptions: {
+            spline: {
+                lineWidth: 1,
+                states: {
+                    hover: {
+                        lineWidth: 3
+                    }
+                },
+                marker: {
+                    enabled: false,
+                    states: {
+                        hover: {
+                            enabled: true,
+                            symbol: 'circle',
+                            radius: 2,
+                            lineWidth: 1
+                        }
+                    }
+                },
+            }
+        },
+        tooltip: {
+            formatter: function() {
+                    return '<b>'+ this.series.name + ' : </b>'+Highcharts.numberFormat(this.y, 2) + '<br/>'+
+                    Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) +'<br/>';
+            }
+        },
+        legend: {
+            enabled: true
+        },
+        exporting: {
+            enabled: false
+        },
+        series: [
+		{
+            name: 'Load 1m',
+            data: (function() {
+                // generate an array of random data
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -60; i <= 0; i++) {
+                    data.push({
+                        x: time + i * 30000,
+                        y: 0
+                    });
+                }
+                return data;
+            })()
+        },
+		{
+            name: 'Load 5m',
+            data: (function() {
+                // generate an array of random data
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -19; i <= 0; i++) {
+                    data.push({
+                        x: time + i * 1000,
+                        y: 0
+                    });
+                }
+                return data;
+            })()
+        },
+		{
+            name: 'Load 15m',
+            data: (function() {
+                // generate an array of random data
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -19; i <= 0; i++) {
+                    data.push({
+                        x: time + i * 1000,
+                        y: 0
+                    });
+                }
+                return data;
+            })()
+        }
+		]
+    });
+});
+</script>
+<div id="load_meter"></div>
