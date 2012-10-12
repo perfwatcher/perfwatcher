@@ -172,6 +172,8 @@ $(function () {
 	
 	        leftVal =  current_cpu + inc;
 	        rightVal = current_mem + inc ;
+		if (leftVal < 0) { leftVal = 0; }
+		if (rightVal < 0) { rightVal = 0; }
 	
 	        left.update(leftVal, false);
 	        right.update(rightVal, false);
