@@ -230,7 +230,7 @@ function notify_ok(text) {
 }
 function showserverlist(list, type) {
 	noty({
-		"text":list, "layout":"center", "type":type,
+		"text":'<textarea>'+list+'</textarea>', "layout":"center", "type":type,
 		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
 		"speed":500, "timeout":60000, "closeButton":true,
 		"closeOnSelfClick":false, "closeOnSelfOver":false,"modal":true
