@@ -59,8 +59,33 @@ function select_node(nodeid) {
 			theme: theme,
 			orientation: 'horizontal',
 			mode: 'docked'
-		});
+		});//.jqxDocking('hideAllCloseButtons');
 	});
+}
+
+function add_widget() {
+	var id = get_next_widgetid();
+	$(ich.widget({
+		widget_id : id,
+		widget : 'test',
+		widget_title : 'toto',
+	})).appendTo('#infodockpanel' + (id % 2));
+	$('#infodock').jqxDocking('addWindow', 'widget'+id);
+	$('#widget'+id).detach().appendTo('#infodockpanel' + (id % 2));
+	                        
+}
+
+function get_next_widgetid() {
+	var nextid = 0;
+	$('div[id^="widget"]').each(function (i, divelem) {
+		var elemid = $(divelem).attr('id');
+		var id = $(divelem).attr('id').substring(6);
+		if (isNaN(id)) { return; }
+		if (id > parseInt(nextid)) {
+			nextid = id;
+		}
+	});
+	return parseInt(nextid) + 1;
 }
 
 function create_plugin_tab(plugin, plugin_instance, tabid) {
@@ -124,6 +149,8 @@ function plugin_view (tabid, plugin) {
 function hide_menu_for(node_type) {
 	$('li[id^="menu_"]').hide();
 	$('li[id="menu_new_tab"]').show();
+	$('li[id="menu_new_widget"]').show();
+	$('li[id="menu_del_widget"]').show();
 	$('li[id="menu_rename_node"]').show();
 	$('li[id="menu_rename_tab"]').show();
 	$('li[id="menu_delete_tab"]').show();

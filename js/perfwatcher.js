@@ -90,6 +90,12 @@ $(document).ready(function() {
 					});
 				});
 			break;
+			case 'menu_new_widget':
+				add_widget();
+			break;
+			case 'menu_del_widget':
+				del_widget();
+			break;
 			case 'menu_rename_node':
 				$('#tree').jstree("rename");
 			break;
