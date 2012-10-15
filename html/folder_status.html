@@ -39,15 +39,15 @@ $.ajax({
 				switch(res['result'][host]) {
 					case 'up':
 						up++;
-						hosts_up = hosts_up + host + "<br/>\n";
+						hosts_up = hosts_up + host + "\n";
 					break;
 					case 'down':
 						down++;
-						hosts_down = hosts_down + host + "<br/>\n";
+						hosts_down = hosts_down + host + "\n";
 					break;
 					case 'unknown':
 						unknown++;
-						hosts_unknown = hosts_unknown + host + "<br/>\n";
+						hosts_unknown = hosts_unknown + host + "\n";
 					break;
 				}
 			}
