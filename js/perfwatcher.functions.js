@@ -184,7 +184,7 @@ function refresh_status() {
         async : true,
         type: 'POST',
         url: "json-rpc",
-		data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": hosts}, "id": 0}),
+		data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hosts}, "id": 0}),
         dataType : 'json',
         complete : function (r) {
             if(r.status) {
