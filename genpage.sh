@@ -1,6 +1,6 @@
 #/bin/bash
 
-pages="index.html screenshots.html"
+pages="index.html screenshots.html compatibility_matrix.html developpement.html faq.html download.html"
 
 for page in $pages
 do
