@@ -39,13 +39,49 @@
       </header>
       <section>
 
+<h3>Server installation</h3>
 <p>
+	Until Collectd-pw has no package available, you need to compile it as explain bellow.<br />
+	You can also use standard Collectd, but some amazing features as Top process will not work.
+</p>
+<hr >
+<h4>Prerequisites</h4>
+<p>
+	To build Collectd-pw, you need some tools :
 	<ul>
-		<li><a href="https://github.com/perfwatcher/collectd-pw/downloads" target="_new">Collectd-pw download page on GitHub</a></li>
-		<li><a href="https://github.com/perfwatcher/perfwatcher/downloads" target="_new">PerfWatcher download page on GitHub</a></li>
+		<li>On RedHat like :
+			<pre><code>yum groupinstall 'Development tools'
+yum install zlib-devel rrdtool-devel rdtool</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>aptitude install build-essential
+aptitude install zlib1g-dev librrd-dev rrdtool</code></pre>
+		</li>
+	</ul>
+	And json-c <b>&gt;= 0.10</b>. See install page : <a href="https://github.com/json-c/json-c/wiki">https://github.com/json-c/json-c/wiki</a> until there is a json-c package <b>&gt;= 0.10</b> in your distribution.
+</p>
+
+<hr >
+<h4>Getting sources</h4>
+<p>
+	To possibility :
+	<ul>
+		<li>Clone gitHub repo : <pre><code>git clone -b 'release/5.1' https://github.com/perfwatcher/collectd-pw.git</code></pre></li>
+		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/collectd-pw/collectd-5.1.0.20121017.tar.gz</code></pre></li>
 	</ul>
 </p>
 
+
+<hr >
+<h4>Compile and install Collectd-pw</h4>
+<p>
+	<pre><code>cd collectd
+./configure --enable-top --enable-cpu --enable-rrdtool \
+--enable-jsonrpc --enable-notify_file
+make -j
+make install</code></pre>
+</p>
+<hr >
       </section>
     </div>
     <footer>

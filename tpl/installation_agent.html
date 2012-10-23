@@ -1,0 +1,65 @@
+<h3>Agent installation</h3>
+<p>
+	Until Collectd-pw has no package available, you need to compile it as explain bellow.<br />
+	You can also use standard Collectd, but some amazing features as Top process will not work.
+</p>
+
+<hr >
+<h4>Prerequisites</h4>
+<p>
+	To build Collectd-pw, you need some tools :
+	<ul>
+		<li>On RedHat like : 
+			<pre><code>yum groupinstall 'Development tools'</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>aptitude install build-essential</code></pre>
+		</li>
+	</ul>
+</p>
+
+<hr >
+<h4>Getting sources</h4>
+<p>
+	To possibility :
+	<ul>
+		<li>Clone gitHub repo : <pre><code>git clone -b 'release/5.1' https://github.com/perfwatcher/collectd-pw.git</code></pre></li>
+		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/collectd-pw/collectd-5.1.0.20121017.tar.gz</code></pre></li>
+	</ul>
+</p>
+
+<hr >
+
+<h4>Compile and install Collectd-pw</h4>
+<p>
+	<pre><code>cd collectd
+./configure --enable-top --enable-cpu
+make -j
+make install</code></pre>
+</p>
+
+<hr >
+<h4>Configure Collectd-pw</h4>
+<p>
+Below a sample of configuration for an agent :
+<pre><code>TypesDB     "/usr/share/collectd/types.db"
+Interval     60
+
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin interface
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin processes
+LoadPlugin swap
+LoadPlugin top
+LoadPlugin uptime
+
+LoadPlugin network
+&lt;Plugin network&gt;
+	# IP to be replaced by Collectd server's IP
+	Server "192.168.0.73" "25826"
+	MaxPacketSize 65535
+&lt;/Plugin&gt;</code></pre>
+</p>
