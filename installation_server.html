@@ -122,6 +122,11 @@ LoadPlugin notify_file
 &lt;Plugin notify_file&gt;
 	DataDir "/var/lib/collectd/_notification"
 &lt;/Plugin&gt;
+
+LoadPlugin basic_aggregator
+&lt;Plugin basic_aggregator&gt;
+	Aggregators_config_file "/&lt;path to perfwatcher&gt;/etc/aggregator.conf"
+&lt;/Plugin&gt;
 </code></pre>
 </p>
 
