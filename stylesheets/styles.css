@@ -241,15 +241,13 @@ code, pre {
 
 pre {
   padding: 20px;
-  background: #999;
-  color: #f8f8f2;
+  background: #bfd5db;
   margin: 0 -20px 20px;
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
 pre code {
-  color: #f8f8f2;
 }
 
 li pre {
