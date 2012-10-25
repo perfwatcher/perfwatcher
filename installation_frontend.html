@@ -53,8 +53,8 @@
 		<li>MySQL Server &gt;= 4</li>
 		<li>PHP CLI 
 			<ul>
-				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear</code></pre></li>
-				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql</code></pre></li>
+				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear mysql-server mysql</code></pre></li>
+				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql mysql-server mysql-client</code></pre></li>
 			</ul>
 		</li>
 		<li>MDB2 PEAR library
@@ -73,7 +73,7 @@
 	Two possibility :
 	<ul>
 		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.0' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
-		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/perfwatcher/perfwatcher-1.0.20121024.tgz</code></pre></li>
+		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/perfwatcher/perfwatcher-1.0.20121025.tgz</code></pre></li>
 	</ul>
 </p>
 
@@ -81,14 +81,29 @@
 
 <h4>Installing sources</h4>
 <p>
-	<pre><code>cd /&lt;your www directory&gt;
-tar xzf /&lt;your download directory&gt;/perfwatcher-1.0.20121017.tar.gz # If downloaded as tar.gz
+	<ul>
+		<li>On RedHat like :
+			<pre><code>cd /var/www/html</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>cd /var/www</code></pre>
+		</li>
+	</ul>
+	<pre><code>
+tar xzf /&lt;your download directory&gt;/perfwatcher-1.0.20121025.tar.gz # If downloaded as tar.gz
  or
 mv /&lt;your clone directory&gt;/perfwatcher . # If cloned from GitHub
 
 cd perfwatcher
-chown -R www-data:www-data etc logs
 </code></pre>
+	<ul>
+		<li>On RedHat like :
+			<pre><code>chown -R apache:apache etc logs</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>chown -R www-data:www-data etc logs</code></pre>
+		</li>
+	</ul>
 </p>
 
 <hr >
@@ -114,6 +129,15 @@ chown -R www-data:www-data etc logs
 		<li>Copy the sample config file to config.php :<pre><code>cp etc/config.sample.php etc/config.php</code></pre></li>
 		<li>Edit etc/config.php and follow the instructions</li>
 	</ul>
+</p>
+
+<hr >
+
+<h4>Configure Apache</h4>
+<p>To permit Perfwatcher, through your browser, to access to your Collectd-pw server, you need to add these lines into your Apache configuration
+<pre><code>&lt;Location /perfwatcher/json-rpc&gt;
+	ProxyPass	http://localhost:8080/
+&lt;/Location&gt;</code></pre>
 </p>
 
 <hr >

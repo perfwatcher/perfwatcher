@@ -68,8 +68,8 @@ cd json-c-0.10
 ./configure --prefix=/usr
 make -j
 make install
-cp json_object_iterator.h /usr/include/json
-cp /usr/lib/libjson.* /usr/lib64/</code></pre>
+cp json_object_iterator.h /usr/include/json # Bug in libjson install script
+cp /usr/lib/libjson.* /usr/lib64/ # Needed on RHEL x86_64</code></pre>
 </p>
 
 <h5>Compile libmicrohttpd</h5>
@@ -80,7 +80,7 @@ cd libmicrohttpd-0.9.22
 ./configure --prefix=/usr
 make -j
 make install
-cp /usr/lib/libmicrohttpd.so* /usr/lib64/
+cp /usr/lib/libmicrohttpd.so* /usr/lib64/ # Needed on RHEL x86_64
 </code></pre>
 </p>
 
@@ -167,14 +167,6 @@ LoadPlugin basic_aggregator
 </code></pre>
 </p>
 
-<hr >
-
-<h4>Configure Apache</h4>
-<p>To permit Perfwatcher, through your browser, to access to your Collectd-pw server, you need to add these lines into your Apache configuration
-<pre><code>&lt;Location /perfwatcher/json-rpc&gt;
-	ProxyPass	http://localhost:8080/
-&lt;/Location&gt;</code></pre>
-</p>
       </section>
     </div>
     <footer>
