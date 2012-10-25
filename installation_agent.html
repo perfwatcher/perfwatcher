@@ -65,7 +65,7 @@
 	Two possibility :
 	<ul>
 		<li>Clone GitHub repo : <pre><code>git clone -b 'release/5.1' https://github.com/perfwatcher/collectd-pw.git</code></pre></li>
-		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/collectd-pw/collectd-5.1.0.20121017.tar.gz</code></pre></li>
+		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/collectd-pw/collectd-5.1.0.20121025.tar.gz</code></pre></li>
 	</ul>
 </p>
 
@@ -74,15 +74,28 @@
 <h4>Compile and install Collectd-pw</h4>
 <p>
 	<pre><code>cd collectd
-./configure --enable-top --enable-cpu
+./configure --enable-top --enable-cpu --prefix=/usr
 make -j
-make install</code></pre>
+make install
+cp src/types-perfwatcher.db /etc</code></pre>
+	<ul>
+		<li>On RedHat like :
+			<pre><code>cp contrib/redhat/init.d-collectd /etc/init.d/collectd
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>curl -o /etc/init.d/collectd 'http://git.tokkee.org/?p=pkg-collectd.git;a=blob_plain;f=debian/collectd-core.collectd.init.d;hb=HEAD'
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
+	</ul>
 </p>
 
 <hr >
 <h4>Configure Collectd-pw</h4>
 <p>
-Below a sample of configuration for an agent :
+Below a sample of configuration for an agent :<br/>
+<strong>/etc/collectd/collectd.conf</strong> on Debian like<br/>
+<strong>/etc/collectd.conf</strong> on RedHat like
 <pre><code>TypesDB     "/usr/share/collectd/types.db"
 Interval     60
 
