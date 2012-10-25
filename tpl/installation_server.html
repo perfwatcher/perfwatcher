@@ -17,7 +17,28 @@ yum install zlib-devel rrdtool-devel rrdtool</code></pre>
 aptitude install zlib1g-dev librrd-dev rrdtool</code></pre>
 		</li>
 	</ul>
-	And json-c <b>&gt;= 0.10</b>. See install page : <a href="https://github.com/json-c/json-c/wiki">https://github.com/json-c/json-c/wiki</a> until there is a json-c package <b>&gt;= 0.10</b> in your distribution.
+</p>
+
+<h5>Compile json-c</h5>
+<p>
+	<pre><code>wget https://github.com/downloads/json-c/json-c/json-c-0.10.tar.gz
+tar xzf json-c-0.10.tar.gz
+cd json-c-0.10
+./configure --prefix=/usr
+make -j
+make install
+cp json_object_iterator.h /usr/include/json</code></pre>
+</p>
+
+<h5>Compile libmicrohttpd</h5>
+<p>
+	<pre><code>wget http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.22.tar.gz
+tar xzf bmicrohttpd-0.9.22.tar.gz
+cd libmicrohttpd-0.9.22
+./configure --prefix=/usr
+make -j
+make install
+</code></pre>
 </p>
 
 <hr >
