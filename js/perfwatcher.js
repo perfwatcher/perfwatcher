@@ -50,7 +50,7 @@ $(document).ready(function() {
 	});
 	window.setTimeout(function () {
 		auto_refresh_status();
-	}, 5000);
+	}, 10000);
 		
 
 
