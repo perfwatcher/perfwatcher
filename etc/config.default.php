@@ -9,7 +9,7 @@ $db_config = array(
 	"servername"=> "localhost",
 	"username"	=> "root",
 	"password"	=> "",
-	"database"	=> "jsTree"
+	"database"	=> "perfwatcher"
 );
 
 $rrds_path = "/var/lib/collectd";
