@@ -98,15 +98,28 @@ make install
 <p>
 	<pre><code>cd collectd
 ./configure --enable-top --enable-cpu --enable-rrdtool \
---enable-jsonrpc --enable-notify_file --enable-basic_aggregator
+--enable-jsonrpc --enable-notify_file --enable-basic_aggregator \
+--prefix=/usr
 make -j
 make install</code></pre>
+	<ul>
+		<li>On RedHat like :
+			<pre><code>cp contrib/redhat/init.d-collectd /etc/init.d/collectd
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
+		<li>On Debian like :
+			<pre><code>curl -o /etc/init.d/collectd 'http://git.tokkee.org/?p=pkg-collectd.git;a=blob_plain;f=debian/collectd-core.collectd.init.d;hb=HEAD'
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
+	</ul>
 </p>
 <hr >
 
 <h4>Configure Collectd-pw</h4>
 <p>
-Below a sample of configuration for an agent :
+Below a sample of configuration for a server :<br/>
+<strong>/etc/collectd/collectd.conf</strong> on Debian like<br/>
+<strong>/etc/collectd.conf</strong> on RedHat like
 <pre><code>TypesDB     "/usr/share/collectd/types.db"
 TypesDB     "/etc/types-perfwatcher.db"
 Interval     60
