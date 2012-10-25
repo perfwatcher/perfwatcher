@@ -68,7 +68,8 @@ cd json-c-0.10
 ./configure --prefix=/usr
 make -j
 make install
-cp json_object_iterator.h /usr/include/json</code></pre>
+cp json_object_iterator.h /usr/include/json
+cp /usr/lib/libjson.* /usr/lib64/</code></pre>
 </p>
 
 <h5>Compile libmicrohttpd</h5>
@@ -79,6 +80,7 @@ cd libmicrohttpd-0.9.22
 ./configure --prefix=/usr
 make -j
 make install
+cp /usr/lib/libmicrohttpd.so* /usr/lib64/
 </code></pre>
 </p>
 
