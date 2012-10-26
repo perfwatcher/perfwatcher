@@ -285,12 +285,23 @@ class json_tree extends _tree_struct {
 			$tmp = $this->_get_children((int)$data["id"]);
 		}
 		$result = array();
-		if((int)$data["id"] === 0) return json_encode($result);
+		//if((int)$data["id"] === 0) return json_encode($result);
 		foreach($tmp as $k => $v) {
 			$result[] = array(
 				"attr" => array("id" => "node_".$v['id'], "rel" => $v[$this->fields["type"]]),
 				"data" => $v[$this->fields["title"]],
-				"state" => ($v[$this->fields["type"]] == "default" ? "leaf" : "closed")
+				"state" => ($v[$this->fields["type"]] == "default" ? "" : "closed")
+			);
+		}
+		if (count($result) == 0) {
+			$datas = $this->_get_node($data["id"]);
+			$result[] = array(
+				"attr" => array(
+					"id" => "node_".$datas['id'],
+					"rel" => $datas["type"]
+				),
+				"data" => $datas["title"], 
+				"state" => ""
 			);
 		}
 		return json_encode($result);
@@ -330,11 +341,11 @@ class json_tree extends _tree_struct {
 	}
 
 	function _create_default() {
-		$this->_drop();
+		$this->db->query("TRUNCATE tree ");
 		$this->create_node(array(
-			"id" => 1,
+			"id" => 0,
 			"position" => 0,
-			"title" => "BNP Arbitrage",
+			"title" => "ROOT",
 			"type" => "drive"
 		));
 	}
