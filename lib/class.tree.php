@@ -349,6 +349,10 @@ class json_tree extends _tree_struct {
 			"type" => "drive"
 		));
 	}
+
+	function _drop() {
+		$this->db->query("TRUNCATE `".$this->table."`");
+	}
 }
 
 ?>
