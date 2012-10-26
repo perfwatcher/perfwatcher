@@ -51,7 +51,7 @@ if ($rrdcached_ok && isset($rrdcached)) {
 		echo "<li>".(file_exists($rrdcached) ? printok ($ok) : printko ($ko))."</li>";
 }
 
-if (isset($rrdtool) && file_exists($rrdtool)) {
+if (isset($rrdtool) && file_exists($rrdtool) && in_array('--border', $rrdtool_options)) {
 	$cmd = "$rrdtool graph --border 1 2>&1";
 	$res = trim(`$cmd`);
 	if (substr($res, 0, 21) == 'ERROR: unknown option') {
