@@ -26,7 +26,7 @@ $(function () {
 	// All those configuration options are documented at http://www.jstree.com/
 	$('#tree').jstree({ 
 	    // the list of plugins to include
-	    "plugins" : [ "themes", "json_data", "ui", "crrm", "dnd", "search", "types", "hotkeys", "contextmenu" ],
+	    "plugins" : [ "themes", "json_data", "ui", "crrm", "dnd", "search", "types", "contextmenu" ],
 	    // Plugin configuration
 
 	    "themes" : {
@@ -119,9 +119,6 @@ $(function () {
 	    "ui" : {
 		// this makes the node with ID node_4 selected onload
 		"initially_select" : [ ]
-	    },
-	    "hotkeys" : {
-		"del" : function () { confirm('Are you sure ?') && $('#tree').jstree("remove"); }
 	    },
 	    // the core plugin - not many options here
 	    "core" : { 
