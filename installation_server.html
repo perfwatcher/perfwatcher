@@ -113,7 +113,11 @@ chmod a+x /etc/init.d/collectd</code></pre>
 		<li>On Debian like :
 			<pre><code>curl -o /etc/init.d/collectd 'http://git.tokkee.org/?p=pkg-collectd.git;a=blob_plain;f=debian/collectd-core.collectd.init.d;hb=HEAD'
 chmod a+x /etc/init.d/collectd
-mkdir /etc/collectd/</code></pre>
+mkdir /etc/collectd/
+a2enmod php5
+a2enmod proxy
+a2enmod proxy_http
+service apache2 restart</code></pre>
 		</li>
 	</ul>
 </p>

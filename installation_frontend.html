@@ -139,6 +139,8 @@ mkdir logs
 <pre><code>&lt;Location /perfwatcher/json-rpc&gt;
 	ProxyPass	http://localhost:8080/
 &lt;/Location&gt;</code></pre>
+Then :
+<pre><code>service (httpd|apache2) restart</code></pre>
 If you are usin selinux run this command :
 <pre><code>/usr/sbin/setsebool -P httpd_can_network_connect 1</code></pre>
 </p>
