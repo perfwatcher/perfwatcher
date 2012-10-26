@@ -60,15 +60,15 @@ $.ajax({
 				    renderTo: 'status_chart',
 				    plotBackgroundColor: null,
 				    plotBorderWidth: null,
-				    plotShadow: false,
-					height: 180
+				    plotShadow: true,
+					height: 190
 				},
 				title: {
 				    text: ' '
 				},
 				tooltip: {
 				    pointFormat: '{series.name}: <b>{point.y}</b>',
-					percentageDecimals: 1
+				    percentageDecimals: 1,
 				},
 				plotOptions: {
 				    pie: {
@@ -80,7 +80,8 @@ $.ajax({
 				            connectorColor: '#000000',
 				            formatter: function() {
 				                return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
-				            }
+				            },
+					    distance: 25
 				        },
 						events: {
 							click: function (e) {
@@ -103,4 +104,4 @@ $.ajax({
 	}
 });
 </script>
-<center><div id="status_chart"></div></center>
+<center><div id="status_chart" style="height:180px; margin-top:-15px;"></div></center>
