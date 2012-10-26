@@ -60,14 +60,14 @@ class folder_filling_regex {
 			}
 		}
 		$out = array();
-        $dh = opendir($rrds_path);
-        while ($hostdir = readdir($dh)) {
-            if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
-            if (substr($hostdir,0,11) != 'aggregator_' && @ereg($regex, $hostdir)) {
-                $out[] = $hostdir;
-            }
-        }
-        closedir($dh);
+		$dh = opendir($rrds_path);
+		while ($hostdir = readdir($dh)) {
+			if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
+			if (substr($hostdir,0,11) != 'aggregator_' && @ereg($regex, $hostdir)) {
+				$out[] = $hostdir;
+			}
+		}
+		closedir($dh);
 		return $out;
 	}
 
@@ -76,7 +76,7 @@ class folder_filling_regex {
 		$datas = $jstree->get_datas($this->datas['id']);
 		if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
 		$datas['serverslist']['servernameregex'] = $regex;
-        $jstree->set_datas($id, $datas);
+		$jstree->set_datas($id, $datas);
 		return true;
 	}
 }
