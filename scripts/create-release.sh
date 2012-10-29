@@ -1,7 +1,14 @@
 #! /bin/bash
-
 #
 # vim: expandtab sw=4 ts=4 sts=4:
+#
+# ABOUT THIS SCRIPT
+# Some code from the create-release.sh script from phpmyadmin. Thanks.
+#
+# Run it from the root directory (the directory containing the .git/ directory)
+# Example :
+#   ./scripts/create-release.sh 1.0.1 release/1.0.1
+#   ./scripts/create-release.sh 20121029 master
 #
 
 DEFAULT_VERSION=git
@@ -61,7 +68,7 @@ git checkout $branch
 
 # Removing unneeded files
 rm -rf .git
-find . -name .gitignore -print0 | wargs -0 -r rm -f
+find . -name .gitignore -print0 | xargs -0 -r rm -f
 cd ..
 
 name=perfwatcher-${VERSION}
