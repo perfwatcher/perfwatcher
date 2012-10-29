@@ -1251,6 +1251,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
 	$MetaGraphDefs['files_count']       = 'meta_graph_files_count';
 	$MetaGraphDefs['files_size']        = 'meta_graph_files_size';
 	$MetaGraphDefs['users']             = 'meta_graph_users';
+	$MetaGraphDefs['cache_entries'] 	= 'meta_graph_cache_entries';
 	$MetaGraphDefs['celerra_if_errors'] = 'meta_graph_celerra_if';
 	$MetaGraphDefs['celerra_if_octets'] = 'meta_graph_celerra_if';
 	$MetaGraphDefs['celerra_if_packets'] = 'meta_graph_celerra_if';
@@ -1461,9 +1462,63 @@ function meta_graph_cpufreq($host, $plugin, $plugin_instance, $type, $type_insta
 */
     $files = array();
 
-	$type_instances = scandir($config['datadirs'][0]."/$host/$type");
+	$type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
     foreach($type_instances as $key => $val) {
         if (preg_match("/^cpufreq\-([0-9]+).rrd/", $val, $reg)) {
+            $type_instances[$key] = $reg[1];
+        } else {
+            unset($type_instances[$key]);
+        }
+    }
+    sort($type_instances, SORT_NUMERIC);
+	while (list($k, $inst) = each($type_instances)) {
+		$file  = '';
+		foreach ($config['datadirs'] as $datadir)
+			if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
+				$file = $datadir.'/'.$title.'-'.$inst.'.rrd';
+				break;
+			}
+		if ($file == '')
+			continue;
+
+		$sources[] = array('name'=>$inst, 'file'=>$file);
+	}
+
+	return collectd_draw_meta_line($opts, $sources);
+}
+
+function meta_graph_cache_entries($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
+	global $config;
+	$sources = array();
+	$title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	$title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+	if (!isset($opts['title']))
+		$opts['title'] = $title2;
+	    $opts['rrd_opts'] = array('-v', 'entries');
+	$opts['colors'] = array(
+        0   => '0000ff',
+        1   => 'F7B7B7',
+        2   => 'B7EFB7',
+        3   => 'B7B7F7',
+        4   => 'F3DFB7',
+        5   => 'B7DFF7',
+        6   => 'DFB7F7',
+        7   => 'FFC782',
+        8   => 'DCFF96',
+        9   => '83FFCD',
+        10  => '81D9FF',
+        11  => 'FF89F5',
+        12  => 'FF89AE',
+        13  => 'BBBBBB',
+        14  => 'ffb000',
+        15  => 'ff0000'
+
+	);
+    $files = array();
+
+	$type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
+    foreach($type_instances as $key => $val) {
+        if (preg_match("/^$type\-([0-9]+).rrd/", $val, $reg)) {
             $type_instances[$key] = $reg[1];
         } else {
             unset($type_instances[$key]);
@@ -1524,7 +1579,7 @@ function meta_graph_irq($host, $plugin, $plugin_instance, $type, $type_instances
 */
     $files = array();
 
-	$type_instances = scandir($config['datadirs'][0]."/$host/$type");
+	$type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
     foreach($type_instances as $key => $val) {
         if (preg_match("/^irq\-([0-9]+).rrd/", $val, $reg)) {
             $type_instances[$key] = $reg[1];
