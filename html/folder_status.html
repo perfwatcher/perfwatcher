@@ -26,7 +26,7 @@ $.ajax({
     async : true,
     type: 'POST',
     url: "json-rpc",
-	data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 120, "server": json_item_datas['hosts']}, "id": 0}),
+	data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": json_item_datas['hosts']}, "id": 0}),
     dataType : 'json',
 	error: function(XMLHttpRequest, textStatus, errorThrown) {
 		var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
