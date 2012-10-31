@@ -2,6 +2,7 @@
 var current_cpu = 0;
 var current_mem = 0;
 var current_nbcpu = 0;
+var current_real_cpu = 0;
 var current_load = 0;
 $(function () {
 	get_cpu_memory(json_item_datas['hosts']);
@@ -48,8 +49,19 @@ $(function () {
 						break;
 					}
 				}
-				current_cpu = load / nbcpu * 100;
-				current_mem = memory_u / (memory_u + memory_f + memory_c) * 100;
+				if(nbcpu == 0) {
+						current_cpu = 0;
+						current_real_cpu = 0/0;
+				} else {
+						current_cpu = load / nbcpu * 100;
+						current_real_cpu = current_cpu;
+				}
+				if(current_cpu > 110) { current_cpu = 110; }
+				if((memory_u + memory_f + memory_c) == 0) {
+						current_mem = 0;
+				} else {
+						current_mem = memory_u / (memory_u + memory_f + memory_c) * 100;
+				}
 				current_nbcpu = nbcpu;
 				current_load = load;
 			},
@@ -178,7 +190,7 @@ $(function () {
 	        left.update(leftVal, false);
 	        right.update(rightVal, false);
 			chart.yAxis[0].axisTitle.attr({
-			        text: 'CPU<br/><span style="font-size:8px">'+Math.round(leftVal)+'%</span>'
+			        text: 'CPU<br/><span style="font-size:8px">'+Math.round(current_real_cpu)+'%</span>'
 			});
 			chart.yAxis[1].axisTitle.attr({
 			        text: 'MEM<br/><span style="font-size:8px">'+Math.round(rightVal)+'%</span>'
