@@ -1,6 +1,18 @@
 #/bin/bash
 
-pages="index.html screenshots.html compatibility_matrix.html developpement.html faq.html download.html installation.html installation_agent.html installation_server.html installation_frontend.html"
+pages="
+    collectd_patches.html
+    compatibility_matrix.html
+    developpement.html
+    download.html
+    faq.html
+    installation_agent.html
+    installation_frontend.html
+    installation.html
+    installation_server.html
+    screenshots.html
+    index.html
+	"
 
 vars=$(cat << EOF
 COLLECTDPW_VERSION=5.1.0-20121031

@@ -1,0 +1,52 @@
+<h3>Collectd patches and addons for Perfwatcher</h3>
+
+<h4>Collectd-5.1</h4>
+	<table>
+		<caption>Patch applied to Collectd 5.1</caption>
+		<tr><th>Patch</th><th>Description</th></tr>
+		<tr>
+			<td>patch/cpu</td><td>Add cpu-total instance</td>
+		</tr>
+		<tr>
+			<td>patch/disk</td><td>Fix strange I/O calculation</td>
+		</tr>
+		<tr>
+			<td>patch/Fix-for-large-MaxPacketSize</td><td>Allow to use notification &gt; 256 bytes</td>
+		</tr>
+		<tr>
+			<td>patch/fix_make_distcheck</td><td><code>make distcheck</code> is now working fine</td>
+		</tr>
+		<tr>
+			<td>patch/logfile</td><td>Allow to do not log notification</td>
+		</tr>
+		<tr>
+			<td>patch/nfs_stats_with_network_plugin</td><td>Add a lot of new metrics</td>
+		</tr>
+		<tr>
+			<td>patch/notification_forwarding</td><td>Allow notification to be forwarded</td>
+		</tr>
+		<tr>
+			<td>patch/process</td><td>Add context-switch metric</td>
+		</tr>
+		<tr>
+			<td>patch/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update)</td>
+		</tr>
+		<tr>
+			<td>patch/utils_cache_bugfix</td><td>Improve performance and fix an uninitialised variable</td>
+		</tr>
+		<tr>
+			<td>perfwatcher_addons</td><td>Add some new Collectd types for perfwatcher specific metrics</td>
+		</tr>
+		<tr>
+			<td>plugin/basic_aggregator</td><td>Plugin : aggregate data from a set of hosts</td>
+		</tr>
+		<tr>
+			<td>plugin/jsonrpc</td><td>Plugin : communicate with Collectd through json-rpc over http</td>
+		</tr>
+		<tr>
+			<td>plugin/notify_file</td><td>Plugin : write notifications into a gziped file</td>
+		</tr>
+		<tr>
+			<td>plugin/top</td><td>Great plugin to Collectd and display all process running on a host</td>
+		</tr>
+	</table>
