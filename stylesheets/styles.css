@@ -51,6 +51,10 @@ strong {
   font-weight: 700;
 }
 
+a img {
+  border: none;
+}
+
 header {
   -webkit-border-radius: 8px 8px 0 0;
   -moz-border-radius: 8px 8px 0 0;
