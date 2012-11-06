@@ -50,7 +50,7 @@ $conf .= "	<aggregator>
 }
 
 file_put_contents('etc/aggregator.conf.tmp', $conf);
-$oldconf = file_get_contents('etc/aggregator.conf');
+$oldconf = file_exists('etc/aggregator.conf') ? file_get_contents('etc/aggregator.conf') : '';
 if ($oldconf != $conf) {
 	rename('etc/aggregator.conf.tmp', 'etc/aggregator.conf');
 	echo "etc/aggregator.conf updated\n";
