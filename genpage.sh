@@ -10,9 +10,10 @@ pages="
     installation_frontend.html
     installation.html
     installation_server.html
+    maintain_a_release_branch.html
     screenshots.html
     index.html
-	"
+    "
 
 vars=$(cat << EOF
 COLLECTDPW_VERSION=5.1.0.20121106

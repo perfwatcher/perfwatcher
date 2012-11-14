@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>PerfWatcher</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+	<link rel="icon" type="image/ico" href="images/perfwatcher.ico">
+    <script src="javascripts/scale.fix.js"></script>
+	<script type="text/javascript">
+	  var _gaq = _gaq || [];
+	  _gaq.push(['_setAccount', 'UA-31597873-1']);
+	  _gaq.push(['_setDomainName', 'perfwatcher.org']);
+	  _gaq.push(['_trackPageview']);
+	  (function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	  })();
+	</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1><a href="index.html">PerfWatcher</a></h1>
+        <p>Performance Monitoring based on Collectd</p>
+        <p class="view"><a href="http://github.com/perfwatcher/perfwatcher">View the Project on GitHub <small>perfwatcher/perfwatcher</small></a></p>
+        <ul>
+          <li><a href="download.html">Quick<strong>Download</strong></a></li>
+          <li><a href="http://github.com/perfwatcher/perfwatcher" target="_new">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+
+<h3>Maintain a release branch of collectd-pw in Git</h3>
+
+<h4>Create a new branch from upstream</h4>
+
+<p>A new version is released. Check what branch and what commit we will checkout</p>
+
+<pre>
+i$ git checkout -b release/collectd-5.1.1 upstream/collectd-5.1
+</pre>
+
+<p>Clean, build, make some basic checks before pushing on perfwatcher repo</p>
+
+<pre>
+$ git push origin release/5.1.1
+</pre>
+
+<p>Note : if you have an error <code>RPC failed; result=56</code>..., edit your git config (<code>git config</code> or <code>vi ~/.gitconfig</code>) and set the <code>http.postbuffer</code> variable to something bigger (<code>http.postbuffer=5M</code> for release/5.1.1)</p>
+
+<h4>Apply patches</h4>
+
+<h4>Release a collectd-pw new version</h4>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="http://github.com/feraudet">Cyril Feraudet</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="http://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
+

@@ -1,0 +1,21 @@
+<h3>Maintain a release branch of collectd-pw in Git</h3>
+
+<h4>Create a new branch from upstream</h4>
+
+<p>A new version is released. Check what branch and what commit we will checkout</p>
+
+<pre>
+i$ git checkout -b release/collectd-5.1.1 upstream/collectd-5.1
+</pre>
+
+<p>Clean, build, make some basic checks before pushing on perfwatcher repo</p>
+
+<pre>
+$ git push origin release/5.1.1
+</pre>
+
+<p>Note : if you have an error <code>RPC failed; result=56</code>..., edit your git config (<code>git config</code> or <code>vi ~/.gitconfig</code>) and set the <code>http.postbuffer</code> variable to something bigger (<code>http.postbuffer=5M</code> for release/5.1.1)</p>
+
+<h4>Apply patches</h4>
+
+<h4>Release a collectd-pw new version</h4>
