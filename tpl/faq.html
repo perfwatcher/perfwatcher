@@ -1,5 +1,6 @@
 <h3>Frequently Asked Questions</h3>
 
+<h4>About Perfwatcher, Collectd and Collectd-pw</h4>
 <p>
 	<ul>
 		<li><strong>Q:</strong> Can Perfwatcher work with the original version of Collectd ?</li>
@@ -19,6 +20,14 @@
 	<ul>
 		<li><strong>Q:</strong> How many servers can be monitored with Collectd / PerfWatcher ?</li>
 		<li><strong>R:</strong> The limit is your server. Collectd is hightly scallable and can be load-balanced. Actually I have 5600 servers monitored by 1 Collectd server at work.</li>
+	</ul>
+</p>
+
+<h4>Compilation</h4>
+<p>
+	<ul>
+		<li><strong>Q:</strong> Compilation fails on Solaris : I have an error <code>"/usr/include/sys/procfs.h", line 45: #error: "Cannot use procfs in the large file compilation environment"</code></li>
+		<li><strong>R:</strong> With Sunstudio, compile with option <code>-m64</code>. For example, at configure time, run <code>./configure CFLAGS='-m64'</code>.</li>
 	</ul>
 </p>
 
