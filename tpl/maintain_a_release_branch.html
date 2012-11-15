@@ -2,20 +2,122 @@
 
 <h4>Create a new branch from upstream</h4>
 
-<p>A new version is released. Check what branch and what commit we will checkout</p>
+<p>A new version is released upstream. We will merge it.</p>
+<p><u>WARNING</u> : this will delete all files in your current repository (if not saved in a branch)</p>
 
+<p>First, create a new and empty branch. Then merge collectd from upstream (one commit for all : --squash) and tag it.</p>
 <pre>
-i$ git checkout -b release/collectd-5.1.1 upstream/collectd-5.1
+# Create the empty branch
+  $ git symbolic-ref HEAD refs/head/newempty
+  $ rm .git/index
+# The following will remove all the files in your path
+  $ git clean -fdx
+# Commit the new branch with a new file inside and with its name
+  $ echo "2012-11-15 version 5.1.1" &gt; ChangeLog-collectd_pw
+  $ git add ChangeLog-collectd_pw
+  $ git commit -m "Initial commit for release/5.1.1 branch"
+# Checkout the new branch
+  $ git checkout -b release/5.1.1
+# Merge collectd from upstream
+  $ git merge --squash upstream/collectd-5.1
+# Commit and tag the merge
+  $ git commit -a -m "Merge upstream/collectd-5.1 branch"
+  $ git tag -a "collectd-5.1.1-upstream" -m "Version 5.1.1 from git branch collectd-5.1 on collectd/collectd"
 </pre>
 
 <p>Clean, build, make some basic checks before pushing on perfwatcher repo</p>
 
 <pre>
-$ git push origin release/5.1.1
+$ git push -n --tags origin release/5.1.1
+$ git push --tags origin release/5.1.1
 </pre>
+
+<p><u>WARNING</u> : first <code>git push -n</code> to check that you do not push unwanted stuff (like unwanted tags - it happened to me)</p>
 
 <p>Note : if you have an error <code>RPC failed; result=56</code>..., edit your git config (<code>git config</code> or <code>vi ~/.gitconfig</code>) and set the <code>http.postbuffer</code> variable to something bigger (<code>http.postbuffer=5M</code> for release/5.1.1)</p>
 
-<h4>Apply patches</h4>
+<h4>Maintain a patch</h4>
+
+<p>Note : the following is an example with the patch <i>fix_make_distcheck</i>.</p>
+
+<p>1/ First patch (or moving patch from one release to another)</p>
+<pre>
+$ git checkout -b patch-fix_make_distcheck/5.1.1 refs/tags/collectd-5.1.1-upstream
+$ git push -u origin patch-fix_make_distcheck/5.1.1
+</pre>
+
+<p>1/ Next times, only go to that branch</p>
+<pre>
+$ git checkout patch-fix_make_distcheck/5.1.1
+</pre>
+
+<p>2/ Then work on the patch.</p>
+<p>3/ Then commit</p>
+
+<pre>
+$ git status
+$ git add &lt;file1&gt; &lt;file2&gt;...
+$ git commit -a
+</pre>
+
+<p>4/ Apply the patch : merge it on the main branch (<i>release/x.y</i>) </p>
+
+<pre>
+$ git checkout release/5.1.1
+$ git merge patch-fix_make_distcheck/5.1.1
+</pre>
 
 <h4>Release a collectd-pw new version</h4>
+<p>Yes, there is not a lot of fun here</p>
+<ul>
+<li>Edit ChangeLog-collectd_pw</li>
+<li>run the following :</li>
+</ul>
+<pre>
+$ ./clean.sh
+$ ./build.sh
+$ ./configure --enable-debug
+$ make
+$ make distcheck
+</pre>
+<ul>
+<li>Test the generated package (something like <i>collectd-5.1.1.upstream.29.g2875a48.tar.gz</i>. Well, it should be working because the only thing we change here is ChangeLog-collectd-pw. However, it's better to check again.</li>
+<li>Commit the modification on ChangeLog-collectd_pw</li>
+</ul>
+<pre>
+$ git commit -a -m "New release 20121115"
+</pre>
+<ul>
+<li>Tag the new release</li>
+</ul>
+<pre>
+$ git tag -a "collectd-5.1.1-20121115" -m "Unofficial version 5.1.1-20121115 with perfwatcher patches"
+</pre>
+<ul>
+<li>Make the new tar.gz file. Run the following (again) :</li>
+</ul>
+<pre>
+$ ./clean.sh
+$ ./build.sh
+$ ./configure
+$ make distcheck
+</pre>
+<ul>
+<li>You should now have archives like <i>collectd-5.1.1.20121115</i> (you recognize the tag).</li>
+<li>Push the branch upstream (check first and don't upload unwanted stuff - don't upload unwanted tags)</li>
+</ul>
+<pre>
+$ git push -u --tags -n
+$ git push -u --tags 
+</pre>
+<ul>
+<li>Upload the files</li>
+<li>Update the web site</li>
+<ul>
+  <li>Update <code>genpages.sh</code> (change the version number)</li>
+  <li>Update the compatibility matrix</li>
+  <li>Run <code>genpages.sh</code></li>
+  <li><code>git commit</code></li>
+  <li><code>git push</code></li>
+</ul>
+</ul>

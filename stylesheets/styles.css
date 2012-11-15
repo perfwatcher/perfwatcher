@@ -237,7 +237,7 @@ img {
 }
 
 code, pre {
-  font-family: Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
+  font-family: Courier New, monospace;
   color: #333;
   font-size: 12px;
   overflow-x: auto;
@@ -263,7 +263,7 @@ li pre {
 pre {
   margin-left: 0px;
   margin-right: 0px;
-  padding-left: 60px;
+  padding-left: 20px;
 }
 
 table {
