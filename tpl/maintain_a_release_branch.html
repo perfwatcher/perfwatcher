@@ -28,8 +28,13 @@
 <p>Clean, build, make some basic checks before pushing on perfwatcher repo</p>
 
 <pre>
-$ git push -n --tags origin release/5.1.1
-$ git push --tags origin release/5.1.1
+$ git push -n origin release/5.1.1
+$ git push origin release/5.1.1
+</pre>
+
+<pre>
+$ git push -n origin refs/tags/collectd-5.1.1-upstream
+$ git push origin refs/tags/collectd-5.1.1-upstream
 </pre>
 
 <p><u>WARNING</u> : first <code>git push -n</code> to check that you do not push unwanted stuff (like unwanted tags - it happened to me)</p>
@@ -107,8 +112,8 @@ $ make distcheck
 <li>Push the branch upstream (check first and don't upload unwanted stuff - don't upload unwanted tags)</li>
 </ul>
 <pre>
-$ git push -u --tags -n
-$ git push -u --tags 
+$ git push -u -n refs/tags/collectd-5.1.1-20121115
+$ git push -u refs/tags/collectd-5.1.1-20121115
 </pre>
 <ul>
 <li>Upload the files</li>
