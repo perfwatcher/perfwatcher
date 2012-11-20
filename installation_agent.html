@@ -56,6 +56,9 @@
 		<li>On Debian like :
 			<pre><code>aptitude install build-essential</code></pre>
 		</li>
+		<li>On Suse like :
+			<pre><code>zypper in --type pattern Basis-Devel</code></pre>
+		</li>
 	</ul>
 </p>
 
@@ -87,6 +90,10 @@ chmod a+x /etc/init.d/collectd</code></pre>
 			<pre><code>curl -o /etc/init.d/collectd 'http://git.tokkee.org/?p=pkg-collectd.git;a=blob_plain;f=debian/collectd-core.collectd.init.d;hb=HEAD'
 chmod a+x /etc/init.d/collectd</code></pre>
 		</li>
+		<li>On Suse like :
+			<pre><code>cp contrib/sles10.1/init.d-collectd /etc/init.d/collectd
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
 	</ul>
 </p>
 
@@ -95,7 +102,7 @@ chmod a+x /etc/init.d/collectd</code></pre>
 <p>
 Below a sample of configuration for an agent :<br/>
 <strong>/etc/collectd/collectd.conf</strong> on Debian like<br/>
-<strong>/etc/collectd.conf</strong> on RedHat like
+<strong>/etc/collectd.conf</strong> on RedHat and Suse like
 <pre><code>TypesDB     "/usr/share/collectd/types.db"
 Interval     60
 

@@ -16,6 +16,10 @@ yum install zlib-devel rrdtool-devel rrdtool</code></pre>
 			<pre><code>aptitude install build-essential
 aptitude install zlib1g-dev librrd-dev rrdtool libdbi0-dev</code></pre>
 		</li>
+		<li>On Suse like :
+			<pre><code>zypper in --type pattern Basis-Devel
+zypper in zlib-devel rrdtool-devel rrdtool zlib</code></pre>
+		</li>
 	</ul>
 </p>
 
@@ -28,7 +32,7 @@ cd json-c-0.10
 make -j
 make install
 cp json_object_iterator.h /usr/include/json # Bug in libjson install script
-cp /usr/lib/libjson.* /usr/lib64/ # Needed on RHEL x86_64</code></pre>
+cp /usr/lib/libjson.* /usr/lib64/ # Needed on RHEL and Suse x86_64</code></pre>
 </p>
 
 <h5>Compile libmicrohttpd</h5>
@@ -39,7 +43,7 @@ cd libmicrohttpd-0.9.22
 ./configure --prefix=/usr
 make -j
 make install
-cp /usr/lib/libmicrohttpd.so* /usr/lib64/ # Needed on RHEL x86_64
+cp /usr/lib/libmicrohttpd.so* /usr/lib64/ # Needed on RHEL and Suse x86_64
 </code></pre>
 </p>
 
@@ -78,6 +82,10 @@ a2enmod proxy
 a2enmod proxy_http
 service apache2 restart</code></pre>
 		</li>
+		<li>On Suse like :
+			<pre><code>cp contrib/sles10.1/init.d-collectd /etc/init.d/collectd
+chmod a+x /etc/init.d/collectd</code></pre>
+		</li>
 	</ul>
 </p>
 <hr >
@@ -86,7 +94,7 @@ service apache2 restart</code></pre>
 <p>
 Below a sample of configuration for a server :<br/>
 <strong>/etc/collectd/collectd.conf</strong> on Debian like<br/>
-<strong>/etc/collectd.conf</strong> on RedHat like
+<strong>/etc/collectd.conf</strong> on RedHat and Suse like
 <pre><code>TypesDB     "/usr/share/collectd/types.db"
 TypesDB     "/etc/types-perfwatcher.db"
 Interval     60

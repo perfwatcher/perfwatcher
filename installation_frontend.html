@@ -55,12 +55,14 @@
 			<ul>
 				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear mysql-server mysql</code></pre></li>
 				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql mysql-server mysql-client</code></pre></li>
+				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear</code></pre></li>
 			</ul>
 		</li>
 		<li>MDB2 PEAR library
 			<ul>
 				<li>On Redhat like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
 				<li>On Debian like :<pre><code>aptitude install php-mdb2-driver-mysql</code></pre></li>
+				<li>On Suse like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
 			</ul>
 		</li>
 	</ul>
@@ -88,6 +90,9 @@
 		<li>On Debian like :
 			<pre><code>cd /var/www</code></pre>
 		</li>
+		<li>On Suse like :
+			<pre><code>cd /srv/www/htdocs</code></pre>
+		</li>
 	</ul>
 	<pre><code>
 tar xzf /&lt;your download directory&gt;/perfwatcher-1.0.20121106.tar.gz # If downloaded as tar.gz
@@ -103,6 +108,9 @@ mkdir logs
 		</li>
 		<li>On Debian like :
 			<pre><code>chown -R www-data:www-data etc logs</code></pre>
+		</li>
+		<li>On Suse like :
+			<pre><code>chown -R wwwrun:www etc logs</code></pre>
 		</li>
 	</ul>
 </p>
