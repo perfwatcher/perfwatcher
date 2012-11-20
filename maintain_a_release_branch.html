@@ -82,12 +82,25 @@ $ git push origin refs/tags/collectd-5.1.1-upstream
 
 <p>Note : if you have an error <code>RPC failed; result=56</code>..., edit your git config (<code>git config</code> or <code>vi ~/.gitconfig</code>) and set the <code>http.postbuffer</code> variable to something bigger (<code>http.postbuffer=5M</code> for release/5.1.1)</p>
 
+<h4>Make a patch file from a branch</h4>
+
+<p>Note : this is useful when trying to apply patches from a version to another</p>
+
+<pre>
+$ git checkout patch-fix_make_distcheck/5.1.1
+$ git format-patch collectd-5.1.1-upstream
+</pre>
+
+<p>This will go the the branch containing the patch. Then it will create patch files (one per commit in the branch) since the beginning (here, the beginning is the tag <code>collectd-5.1.1-upstream</code>).
+
+
 <h4>Maintain a patch</h4>
 
 <p>Note : the following is an example with the patch <i>fix_make_distcheck</i>.</p>
 
 <p>1/ First patch (or moving patch from one release to another)</p>
 <pre>
+$ git checkout release/5.1.1
 $ git checkout -b patch-fix_make_distcheck/5.1.1 refs/tags/collectd-5.1.1-upstream
 $ git push -u origin patch-fix_make_distcheck/5.1.1
 </pre>
