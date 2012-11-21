@@ -166,8 +166,10 @@ $ make distcheck
 <li>Push the branch upstream (check first and don't upload unwanted stuff - don't upload unwanted tags)</li>
 </ul>
 <pre>
-$ git push -u -n refs/tags/collectd-5.1.1-20121115
-$ git push -u refs/tags/collectd-5.1.1-20121115
+$ git push -u -n
+$ git push -u
+$ git push -u -n origin refs/tags/collectd-5.1.1-20121115
+$ git push -u origin refs/tags/collectd-5.1.1-20121115
 </pre>
 <ul>
 <li>Upload the files</li>
