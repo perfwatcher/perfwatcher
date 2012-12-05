@@ -57,17 +57,17 @@ class _tree_struct {
 		$this->db->nextr();
 		return $this->db->nf() === 0 ? false : $this->db->get_row("assoc");
 	}
-	function _get_children($id, $recursive = false) {
+	function _get_children($id, $recursive = false, $path = "") {
 		global $childrens_cache;
 		if(is_array($childrens_cache) && isset($childrens_cache[$id.($recursive ? 'recursive' : 'notrecursive')])) {
 			return $childrens_cache[$id];
 		}
 		$childrens = array();
 		if($recursive) {
-			$childrens = $this->_get_children($id);
+			$childrens = $this->_get_children($id, false, $path);
 			foreach($childrens as $cid => $cdata) {
 				if ( $cdata['type'] != 'default') {			
-					foreach($this->_get_children($cdata['id'], true) as $cid2 => $cdata2) {
+					foreach($this->_get_children($cdata['id'], true, $cdata['_path_']) as $cid2 => $cdata2) {
 						$childrens[$cdata2['type'] == 'default' ? $cdata2['title'] : 'aggregator_'.$cdata2['id']] = $cdata2;
 					}
 				}
@@ -78,6 +78,7 @@ class _tree_struct {
 			$this->db->query("SELECT `".implode("` , `", $this->fields)."` FROM `".$this->table."` WHERE `".$this->fields["parent_id"]."` = ".(int) $id." ORDER BY `".$this->fields[$sort]."` ASC");
 			while($this->db->nextr()) {
 				$tmp = $this->db->get_row("assoc");
+				$tmp["_path_"] = $path." -> ".$tmp['title'];
 				$childrens[$tmp['type'] == 'default' ? $tmp['title'] : 'aggregator_'.$tmp['id']] = $tmp;
 			}
 		}

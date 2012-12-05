@@ -1,0 +1,8 @@
+#!/usr/bin/php
+<?php
+require 'lib/common.php';
+$jstree = new json_tree();
+foreach ($jstree->_get_children($argv[1], true, "root") as $k => $v) {
+	print $v['_path_']."\n";
+}
+?>

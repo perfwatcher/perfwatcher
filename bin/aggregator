@@ -49,13 +49,15 @@ $conf .= "	<aggregator>
 	}
 }
 
-file_put_contents('etc/aggregator.conf.tmp', $conf);
+$localconf = file_exists('etc/aggregator.local.conf') ? file_get_contents('etc/aggregator.local.conf') : '';
 $oldconf = file_exists('etc/aggregator.conf') ? file_get_contents('etc/aggregator.conf') : '';
+if($localconf) {
+	$conf .= $localconf;
+}
 if ($oldconf != $conf) {
+	file_put_contents('etc/aggregator.conf.tmp', $conf);
 	rename('etc/aggregator.conf.tmp', 'etc/aggregator.conf');
 	echo "etc/aggregator.conf updated\n";
-} else {
-	unlink('etc/aggregator.conf.tmp');
 }
 
 ?>
