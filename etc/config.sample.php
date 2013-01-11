@@ -18,28 +18,28 @@
  *	Directory where Collectd write RRD file
  *
  */
-#$rrds_path = "/var/lib/collectd";
+# $rrds_path = "/var/lib/collectd";
 
 /**
  *
  *	Directory where Collectd write notification through notify_file plugin
  *
  */
-#$notification_path = "/var/lib/collectd/_notification";
+# $notification_path = "/var/lib/collectd/_notification";
 
 /**
  *
  *	Path to rrdtool binary
  *
  */
-#$rrdtool = '/usr/bin/rrdtool';
+# $rrdtool = '/usr/bin/rrdtool';
 
 /**
  *
  *	rrdcached socket (if used)
  *
  */
-#$rrdcached = "/var/run/rrdcached/rrdcached.sock";
+# $rrdcached = "/var/run/rrdcached/rrdcached.sock";
 
 /** 
  *
@@ -57,15 +57,8 @@
 
 /** 
  *
- *	Hostname used by aggregator
- *
- */
-# $aggregator_hostname  = 'my_custom_hostname';
-
-/** 
- *
  *	Custom widget. 
- *	Have a look to the wiki to sea how to create custom widget 
+ *	Have a look at the wiki to sea how to create custom widget 
  *
  */
 # $widgets[] = 'custom_widget';
@@ -73,7 +66,7 @@
 /**
  *
  *	Peuplator plugin. 
- *	Have a look to the wiki to sea how to create plugin to fill folder with you CMDB content 
+ *	Have a look at the wiki to see how to create plugin to fill folder with you CMDB content 
  *
  */
 # $peuplator_plugins[] = 'folder_filling_my_cmdb';
