@@ -57,7 +57,7 @@ switch ($action) {
         }
         $id = md5(time().$_POST['tab_title']);
         $datas['tabs'][$id] = array('tab_title' => $_POST['tab_title'], 'selected_graph' => '');
-	if (isset($_POST['lifetime']) && $_POST['lifetime'] >= 0) {
+	if (isset($_POST['lifetime']) && $_POST['lifetime'] > 0) {
 		$datas['tabs'][$id]['deleteafter'] = time() + $_POST['lifetime'];
 	}
         $jstree->set_datas($res['id'], $datas);
