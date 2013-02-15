@@ -75,10 +75,10 @@ $(document).ready(function() {
 		//console.log($(this).attr("id"));
 		switch($(this).attr("id")) {
 			case 'menu_new_tab':
-				askfor({title: 'Enter a name for this new tab', oklabel: 'Create'}, function(title) {
+				askfornewtab({ }, function(title, lifetime) {
 					$.ajax({
 						async : false, type: "POST", url: "action.php?tpl=json_actions",
-						data : { "action" : "add_tab", "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title },
+						data : { "action" : "add_tab", "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
 						complete : function (r) {
 							if(!r.status) {
 								notify_ko('Error, can\'t retrieve data from server !');

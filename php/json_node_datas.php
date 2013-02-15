@@ -58,6 +58,14 @@ switch ($res['type']) {
 $plugins = load_datas($host);
 $datas = $jstree->get_datas($res['id']);
 
+if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) > 0) {
+	foreach($datas['tabs'] as $key => $val) {
+		if (isset($val['deleteafter']) && time() > $val['deleteafter']) {
+			unset($datas['tabs'][$key]);
+		}
+	}
+}
+
 echo json_encode(
 array(
 	'host' => $host,

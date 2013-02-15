@@ -236,8 +236,32 @@ function showserverlist(list, type) {
 		"closeOnSelfClick":false, "closeOnSelfOver":false,"modal":true
 	});
 }
+function askfornewtab(optionsarg, func) {
+	var options = { cancellabel: 'Cancel', oklabel: 'Create'};
+	$.extend(options, optionsarg);
+  noty({
+	"layout":"center",
+    text: 'Enter a name for this new tab <input type="text" id="askforinput" value="">  and a lifetime <select id="askforinput2" ><option value="0">Infinite</option><option value="86400">1 day</option><option value="604800">7 days</option><option value="2678400">1 month</option></select>', 
+    buttons: [
+      {type: 'button green', text: options['oklabel'], click: function($noty) {
+	  	  var name = $('#askforinput').val();
+		  func($('#askforinput').val(), $('#askforinput2').val());
+          $noty.close();
+        }
+      },
+      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
+          $noty.close();
+          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
+        }
+      }
+      ],
+    closable: false,
+    timeout: false
+  });
+  return false;
+}
 function askfor(optionsarg, func) {
-	var options = { label: '', cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
+	var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
 	$.extend(options, optionsarg);
   noty({
 	"layout":"center",
