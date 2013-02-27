@@ -329,8 +329,7 @@
 })( jQuery );
 
 function showtop (toptime) {
-	var topdate = new Date(toptime * 1000).toString();
-	$('#modalwindow').jqxWindow({ title: 'Top process at '+topdate, isModal: false, theme: theme, width: 537, height: 600 }).show();
+	$('#modalwindow').jqxWindow({ title: '<span id="toptitle"></span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
 	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
 	$('#topprocess .prev').click(function() {
 		showtop(toptime - 60);
@@ -353,7 +352,22 @@ function showtop (toptime) {
 		url: url, 
 		root: "data",
 	};
-	var dataAdapter = new $.jqx.dataAdapter(source);
+	var dataAdapter = new $.jqx.dataAdapter(source, {
+                downloadComplete: function (data, status, xhr) {
+			if (data.date2) {
+				var topdate = new Date(data.date2 * 1000).toString();
+				$('#toptitle').html('Top process at '+topdate);
+			} else if (data.error) {
+				if (data.error.result && data.error.result.status == 'path not found or no file for this tm') {
+					$('#toptitle').html('ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
+				} else {
+					$('#toptitle').html('ERROR : No data for this date '+data.error);
+				} 
+			}
+		},
+                loadComplete: function (data) { },
+                loadError: function (xhr, status, error) { }
+        });
 	var cpurenderer = function (row, column, value) {
 		return '<span style="margin: 4px; float: right;">'+value+'%</span>';
 	}

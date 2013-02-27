@@ -28,51 +28,64 @@ $res = $jstree->_get_node($id);
 $datas = $jstree->get_datas($res['id']);
 $host = $res['type'] == 'default' ? $res['title'] : 'aggregator_'.$res['id'];
 // ps-1335804082.gz
-$psdir = "$notification_path/$host/top";
 $time = isset($_GET['time']) ? $_GET['time'] : time();
-$t1 = $t2 = false;
-$file1 = $file2 = "";
-$i = 0;
-while ($time-- && $i < 240 && !$t2) {
-	$i++;
-	if ($file2 = check_ps_file_exists($psdir, $time)) {
-			if ($t1) {
-					$t2 = $time; 
-			} else { 
-					$t1 = $time;
-					$file1 = $file2;
-					$file2 = "";
-			}
+
+// if (!$t1 || !$t2) { echo json_encode(array()); exit; }
+
+$json1 = json_encode(array("jsonrpc" => "2.0","method" => "topps_get_top","params" => array("hostname" => $host,"tm" => (int)$time,"end_tm" => (int)$time - 60),"id" => 0));
+$json2 = json_encode(array("jsonrpc" => "2.0","method" => "topps_get_top","params" => array("hostname" => $host,"tm" => (int)$time -60,"end_tm" => (int)$time - 120),"id" => 0));
+
+putenv('http_proxy');
+putenv('https_proxy');
+$ch = curl_init($jsonrpc_topps_server);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_topps_httpproxy == null ? FALSE : TRUE);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $json1);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Content-Type: application/json',
+    'Content-Length: ' . strlen($json1))
+);
+if($result = curl_exec($ch)) {
+	if ($result  != '' && $result = json_decode($result)) {
+		if (isset($result->result->topps)) {
+			$data1 = implode("", $result->result->topps);
+		} else {
+			exit_error($result);
+		}
+	} else {
+		exit_error(array("result not json :" => $result));
 	}
+} else {
+ exit_error(curl_error($ch));
 }
-
-if (!$t1 || !$t2) { echo json_encode(array()); exit; }
-
-$data1 = get_ps_hash(implode("\n", gzfile($file2)));
-$data2 = get_ps_hash(implode("\n", gzfile($file1)));
+$t1 = $result->result->tm;
+curl_setopt($ch, CURLOPT_POSTFIELDS, $json2);
+curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+    'Content-Type: application/json',
+    'Content-Length: ' . strlen($json2))
+);
+if($result = curl_exec($ch)) {
+	if ($result  != '' && $result = json_decode($result)) {
+		if (isset($result->result->topps)) {
+			$data2 = implode("", $result->result->topps);
+		} else {
+			exit_error($result);
+		}
+	} else {
+		exit_error(array("result not json :" => $result));
+	}
+} else {
+ exit_error(curl_error($ch));
+}
+$t2 = $result->result->tm;
+$data1 = get_ps_hash($data1);
+$data2 = get_ps_hash($data2);
 $data = array_intersect_uassoc($data1, $data2, "strcmp");
 calc_time_derive($data, $data2);
 
 //$data = array_slice($data, 63);
 echo json_encode(array('data' => array_values($data), 'date1' => $t1, 'date2' => $t2));
-
-function check_ps_file_exists($psdir, $time) {
-    global $oldstyledir;
-    global $newstyledir;
-
-    if($newstyledir) {
-        $f = "$psdir/".(int)($time/100000000)."/".(int)($time/1000000)."/".(int)($time/10000)."/ps-$time.gz";
-        if(file_exists($f)) {
-            return($f);
-        }
-    }
-    if($oldstyledir) {
-        if(file_exists("$psdir/ps-$time.gz")) {
-            return("$psdir/ps-$time.gz");
-        }
-    }
-    return(false);
-}
 
 function get_ps_hash($data) {
     $ret = array();
@@ -102,5 +115,9 @@ function calc_time_derive(&$data, $data2) {
         $data[$key]['cpu'] = ceil(($data[$key]['utime'] + $data[$key]['stime']) / 100);
         $data[$key]['rss'] *= 4096;
     }
+}
+
+function exit_error($error) {
+	echo json_encode(array("error" => $error, "data" => array())); exit;
 }
 ?>

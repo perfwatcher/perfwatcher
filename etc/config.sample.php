@@ -18,7 +18,7 @@
  *	Directory where Collectd write RRD file
  *
  */
-# $rrds_path = "/var/lib/collectd";
+# $rrds_path = "/var/lib/collectd/rrd";
 
 /**
  *
@@ -79,5 +79,28 @@
  */
 # $extra_jsfile[] = 'js/custom_plugin_view.js';
 
+/**
+ *
+ *	Top jsonRPC server
+ *	Default value http://127.0.0.1:8080/
+ *
+ */
+# $jsonrpc_topps_path = '/var/lib/collectd/top';
+
+/**
+ *
+ *	Top jsonRPC server
+ *	Default value http://127.0.0.1:8080/
+ *
+ */
+# $jsonrpc_topps_server = 'http://127.0.0.1:8080/';
+
+/**
+ *
+ *	Top jsonRPC http proxy
+ *	Default value null
+ *
+ */
+# $jsonrpc_topps_httpproxy = 'http://10.0.0.1:3128/';
 
 ?>

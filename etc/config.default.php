@@ -12,8 +12,7 @@ $db_config = array(
 	"database"	=> "perfwatcher"
 );
 
-$rrds_path = "/var/lib/collectd";
-$notification_path = "/var/lib/collectd/_notification";
+$rrds_path = "/var/lib/collectd/rrd";
 
 $grouped_type = array('apache_bytes','apache_requests','apache_scoreboard','cache_entries','cache_ratio','cpu','cpug','cpufreq','df_complex','dns_opcode','conntrack','entropy','frequency','humidity','invocations','ipt_bytes','ipt_packets','irq','java_memory','memory','mysql_commands','mysql_handler','ping', 'ps_state', 'swap','table_size','tcp_connections','threads','users','wirkleistung','specs','swap_io', 'grid','nfs_procedure','panfs_procedure','panfs_procedure_time');
 
@@ -44,6 +43,11 @@ $peuplator_plugins[] = 'folder_filling_manual';
 
 $extra_jsfile = array();
 $extra_jsfile[] = 'js/custom_plugin_view.js';
+
+
+$jsonrpc_topps_path = '/var/lib/collectd/top';
+$jsonrpc_topps_server = 'http://127.0.0.1:8080/';
+$jsonrpc_topps_httpproxy = null;
 
 if (file_exists("etc/config.php")) { include("etc/config.php"); } else { die('no etc/config.php please create it with at least : <br />&lt;?php<br/><br />?&gt;'); }
 
