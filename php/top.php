@@ -1,14 +1,4 @@
 <?php
-# CONFIG
-# Old files are in $psdir/ps-$tm.gz
-# New files are in $psdir/$tm2/$tm4/$tm6/ps-$tm.gz
-# where $tm is the timestamp, and tm2 is the first 2 digits of the timestamp, $t4 the first 4 digits and so on.
-# If you use the old style (lots of files in the same dir), set $oldstyledir
-# If you use the new style, set $newstyledir
-# You may use both, but best practice recommends old=0 new=1
-$oldstyledir=1;
-$newstyledir=1;
-#
 #
 //header("Content-type: application/json");
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
