@@ -33,6 +33,7 @@ class _tree_struct {
 
     // Constructor
     function __construct($table = "tree", $fields = array()) {
+        global $db_config;
         $this->table = $table;
         if(!count($fields)) {
             foreach($this->fields as $k => &$v) { $v = $k; }
@@ -49,7 +50,7 @@ class _tree_struct {
             }
         }
         // Database
-        $this->db = new _database;
+        $this->db = new _database($db_config);
     }
 
     function _get_node($id) {

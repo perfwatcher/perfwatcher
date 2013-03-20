@@ -42,9 +42,8 @@ class _database {
             "charset" 	=> "utf8",
             );
 
-    function __construct() {
-        global $db_config;
-        $this->settings = array_merge($this->settings, $db_config);
+    function __construct($args = null) {
+        if($args) { $this->settings = array_merge($this->settings, $args); }
         if($this->settings["error_file"] === true) $this->settings["error_file"] = dirname(__FILE__)."/__mysql_errors.log";
     }
 
