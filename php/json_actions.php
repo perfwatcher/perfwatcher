@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  *
  * PHP version 5
@@ -51,29 +51,29 @@ $datas = $jstree->get_datas($res['id']);
 
 switch ($action) {
     case 'add_tab':
-		print_r($datas);
+        print_r($datas);
         if (!isset($datas['tabs'])) {
             $datas['tabs'] = array();
         }
         $id = md5(time().$_POST['tab_title']);
         $datas['tabs'][$id] = array('tab_title' => $_POST['tab_title'], 'selected_graph' => '');
-	if (isset($_POST['lifetime']) && $_POST['lifetime'] > 0) {
-		$datas['tabs'][$id]['deleteafter'] = time() + $_POST['lifetime'];
-	}
+        if (isset($_POST['lifetime']) && $_POST['lifetime'] > 0) {
+            $datas['tabs'][$id]['deleteafter'] = time() + $_POST['lifetime'];
+        }
         $jstree->set_datas($res['id'], $datas);
-		echo json_encode(array());
-    break;
+        echo json_encode(array());
+        break;
     case 'del_tab':
         unset($datas['tabs'][$_POST['tab_id']]);
         $jstree->set_datas($res['id'], $datas);
-		echo json_encode(array());
-    break;
-	case 'search':
-		echo $jstree->searchfield($_GET['term']);
-	break;
-	case 'get_js':
-		echo json_encode($extra_jsfile);
-	break;
+        echo json_encode(array());
+        break;
+    case 'search':
+        echo $jstree->searchfield($_GET['term']);
+        break;
+    case 'get_js':
+        echo json_encode($extra_jsfile);
+        break;
 }
 
 ?>

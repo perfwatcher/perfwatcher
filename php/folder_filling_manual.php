@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 
 require 'lib/class.folder_filling_manual.php';
 
@@ -19,14 +19,14 @@ $jstree = new json_tree();
 $res = $jstree->_get_node($id);
 $owidget = new folder_filling_manual($res);
 switch($_POST['action']) {
-	case 'save':
-			if ($owidget->save($_POST['list'])) {
-				die('Server list saved. Wait a minute then refresh the tree');
-			}
-	break;
-	default:
-		die('No valid action submited !');
-	break;
+    case 'save':
+        if ($owidget->save($_POST['list'])) {
+            die('Server list saved. Wait a minute then refresh the tree');
+        }
+        break;
+    default:
+        die('No valid action submited !');
+        break;
 }
 
 ?>

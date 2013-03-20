@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  * PHP version 5
  *
@@ -21,40 +21,40 @@
  */
 
 class folder_options {
-	private $datas = array();
+    private $datas = array();
 
-	function __construct($datas) {
-		$this->datas =& $datas;
-	}
+    function __construct($datas) {
+        $this->datas =& $datas;
+    }
 
-	function is_compatible() {
-		switch($this->datas['type']) {
-			case 'folder':
-			case 'drive':
-				return true;
-			break;
-			default:
-				return false;
-			break;
-		}
-	}
+    function is_compatible() {
+        switch($this->datas['type']) {
+            case 'folder':
+            case 'drive':
+                return true;
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
 
-	function get_info() {
-		global $folder_filling_plugins;
-		return array(
-			'title' => $this->datas['type']." options",
-			'content_url' => 'html/folder_options.html'
-		);
-	}
+    function get_info() {
+        global $folder_filling_plugins;
+        return array(
+                'title' => $this->datas['type']." options",
+                'content_url' => 'html/folder_options.html'
+                );
+    }
 
-	function save ($list) {
-		global $jstree, $id;
-		$datas = $jstree->get_datas($this->datas['id']);
-		if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
-		$datas['serverslist']['manuallist'] = $list;
+    function save ($list) {
+        global $jstree, $id;
+        $datas = $jstree->get_datas($this->datas['id']);
+        if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
+        $datas['serverslist']['manuallist'] = $list;
         $jstree->set_datas($id, $datas);
-		return true;
-	}
+        return true;
+    }
 }
 
 ?>

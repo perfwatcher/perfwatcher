@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  * PHP version 5
  *
@@ -21,49 +21,49 @@
  */
 
 class folder_aggregator {
-	private $datas = array();
+    private $datas = array();
 
-	function __construct($datas) {
-		$this->datas =& $datas;
-	}
+    function __construct($datas) {
+        $this->datas =& $datas;
+    }
 
-	function is_compatible() {
-		switch($this->datas['type']) {
-			case 'folder':
-			case 'drive':
-				return true;
-			break;
-			default:
-				return false;
-			break;
-		}
-	}
+    function is_compatible() {
+        switch($this->datas['type']) {
+            case 'folder':
+            case 'drive':
+                return true;
+                break;
+            default:
+                return false;
+                break;
+        }
+    }
 
-	function get_info() {
-		global $folder_filling_plugins, $grouped_type;
-		return array(
-			'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
-			'content_url' => 'html/folder_aggregator.html',
-			'grouped_type' => $grouped_type
-		);
-	}
+    function get_info() {
+        global $folder_filling_plugins, $grouped_type;
+        return array(
+                'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
+                'content_url' => 'html/folder_aggregator.html',
+                'grouped_type' => $grouped_type
+                );
+    }
 
-	function add_plugin($plugin, $cf) {
-		global $jstree;
-		$datas = $jstree->get_datas($this->datas['id']);
-    	if (!isset($datas['plugins'])) { $datas['plugins'] = array(); }
-    	if (!isset($datas['plugins'][$plugin[0].'-'.$cf])) {
-    	    $datas['plugins'][$plugin[0].'-'.$cf] = true;
-    	    $jstree->set_datas($this->datas['id'], $datas);
-    	}
-	}
+    function add_plugin($plugin, $cf) {
+        global $jstree;
+        $datas = $jstree->get_datas($this->datas['id']);
+        if (!isset($datas['plugins'])) { $datas['plugins'] = array(); }
+        if (!isset($datas['plugins'][$plugin[0].'-'.$cf])) {
+            $datas['plugins'][$plugin[0].'-'.$cf] = true;
+            $jstree->set_datas($this->datas['id'], $datas);
+        }
+    }
 
-	function del_plugin($plugin) {
-		global $jstree;
-		$datas = $jstree->get_datas($this->datas['id']);
-		unset($datas['plugins'][$plugin]);
-    	$jstree->set_datas($this->datas['id'], $datas);
-	}
+    function del_plugin($plugin) {
+        global $jstree;
+        $datas = $jstree->get_datas($this->datas['id']);
+        unset($datas['plugins'][$plugin]);
+        $jstree->set_datas($this->datas['id'], $datas);
+    }
 }
 
 ?>

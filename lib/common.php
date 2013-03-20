@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  * Common functions
  *
@@ -30,72 +30,72 @@ require "lib/class.tree.php";
 function load_datas($host) {
     global $rrds_path, $grouped_type, $blacklisted_type;
     if (is_array($rrds_path)) {
-	$array_rrds_path = $rrds_path;
+        $array_rrds_path = $rrds_path;
     } else {
-	$array_rrds_path = array($rrds_path);
+        $array_rrds_path = array($rrds_path);
     }
     $ret = array();
     foreach($array_rrds_path as $rrds_path) {
-	if (!is_dir($rrds_path.'/'.$host)) { continue; }
-	$dh = scandir($rrds_path.'/'.$host, 1);
-	foreach ($dh as $plugindir) {
-	    if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
-	    $plugin = $plugin_instance = '';
-	    @list($plugin, $plugin_instance ) = split('-', $plugindir, 2);
-	    if ($plugin_instance == '') { $plugin_instance = '_'; }
-	    $ret[$plugin][$plugin_instance] = array();
-	    $dh2 = scandir($rrds_path.'/'.$host.'/'.$plugindir);
-	    foreach ($dh2 as $rrd) {
-	    	if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
-	    	$type = $type_instance = '';
-	    	@list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
-	    	if (in_array($type, $blacklisted_type)) { continue; }
-	    	if ($type_instance == '') { $type_instance = '_'; }
-	    	//if ($type == $plugin) { $type_instance = '_'; }
-	    	if (in_array($type,$grouped_type)) {
-	    	    $ret[$plugin][$plugin_instance][$type]['_'] = true;
-	    	} else {
-	    	    $ret[$plugin][$plugin_instance][$type][$type_instance] = true;
-	    	}
-	    	ksort($ret[$plugin]);
-	    }
-	}
+        if (!is_dir($rrds_path.'/'.$host)) { continue; }
+        $dh = scandir($rrds_path.'/'.$host, 1);
+        foreach ($dh as $plugindir) {
+            if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
+            $plugin = $plugin_instance = '';
+            @list($plugin, $plugin_instance ) = split('-', $plugindir, 2);
+            if ($plugin_instance == '') { $plugin_instance = '_'; }
+            $ret[$plugin][$plugin_instance] = array();
+            $dh2 = scandir($rrds_path.'/'.$host.'/'.$plugindir);
+            foreach ($dh2 as $rrd) {
+                if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
+                $type = $type_instance = '';
+                @list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
+                if (in_array($type, $blacklisted_type)) { continue; }
+                if ($type_instance == '') { $type_instance = '_'; }
+                //if ($type == $plugin) { $type_instance = '_'; }
+                if (in_array($type,$grouped_type)) {
+                    $ret[$plugin][$plugin_instance][$type]['_'] = true;
+                } else {
+                    $ret[$plugin][$plugin_instance][$type][$type_instance] = true;
+                }
+                ksort($ret[$plugin]);
+            }
+        }
     }
     ksort($ret);
     return $ret;
 }
 
 function purge_data() {
-    
+
 }
 
 function get_widget($datas) {
-	global $widgets;
-	$json = array();
-	foreach($widgets as $widget) {
-		if (!file_exists("lib/class.$widget.php")) { continue; }
-		if (class_exists ($widget)) { continue; }
-		if (!include ("lib/class.$widget.php")) { continue; }
-		if (!class_exists ($widget)) { continue; }
-		$owidget = new $widget($datas);
-		if (!$owidget->is_compatible()) { continue; }
-		$json[$widget] = $owidget->get_info();
-	}
-	return $json;
+    global $widgets;
+    $json = array();
+    foreach($widgets as $widget) {
+        if (!file_exists("lib/class.$widget.php")) { continue; }
+        if (class_exists ($widget)) { continue; }
+        if (!include ("lib/class.$widget.php")) { continue; }
+        if (!class_exists ($widget)) { continue; }
+        $owidget = new $widget($datas);
+        if (!$owidget->is_compatible()) { continue; }
+        $json[$widget] = $owidget->get_info();
+    }
+    return $json;
 }
 
 function split_pluginstr($pluginstr) {
-	if (strpos($pluginstr, '/') === false) {
-		return array('', '', '', '');
-	}
-	list($g, $d) = split('/', $pluginstr, 2);
-	if (strpos($g, '-') !== false) {
-		list($plugin, $plugin_instance) = split('-', $g, 2);
-	} else { $plugin = $g; $plugin_instance = ''; }
-	if (strpos($d, '-') !== false) {
-		list($type, $type_instance) = split('-', $d, 2);
-	} else { $type = $d; $type_instance = ''; }
-	return array($plugin, $plugin_instance, $type, $type_instance);
+    if (strpos($pluginstr, '/') === false) {
+        return array('', '', '', '');
+    }
+    list($g, $d) = split('/', $pluginstr, 2);
+    if (strpos($g, '-') !== false) {
+        list($plugin, $plugin_instance) = split('-', $g, 2);
+    } else { $plugin = $g; $plugin_instance = ''; }
+    if (strpos($d, '-') !== false) {
+        list($type, $type_instance) = split('-', $d, 2);
+    } else { $type = $d; $type_instance = ''; }
+    return array($plugin, $plugin_instance, $type, $type_instance);
 }
 
 function get_nodes_count($host_id)

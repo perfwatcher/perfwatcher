@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  *
  * PHP version 5
@@ -49,12 +49,12 @@ if (isset($_POST['action'])) {
             $datas['tabs'][$_POST['tab_id']]['selected_graph'] = $_POST['selected_graph'];
             $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
             $jstree->set_datas($res['id'], $datas);
-        break;
+            break;
     }
 }
 
 echo json_encode(
-array(
-	'message' => "View succefully saved."
-	));
+        array(
+            'message' => "View succefully saved."
+            ));
 ?>

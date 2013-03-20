@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /*
  *
  * DO NOT MODIFY, create and use etc/config.php to overide configuration
@@ -6,11 +6,11 @@
  */
 
 $db_config = array(
-	"servername"=> "localhost",
-	"username"	=> "root",
-	"password"	=> "",
-	"database"	=> "perfwatcher"
-);
+        "servername"=> "localhost",
+        "username"	=> "root",
+        "password"	=> "",
+        "database"	=> "perfwatcher"
+        );
 
 $rrds_path = "/var/lib/collectd/rrd";
 

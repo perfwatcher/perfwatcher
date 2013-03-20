@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  *
  * PHP version 5
@@ -45,35 +45,35 @@ $res = $jstree->_get_node($id);
 switch ($res['type']) {
     case 'default' :
         $host = $res['title'];
-    break;
+        break;
     case 'folder' :
     case 'drive' :
         $host = 'aggregator_'.$res['id'];
-    break;
+        break;
     default:
         die('Error : node not found !!!');
-    break;
+        break;
 }
 
 $plugins = load_datas($host);
 $datas = $jstree->get_datas($res['id']);
 
 if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) > 0) {
-	foreach($datas['tabs'] as $key => $val) {
-		if (isset($val['deleteafter']) && time() > $val['deleteafter']) {
-			unset($datas['tabs'][$key]);
-		}
-	}
+    foreach($datas['tabs'] as $key => $val) {
+        if (isset($val['deleteafter']) && time() > $val['deleteafter']) {
+            unset($datas['tabs'][$key]);
+        }
+    }
 }
 
 echo json_encode(
-array(
-	'host' => $host,
-	'plugins' => $plugins,
-	'jstree' => $res,
-	'datas' => $datas,
-	'config' => array(
-		'widgets' => get_widget($res)
-	)
-));
+        array(
+            'host' => $host,
+            'plugins' => $plugins,
+            'jstree' => $res,
+            'datas' => $datas,
+            'config' => array(
+                'widgets' => get_widget($res)
+                )
+            ));
 ?>

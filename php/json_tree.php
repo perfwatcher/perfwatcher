@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  *
  * PHP version 5
@@ -28,20 +28,20 @@ switch($_REQUEST["operation"]) {
     case "remove_node":
     case "rename_node":
     case "move_node":
-    break;
+        break;
     case "get_children":
     case "search":
-    break;
+        break;
 }
 
 
 if(isset($_REQUEST["operation"]) && $_REQUEST["operation"] && strpos("_", $_REQUEST["operation"]) !== 0 && method_exists($jstree, $_REQUEST["operation"])) {
-	header("HTTP/1.0 200 OK");
-	header('Content-type: text/json; charset=utf-8');
-	header("Cache-Control: no-cache, must-revalidate");
-	header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-	header("Pragma: no-cache");
-	echo $jstree->{$_REQUEST["operation"]}($_REQUEST);
+    header("HTTP/1.0 200 OK");
+    header('Content-type: text/json; charset=utf-8');
+    header("Cache-Control: no-cache, must-revalidate");
+    header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+    header("Pragma: no-cache");
+    echo $jstree->{$_REQUEST["operation"]}($_REQUEST);
 }
 
 ?>

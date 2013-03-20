@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 #
 //header("Content-type: application/json");
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
@@ -33,40 +33,40 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_topps_httpproxy == null ? FALSE : TRUE);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $json1);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Content-Type: application/json',
-    'Content-Length: ' . strlen($json1))
-);
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($json1))
+        );
 if($result = curl_exec($ch)) {
-	if ($result  != '' && $result = json_decode($result)) {
-		if (isset($result->result->topps)) {
-			$data1 = implode("", $result->result->topps);
-		} else {
-			exit_error($result);
-		}
-	} else {
-		exit_error(array("result not json :" => $result));
-	}
+    if ($result  != '' && $result = json_decode($result)) {
+        if (isset($result->result->topps)) {
+            $data1 = implode("", $result->result->topps);
+        } else {
+            exit_error($result);
+        }
+    } else {
+        exit_error(array("result not json :" => $result));
+    }
 } else {
- exit_error(curl_error($ch));
+    exit_error(curl_error($ch));
 }
 $t1 = $result->result->tm;
 curl_setopt($ch, CURLOPT_POSTFIELDS, $json2);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-    'Content-Type: application/json',
-    'Content-Length: ' . strlen($json2))
-);
+            'Content-Type: application/json',
+            'Content-Length: ' . strlen($json2))
+        );
 if($result = curl_exec($ch)) {
-	if ($result  != '' && $result = json_decode($result)) {
-		if (isset($result->result->topps)) {
-			$data2 = implode("", $result->result->topps);
-		} else {
-			exit_error($result);
-		}
-	} else {
-		exit_error(array("result not json :" => $result));
-	}
+    if ($result  != '' && $result = json_decode($result)) {
+        if (isset($result->result->topps)) {
+            $data2 = implode("", $result->result->topps);
+        } else {
+            exit_error($result);
+        }
+    } else {
+        exit_error(array("result not json :" => $result));
+    }
 } else {
- exit_error(curl_error($ch));
+    exit_error(curl_error($ch));
 }
 $t2 = $result->result->tm;
 $data1 = get_ps_hash($data1);
@@ -87,7 +87,7 @@ function get_ps_hash($data) {
             list($pid, $ppid, $uid, $user, $gid, $group, $rss, $stime, $utime, $process) = split(' ', $line, 10);
             if ($process !== false && $ppid != 2) {
                 $ret[$pid] = array('ppid' => $ppid, 'uid' => $uid, 'user' => $user, 'gid' => $gid, 'group' => $group,
-                    'rss' => $rss, 'stime' => $stime, 'utime' => $utime, 'process' => $process);
+                        'rss' => $rss, 'stime' => $stime, 'utime' => $utime, 'process' => $process);
             }
         }
     }
@@ -97,9 +97,9 @@ function get_ps_hash($data) {
 
 function calc_time_derive(&$data, $data2) {
     foreach ($data as $key => $val) {
-		$data[$key]['pid'] = $key;
-		$data[$key]['userlabel'] = $data[$key]['user'];
-		$data[$key]['grouplabel'] = $data[$key]['group'];
+        $data[$key]['pid'] = $key;
+        $data[$key]['userlabel'] = $data[$key]['user'];
+        $data[$key]['grouplabel'] = $data[$key]['group'];
         $data[$key]['stime'] = $data2[$key]['stime'] - $data[$key]['stime'];
         $data[$key]['utime'] = $data2[$key]['utime'] - $data[$key]['utime'];
         $data[$key]['cpu'] = ceil(($data[$key]['utime'] + $data[$key]['stime']) / 100);
@@ -108,6 +108,6 @@ function calc_time_derive(&$data, $data2) {
 }
 
 function exit_error($error) {
-	echo json_encode(array("error" => $error, "data" => array())); exit;
+    echo json_encode(array("error" => $error, "data" => array())); exit;
 }
 ?>

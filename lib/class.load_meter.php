@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  * PHP version 5
  *
@@ -21,23 +21,23 @@
  */
 
 class load_meter {
-	private $datas = array();
+    private $datas = array();
 
-	function __construct($datas) {
-		$this->datas =& $datas;
-	}
+    function __construct($datas) {
+        $this->datas =& $datas;
+    }
 
-	function is_compatible() {
-		return true;
-	}
+    function is_compatible() {
+        return true;
+    }
 
-	function get_info() {
-		global $folder_filling_plugins;
-		return array(
-			'title' => "Load Average",
-			'content_url' => 'html/load_meter.html'
-		);
-	}
+    function get_info() {
+        global $folder_filling_plugins;
+        return array(
+                'title' => "Load Average",
+                'content_url' => 'html/load_meter.html'
+                );
+    }
 
 }
 

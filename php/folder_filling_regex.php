@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 
 require 'lib/class.folder_filling_regex.php';
 
@@ -19,17 +19,17 @@ $jstree = new json_tree();
 $res = $jstree->_get_node($id);
 $owidget = new folder_filling_regex($res);
 switch($_POST['action']) {
-	case 'test':
-			echo nl2br($owidget->test($_POST['regex']));
-	break;
-	case 'save':
-			if ($owidget->save($_POST['regex'])) {
-				die('Regex saved. Wait a minute then refresh the tree');
-			}
-	break;
-	default:
-		die('No valid action submited !');
-	break;
+    case 'test':
+        echo nl2br($owidget->test($_POST['regex']));
+        break;
+    case 'save':
+        if ($owidget->save($_POST['regex'])) {
+            die('Regex saved. Wait a minute then refresh the tree');
+        }
+        break;
+    default:
+        die('No valid action submited !');
+        break;
 }
 
 ?>

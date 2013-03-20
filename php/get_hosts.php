@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
     die('Error : POST or GET id missing !!');
@@ -16,7 +16,7 @@ $res = $jstree->_get_node($id);
 $hosts = array();
 $data = $jstree->_get_children($id, true);
 foreach($data as $host) {
-	if ($host['type'] == 'default') { $hosts[] = $host['title']; }
+    if ($host['type'] == 'default') { $hosts[] = $host['title']; }
 }
 echo json_encode($hosts);
 

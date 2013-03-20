@@ -1,4 +1,4 @@
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
 /**
  *
  * PHP version 5
@@ -45,27 +45,26 @@ $datas = $jstree->get_datas($res['id']);
 
 if (isset($_POST['action']) || isset($_GET['action'])) {
     switch (isset($_POST['action']) ? $_POST['action'] : $_GET['action']) {
-		case 'get_datas':
-				$hostlist = array();
-				$childrens = $jstree->_get_children($id, true);
-				foreach($childrens as $children) {
-					if ($children['type'] == 'default') {
-						$hostlist[] = $children['title'];
-					}
-				}
-				sort(&$hostlist);
-				echo json_encode(array(
-					'hosts' => $hostlist
-				));
-		break;
+        case 'get_datas':
+            $hostlist = array();
+            $childrens = $jstree->_get_children($id, true);
+            foreach($childrens as $children) {
+                if ($children['type'] == 'default') {
+                    $hostlist[] = $children['title'];
+                }
+            }
+            sort(&$hostlist);
+            echo json_encode(array(
+                        'hosts' => $hostlist
+                        ));
+            break;
         case 'save_tab':
             $datas['tabs'][$_POST['tab_id']]['selected_graph'] = $_POST['selected_graph'];
             $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
             $datas['tabs'][$_POST['tab_id']]['selected_aggregators'] = $_POST['selected_aggragators'];
             $jstree->set_datas($id, $datas);
-        break;
+            break;
     }
 }
 
 ?>
-
