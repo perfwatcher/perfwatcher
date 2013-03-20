@@ -25,7 +25,7 @@
 require "etc/config.default.php";
 require "lib/class._database.php";
 require "lib/class.tree.php";
-//require_once("MDB2.php");
+require_once("MDB2.php");
 
 function load_datas($host) {
     global $rrds_path, $grouped_type, $blacklisted_type;
