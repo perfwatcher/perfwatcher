@@ -24,10 +24,12 @@
 
 class _database {
 	private $link		= false;
+	private $sth		= false;
 	private $result		= false;
 	private $row		= false;
 
 	public $settings	= array(
+			"dbtype" => "mysql",
 			"servername"=> "localhost",
 			"serverport"=> "3306",
 			"username"	=> false,
@@ -36,7 +38,8 @@ class _database {
 			"persist"	=> false,
 			"dieonerror"=> false,
 			"show_error"	=> false,
-			"error_file"=> true
+			"error_file"=> true,
+			"charset" 	=> "utf8",
 		);
 
 	function __construct() {
@@ -47,40 +50,113 @@ class _database {
 
 	function connect() {
 		if (!$this->link) {
-			$this->link = ($this->settings["persist"]) ? 
-				mysql_pconnect(
-					$this->settings["servername"].":".$this->settings["serverport"], 
-					$this->settings["username"], 
-					$this->settings["password"]
-				) : 
-				mysql_connect(
-					$this->settings["servername"].":".$this->settings["serverport"], 
-					$this->settings["username"], 
-					$this->settings["password"]
-				) or $this->error();
+			$dsn = array(
+						'phptype' => $this->settings["dbtype"],
+						'username' => $this->settings["username"],
+						'password' => $this->settings["password"],
+						'hostspec' => $this->settings["servername"],
+						'port' => $this->settings["serverport"],
+						'database' => $this->settings["database"],
+					);
+			$options = array(
+						'debug' => 2,
+						'portability' => MDB2_PORTABILITY_ALL,
+						'persistent' => (($this->settings["persist"]) ? true : false),
+						);
+			$this->link =& MDB2::factory($dsn, $options);
+			if(PEAR::isError($this->link)) {
+				$this->error($this->link->getMessage());
+				unset($this->link);
+			}
+			unset($this->sth);
 		}
-		if (!mysql_select_db($this->settings["database"], $this->link)) $this->error();
-		if($this->link) mysql_query("SET NAMES 'utf8'");
+		/* if($this->link) mysql_query("SET NAMES 'utf8'"); */
+
 		return ($this->link) ? true : false;
 	}
 
 	function query($sql) {
-		if (!$this->link && !$this->connect()) $this->error();
-		if (!($this->result = mysql_query($sql, $this->link))) $this->error($sql);
-		return ($this->result) ? true : false;
+		if (!$this->link && !$this->connect()) $this->error("No connection");
+		$this->result = $this->link->query($sql);
+#debug#		$this->log("QUERY : ".$sql);
+		if(PEAR::isError($this->result)) {
+			$this->error($this->result->getMessage(), "$sql");
+			unset($this->result);
+			return false;
+		}
+		return true;
 	}
 	
-	function nextr() {
-		if(!$this->result) {
+	function prepare($sql, $types = null, $result_types = null, $lobs = array()) {
+		if (!$this->link && !$this->connect()) $this->error("No connection");
+		if(isset($this->sth)) {
+				$this->sth->free();
+				if(PEAR::isError($this->sth)) {
+						$this->error($this->sth->getMessage(), "$sql");
+						unset($this->sth);
+						return false;
+				}
+		}
+		$this->sth = $this->link->prepare($sql, $types, $result_types, $lobs?$lobs:array());
+		unset($this->result);
+#debug#		$this->log($sql);
+		if(PEAR::isError($this->sth)) {
+			$this->error($this->sth->getMessage(), "$sql");
+			unset($this->sth);
+			return false;
+		}
+		return true;
+	}
+	
+	function execute($values = null, $result_class = true, $result_wrap_class = false) {
+		if (!$this->link && !$this->connect()) $this->error("No connection");
+		if(!isset($this->sth)) {
+			$this->error("No prepared query");
+			return false;
+		}
+		unset($this->result);
+#debug#		$this->log("execute : ".serialize($values));
+		$this->result = $this->sth->execute($values, $result_class, $result_wrap_class);
+		if(PEAR::isError($this->result)) {
+			$this->error($this->result->getMessage());
+			unset($this->result);
+			return false;
+		}
+		return true;
+	}
+	
+	function free() {
+		if (!$this->link && !$this->connect()) $this->error("No connection");
+		if(!isset($this->sth)) {
+			$this->error("No prepared query");
+			return false;
+		}
+		$this->sth->free();
+		if(PEAR::isError($this->sth)) {
+			$this->error($this->sth->getMessage(), "$sql");
+			unset($this->sth);
+			return false;
+		}
+		unset($this->sth);
+		return true;
+	}
+	
+	function nextr($mode = "assoc") {
+		if(!isset($this->result)) {
 			$this->error("No query pending");
 			return false;
 		}
 		unset($this->row);
-		$this->row = mysql_fetch_array($this->result, MYSQL_BOTH);
+		switch($mode) {
+			case "assoc" : $this->row = $this->result->fetchRow(MDB2_FETCHMODE_ASSOC); break;
+			case "num"   : $this->row = $this->result->fetchRow(MDB2_FETCHMODE_ORDERED); break;
+			default      : $this->row = $this->result->fetchRow(MDB2_FETCHMODE_ASSOC); break;
+		}
+#		$this->log("numrow/nextr  : ".$this->result->numRows()."   ".serialize($this->row));
 		return ($this->row) ? true : false ;
 	}
 
-	function get_row($mode = "both") {
+	function get_row($mode = "assoc") {
 		if(!$this->row) return false;
 
 		$return = array();
@@ -102,13 +178,13 @@ class _database {
 		return array_map("stripslashes",$return);
 	}
 
-	function get_all($mode = "both", $key = false) {
+	function get_all($mode = "assoc", $key = false) {
 		if(!$this->result) {
 			$this->error("No query pending");
 			return false;
 		}
 		$return = array();
-		while($this->nextr()) {
+		while($this->nextr($mode)) {
 			if($key !== false) $return[$this->f($key)] = $this->get_row($mode);
 			else $return[] = $this->get_row($mode);
 		}
@@ -116,9 +192,13 @@ class _database {
 	}
 
 	function f($index) {
+		if(!$this->row) return false;
 		return stripslashes($this->row[$index]);
 	}
 
+/* Unsupported */
+/* For developers, check if $this->result->seek() could fit */
+/*
 	function go_to($row) {
 		if(!$this->result) {
 			$this->error("No query pending");
@@ -126,16 +206,27 @@ class _database {
 		}
 		if(!mysql_data_seek($this->result, $row)) $this->error();
 	}
+*/
 
 	function nf() {
-		if ($numb = mysql_num_rows($this->result) === false) $this->error();
-		return mysql_num_rows($this->result);
+		if (($numb = $this->result->numRows())  === false) $this->error($this->result->getMessage());
+#debug#		$this->log("nf : ".$this->result->numRows()." / $numb");
+		return $numb;
 	}
 	function af() {
-		return mysql_affected_rows();
+		return $this->result->affectedRows();
 	}
-	function error($string="") {
-		$error = mysql_error();
+	function log($string="") {
+		if(isset($this->settings["show_error"]) && $this->settings["show_error"]) echo $string;
+		if($this->settings["error_file"] !== false) {
+			$handle = @fopen($this->settings["error_file"], "a+");
+			if($handle) {
+				@fwrite($handle, "[".date("Y-m-d H:i:s")."] INFO : ".$string."\n");
+				@fclose($handle);
+			}
+		}
+	}
+	function error($error, $string="") {
 		if(isset($this->settings["show_error"]) && $this->settings["show_error"]) echo $error;
 		if($this->settings["error_file"] !== false) {
 			$handle = @fopen($this->settings["error_file"], "a+");
@@ -145,23 +236,30 @@ class _database {
 			}
 		}
 		if($this->settings["dieonerror"]) {
-			if(isset($this->result)) mysql_free_result($this->result);
-			mysql_close($this->link);
+			if(isset($this->result)) $this->result->free();
+			$this->link->disconnect();
 			die();
 		}
 	}
-	function insert_id() {
+	function insert_id($table = null, $field = null) {
 		if(!$this->link) return false;
-		return mysql_insert_id();
+		if(isset($table) && isset($field)) $r = $this->link->lastInsertID($table,$field);
+		else $r = $this->link->lastInsertID(); /* Not supported on all RDBMS */
+#debug#		$this->log("last id = $r");
+		return($r);
+	}
+	function setLimit($limit, $offset=null) {
+		if(!$this->link) return false;
+		$this->link->setLimit($limit, $offset);
 	}
 	function escape($string){
 		if(!$this->link) return addslashes($string);
-		return mysql_real_escape_string($string);
+		return $this->link->quote($string);
 	}
 
 	function destroy(){
-		if (isset($this->result) && $this->result !== false) mysql_free_result($this->result);
-		if (isset($this->link)) mysql_close($this->link);
+		if (isset($this->result) && $this->result !== false) $this->result->free();
+		if (isset($this->link)) $this->link->disconnect();
 	}
 
 

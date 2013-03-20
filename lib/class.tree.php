@@ -53,9 +53,15 @@ class _tree_struct {
 	}
 
 	function _get_node($id) {
-		$this->db->query("SELECT `".implode("` , `", $this->fields)."` FROM `".$this->table."` WHERE `".$this->fields["id"]."` = ".(int) $id);
+		$this->db->prepare(
+			"SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE ".$this->fields["id"]." = ?",
+			array('integer')
+		);
+		$this->db->execute((int)$id);
 		$this->db->nextr();
-		return $this->db->nf() === 0 ? false : $this->db->get_row("assoc");
+		$ret = $this->db->nf() === 0 ? false : $this->db->get_row("assoc");
+		$this->db->free();
+		return $ret;
 	}
 	function _get_children($id, $recursive = false, $path = "") {
 		global $childrens_cache;
@@ -75,7 +81,11 @@ class _tree_struct {
 		} else {
 			$datas = $this->get_datas($id);
 			if (isset($datas['sort']) && $datas['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
-			$this->db->query("SELECT `".implode("` , `", $this->fields)."` FROM `".$this->table."` WHERE `".$this->fields["parent_id"]."` = ".(int) $id." ORDER BY `".$this->fields[$sort]."` ASC");
+			$this->db->prepare(
+					"SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE ".$this->fields["parent_id"]." = ? ORDER BY ".$this->fields[$sort]." ASC",
+					array('integer')
+			);
+			$this->db->execute((int)$id);
 			while($this->db->nextr()) {
 				$tmp = $this->db->get_row("assoc");
 				$tmp["_path_"] = $path." -> ".$tmp['title'];
@@ -112,15 +122,17 @@ class _tree_struct {
 	}
 
 	function set_datas($id, $data) {
-		$this->db->query("UPDATE ".$this->table." SET datas='".mysql_real_escape_string(serialize($data))."' WHERE id = $id");
+		$this->db->prepare("UPDATE ".$this->table." SET datas=? WHERE id = ?", array('text', 'integer'));
+		$this->db->execute(array(serialize($data), (int)$id));
 	}
 
 	function get_datas($id) {
 		$containers = array();
-		$this->db->query("SELECT datas FROM `".$this->table."` WHERE id = $id");
+		$this->db->prepare("SELECT datas FROM ".$this->table." WHERE id = ?", array('integer'));
+		$this->db->execute((int) $id);
 		$this->db->nextr();
         $datas = $this->db->get_row("assoc");
-		if(!$ret = unserialize($datas["datas"])) { return array(); }
+		if(!$ret = unserialize($datas["datas"])) { $this->db->free(); return array(); }
 		if(isset($ret['tabs']) && count($ret['tabs']) > 0) {
 			//migrate from Alpha
 			foreach($ret['tabs'] as $tabid => $tabdatas) {
@@ -132,25 +144,29 @@ class _tree_struct {
 				}
 			}
 		}
+		$this->db->free();
         return $ret;
 	}
 
 	function get_containers() {
 		$containers = array();
-		$this->db->query("SELECT `".implode("` , `", $this->fields)."` FROM `".$this->table."` WHERE type = 'folder' or type = 'drive'");
+		$this->db->query("SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE type = 'folder' or type = 'drive'");
 		while($this->db->nextr()) $containers[$this->db->f($this->fields["id"])] = $this->db->get_row("assoc");
 		return $containers;
 	}
 
 	function _create($parent, $position) {
-		$this->db->query("INSERT into `".$this->table."` (`parent_id`, `position`, `type`) VALUES ($parent,  $position,  'default')");
-		return $this->db->insert_id();
+		$this->db->prepare("INSERT into ".$this->table." (parent_id, position, type) VALUES (?, ?, 'default')", array('integer', 'integer'));
+		$this->db->execute(array( (int)$parent,  (int)$position) );
+		return $this->db->insert_id($this->table, 'id');
 	}
 
 	function del_node($title) {
 		$id = false;
 		while (true) {
-			$this->db->query("SELECT id FROM `".$this->table."` WHERE ".$this->fields["title"]."= '$title' LIMIT 1");
+			$this->db->setLimit(1);
+			$this->db->prepare("SELECT id FROM ".$this->table." WHERE ".$this->fields["title"]."= ?");
+			$this->db->execute($title);
 			while($this->db->nextr()) $id = $this->db->f($this->fields["id"]);
 			if (is_numeric($id)) {
 				$this->_remove($id);
@@ -161,27 +177,31 @@ class _tree_struct {
 
 	function _remove($id) {
 		if((int)$id === 1) { return false; }
-		$childrens = $this->_get_children($id, true);
-		foreach($childrens as $children) {
-			$this->db->query("DELETE FROM `".$this->table."` " . 
-				"WHERE `".$this->fields["id"]."` = ".$children['id']);
+		$children = $this->_get_children($id, true);
+		$this->db->prepare("DELETE FROM ".$this->table." WHERE ".$this->fields["id"]." = ?", array('integer'));
+		foreach($children as $child) {
+			$this->db->execute((int) $child['id']);
 		}
-		$this->db->query("DELETE FROM `".$this->table."` " . 
-			"WHERE `".$this->fields["id"]."` = ".$id);
+		$this->db->execute((int) $id);
 		return true;
 	}
 
 	function _move($id, $ref_id, $position = 0, $is_copy = false) {
 		if ($ref_id == 0) { $ref_id++; }
-		$sql  = "UPDATE `".$this->table."` ";
+		$sql  = "UPDATE ".$this->table." ";
 		$sql .= "SET position = position + 1 ";
-		$sql .= "WHERE parent_id = $ref_id ";
-		$sql .= "AND position >= $position ";
-		$sql .= "AND id != $id";
-		$this->db->query($sql);
-		$this->db->query("UPDATE `".$this->table."` SET parent_id = $ref_id, position = $position WHERE id = $id");
+		$sql .= "WHERE parent_id = ? ";
+		$sql .= "AND position >= ? ";
+		$sql .= "AND id != ?";
+		$this->db->prepare($sql, array('integer', 'integer', 'integer'));
+		$this->db->execute(array($ref_id,$position,$id));
+
+		$this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE id = ?", array('integer', 'integer', 'integer'));
+		$this->db->execute(array($ref_id,$position,$id));
+
 		$this->db->query("SET @a=-1");
-		$this->db->query("UPDATE `".$this->table."` SET position = @a:=@a+1 WHERE `parent_id` = $ref_id ORDER BY position");
+		$this->db->prepare("UPDATE ".$this->table." SET position = @a:=@a+1 WHERE parent_id = ? ORDER BY position", array('integer'));
+		$this->db->execute($ref_id);
 		return true;
 	}
 
@@ -225,7 +245,8 @@ class json_tree extends _tree_struct {
 	}
 
     function max_pos($parent_id) {
-        $this->db->query("SELECT IFNULL(MAX(position+1),0) AS position FROM `tree` WHERE parent_id = $parent_id");
+        $this->db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE parent_id = ?", array('integer'));
+        $this->db->execute($parent_id);
         $this->db->nextr();
         $res =  $this->db->get_row("assoc");
         return $res['position'];
@@ -233,13 +254,20 @@ class json_tree extends _tree_struct {
 
 	function set_data($data) {
 		if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
-		$s = "UPDATE `".$this->table."` SET `".$this->fields["id"]."` = `".$this->fields["id"]."` "; 
+		$sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
 		foreach($this->add_fields as $k => $v) {
-			if(isset($data[$k]))	$s .= ", `".$this->fields[$v]."` = \"".$this->db->escape($data[$k])."\" ";
-			else					$s .= ", `".$this->fields[$v]."` = `".$this->fields[$v]."` ";
+				if(isset($data[$k])) {
+						$sql .= ", ".$this->fields[$v]." = ? ";
+						$set_value[] = $data[$k];
+						$set_type[] = 'text';
+				}
 		}
-		$s .= "WHERE `".$this->fields["id"]."` = ".(int)$data["id"];
-		$this->db->query($s);
+		$sql .= "WHERE ".$this->fields["id"]." = ?";
+		$set_value[] = (int)$data["id"];
+		$set_type[] = 'integer';
+
+		$this->db->prepare($sql, $set_type);
+		$this->db->execute($set_value);
 		return "{ \"status\" : 1 }";
 	}
 	function rename_node($data) { return $this->set_data($data); }
@@ -248,20 +276,27 @@ class json_tree extends _tree_struct {
 		$id = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"], (int)$data["copy"]);
 		if(!$id) return "{ \"status\" : 0 }";
 		if((int)$data["copy"] && count($this->add_fields)) {
-			$ids	= array_keys($this->_get_children($id, true));
-			$data	= $this->_get_children((int)$data["id"], true);
+				$ids	= array_keys($this->_get_children($id, true));
+				$data	= $this->_get_children((int)$data["id"], true);
 
-			$i = 0;
-			foreach($data as $dk => $dv) {
-				$s = "UPDATE `".$this->table."` SET `".$this->fields["id"]."` = `".$this->fields["id"]."` "; 
-				foreach($this->add_fields as $k => $v) {
-					if(isset($dv[$k]))	$s .= ", `".$this->fields[$v]."` = \"".$this->db->escape($dv[$k])."\" ";
-					else				$s .= ", `".$this->fields[$v]."` = `".$this->fields[$v]."` ";
+				$i = 0;
+				foreach($data as $dk => $dv) {
+						$sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
+						foreach($this->add_fields as $k => $v) {
+								if(isset($dv[$k])) {
+										$sql .= ", ".$this->fields[$v]." = ? ";
+										$set_value[] = $dv[$k];
+										$set_type[] = 'text';
+								}
+						}
+						$sql .= "WHERE ".$this->fields["id"]." = ?";
+						$set_value[] = (int)$ids[$i];
+						$set_type[] = 'integer';
+
+						$this->db->prepare($sql, $set_type);
+						$this->db->execute($set_value);
+						$i++;
 				}
-				$s .= "WHERE `".$this->fields["id"]."` = ".$ids[$i];
-				$this->db->query($s);
-				$i++;
-			}
 		}
 		return "{ \"status\" : 1, \"id\" : ".$id." }";
 	}
@@ -272,7 +307,7 @@ class json_tree extends _tree_struct {
     
     function get_name_from_node_id($arrayid) {
         
-		$this->db->query("SELECT title, id FROM `".$this->table."` WHERE id IN (".implode(",", $arrayid).")");
+		$this->db->query("SELECT title, id FROM ".$this->table." WHERE id IN (".implode(",", $arrayid).")");
 		while($this->db->nextr()) {
             $results[] =  $this->db->get_row("assoc");
         }
@@ -311,20 +346,23 @@ class json_tree extends _tree_struct {
 
 	function searchfield($data) {
 		$result = array();
-		$this->db->query("SELECT DISTINCT(`".$this->fields["title"]."`) FROM `".$this->table."` WHERE `".$this->fields["title"]."` LIKE '%".$this->db->escape($data)."%' LIMIT 30");
+		$this->db->setLimit(30);
+		$this->db->prepare("SELECT DISTINCT(".$this->fields["title"].") FROM ".$this->table." WHERE ".$this->fields["title"]." LIKE ?");
+		$this->db->execute("%$data%");
 		if($this->db->nf() === 0) return "[]";
 		while($this->db->nextr()) {
-			$result[] = array('id' => $this->db->f(0), 'label' => $this->db->f(0), 'value' => $this->db->f(0));
+			$result[] = array('id' => $this->db->f("title"), 'label' => $this->db->f("title"), 'value' => $this->db->f("title"));
 		}
 		return json_encode($result);
 	}
 	
 	function search($data) {
 		$parents = array();
-		$this->db->query("SELECT `".$this->fields["id"]."` FROM `".$this->table."` WHERE `".$this->fields["title"]."` LIKE '%".$this->db->escape($data["search_str"])."%'");
+		$this->db->prepare("SELECT ".$this->fields["id"]." FROM ".$this->table." WHERE ".$this->fields["title"]." LIKE ?");
+		$this->db->execute("%".$data["search_str"]."%");
 		if($this->db->nf() === 0) return "[]";
 		while($this->db->nextr()) {
-			$parents = array_merge($parents, $this->get_parents($this->db->f(0)));
+			$parents = array_merge($parents, $this->get_parents($this->db->f($this->fields["id"])));
 		}
 		$result = array();
 		foreach( $parents as $id) { $result[] = "#node_".$id; }
@@ -334,9 +372,10 @@ class json_tree extends _tree_struct {
 	function get_parents($parent_id) {
 		$ids = array();
 		while ($parent_id != 0) {
-			$this->db->query("SELECT parent_id FROM `".$this->table."` WHERE id = $parent_id ");
+			$this->db->prepare("SELECT parent_id FROM ".$this->table." WHERE id = ?", array('integer'));
+			$this->db->execute($parent_id);
         	$this->db->nextr();
-			$parent_id = $this->db->f(0);
+			$parent_id = $this->db->f("parent_id");
 			$ids[] = $parent_id;
 		}
 		return $ids;
@@ -349,7 +388,7 @@ class json_tree extends _tree_struct {
 	}
 
 	function _drop() {
-		$this->db->query("TRUNCATE `".$this->table."`");
+		$this->db->query("TRUNCATE ".$this->table);
 	}
 }
 
