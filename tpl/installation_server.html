@@ -25,7 +25,10 @@ zypper in zlib-devel rrdtool-devel rrdtool zlib libart_lgpl-devel</code></pre>
 
 <h5>Compile json-c</h5>
 <p>
-	<pre><code>wget https://github.com/downloads/json-c/json-c/json-c-0.10.tar.gz
+	You can get json-c (version >= 0.10) from <a href="https://github.com/json-c/json-c/wiki">https://github.com/json-c/json-c/wiki</a>.
+</p>
+<p>
+	<pre><code>wget https://s3.amazonaws.com/json-c_releases/releases/json-c-0.10.tar.gz
 tar xzf json-c-0.10.tar.gz
 cd json-c-0.10
 ./configure --prefix=/usr
@@ -37,6 +40,9 @@ cp /usr/lib/libjson.* /usr/lib64/ # Needed on RHEL and Suse x86_64</code></pre>
 
 <h5>Compile libmicrohttpd</h5>
 <p>
+	You can get libmicrohttpd (version >= 0.9.22 - older not tested) from <a href="http://www.gnu.org/software/libmicrohttpd/">http://www.gnu.org/software/libmicrohttpd/</a>
+</p>
+<p>
 	<pre><code>wget http://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-0.9.22.tar.gz
 tar xzf libmicrohttpd-0.9.22.tar.gz
 cd libmicrohttpd-0.9.22
@@ -45,6 +51,10 @@ make -j
 make install
 cp /usr/lib/libmicrohttpd.so* /usr/lib64/ # Needed on RHEL and Suse x86_64
 </code></pre>
+Note : on RHEL and Suse, if your system is x86_64, you need to put your libs in <code>/usr/lib64</code>. Add <code>--libs=/usr/lib64</code> to your configure line :
+<pre>
+./configure --prefix=/usr --libdir=/usr/lib64
+</pre>
 </p>
 
 <hr >
@@ -92,9 +102,68 @@ chmod a+x /etc/init.d/collectd</code></pre>
 
 <h4>Configure Collectd-pw</h4>
 <p>
-Below a sample of configuration for a server :<br/>
+Below a sample of configuration for a server with perfwatcher >= 20130325 :<br/>
 <strong>/etc/collectd/collectd.conf</strong> on Debian like<br/>
 <strong>/etc/collectd.conf</strong> on RedHat and Suse like
+<pre><code>TypesDB     "/usr/share/collectd/types.db"
+TypesDB     "/etc/types-perfwatcher.db"
+Interval     60
+
+LoadPlugin cpu
+LoadPlugin df
+LoadPlugin disk
+LoadPlugin interface
+LoadPlugin load
+LoadPlugin memory
+LoadPlugin processes
+LoadPlugin swap
+LoadPlugin top
+LoadPlugin uptime
+
+LoadPlugin network
+&lt;Plugin network&gt;
+	Listen "0.0.0.0" "25826"
+	MaxPacketSize 65535
+&lt;/Plugin&gt;
+
+LoadPlugin rrdtool
+&lt;Plugin rrdtool&gt;
+	DataDir "/var/lib/collectd"
+&lt;/Plugin&gt;
+
+LoadPlugin jsonrpc
+&lt;Plugin jsonrpc&gt;
+	Port "8080"
+	MaxClients 64
+# Note : write_top and jsonrpc work together.
+# This is why we need to define this path twice.
+	TopPsDataDir "/var/lib/collectd/top"
+&lt;/Plugin&gt;
+
+LoadPlugin notify_file
+&lt;Plugin notify_file&gt;
+	DataDir "/var/lib/collectd/_notification"
+# This is an include list. If you prefere an exclude list,
+# you should exclude "top".
+	Plugin "sysconfig"
+	InvertPluginList false
+	LinkLast "sysconfig"
+&lt;/Plugin&gt;
+
+LoadPlugin write_top
+&lt;Plugin write_top&gt;
+	DataDir "/var/lib/collectd/top"
+	FlushWhenOlderThanMin 30
+	FlushWhenBiggerThanK 500
+&lt;/Plugin&gt;
+
+LoadPlugin basic_aggregator
+&lt;Plugin basic_aggregator&gt;
+	Aggregators_config_file "/&lt;path to perfwatcher&gt;/etc/aggregator.conf"
+&lt;/Plugin&gt;
+</code></pre>
+</p>
+<p>If you are running an old version of perfwatcher/collectd, here is the old configuration file :
 <pre><code>TypesDB     "/usr/share/collectd/types.db"
 TypesDB     "/etc/types-perfwatcher.db"
 Interval     60
