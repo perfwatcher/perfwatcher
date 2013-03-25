@@ -1,0 +1,12 @@
+2013-03- 25, Version 1.1
+
+- Removed obsolete mysql_* function calls (YM - issue #25)
+- Reindent php files (YM)
+- Use new topps collectd-pw plugin for top process (CF)
+- Folder tabs : limited lifetime (CF - issue #21))
+- Code and config cleanup (pexio - #22)
+- New bin/get_all_children_path executable (YM)
+
+2012-11-06, Version 1.0
+
+Initial version
