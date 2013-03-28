@@ -136,6 +136,7 @@ function hide_menu_for(node_type) {
 	$('li[id="menu_refresh_tree"]').show();
 	$('li[id="menu_refresh_status"]').show();
 	$('li[id="menu_refresh_node"]').show();
+	$('li[id="menu_about_box"]').show();
 	switch (node_type) {
 		case 'default':
 		break;
@@ -307,6 +308,19 @@ function confirmfor(optionsarg, func) {
     timeout: false
   });
   return false;
+}
+
+function perfwatcher_about_box() {
+	  $('#modalwindow').jqxWindow({ height: 287, width: 262, title: 'About Perfwatcher', isModal: true, theme: theme }).show();
+	  $('#modalwindowcontent').html('<p>About Perfwatcheur</p>');
+		$.ajax({
+			async : false, type: 'POST', url: "action.php?tpl=version",
+			complete : function (r) {
+				if(r.status) {
+					$('#modalwindowcontent').html(r.responseText);
+				}
+			}
+		});
 }
 
 function isRightClick(event) {
