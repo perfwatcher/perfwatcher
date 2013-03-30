@@ -241,8 +241,13 @@ $(function () {
 		location.hash = hash.substr(1);
 	}).bind("loaded.jstree", function (event, data) {
 		if (!location.hash) { return; }
-		var nodes = location.hash.substr(1).split('_');
-		recurse_open_node(nodes);
+		if (location.hash.substr(0,10) == '#hostname=') {
+			var hostname = location.hash.substr(10);
+		
+		} else {
+			var nodes = location.hash.substr(1).split('_');
+			recurse_open_node(nodes);
+		}
     });
 
 	function recurse_open_node (nodes) {
