@@ -390,6 +390,9 @@ class json_tree extends _tree_struct {
         return $ids;
     }
 
+    function _create_default() {
+    }
+
     function _drop() {
         $this->db->query("TRUNCATE ".$this->table);
     }
