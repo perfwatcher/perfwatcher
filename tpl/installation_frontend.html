@@ -77,9 +77,18 @@ mkdir logs
 <hr >
 
 <h4>Create MySQL database</h4>
-<p>
-	<pre><code>cat install/create.sql | mysql -h &lt;your mysql server&gt; -u &lt;your mysql user&gt; -p</code></pre>
-</p>
+<p>1/ Create the database (need admin permissions)</p>
+<p><pre><code>CREATE DATABASE perfwatcher;</code></pre></p>
+
+<p>2/ Create a user (and grants - need admin permissions)</p>
+
+<p>Run one of those (check if you connect to localhost or to yourhostname with mysql) :
+<p><pre><code>GRANT ALL PRIVILEGES ON perfwatcher.* TO 'perfwatcher'@'localhost' IDENTIFIED BY 'changeme';</code></pre></p>
+<p><pre><code>GRANT ALL PRIVILEGES ON perfwatcher.* TO 'perfwatcher'@'yourhostname' IDENTIFIED BY 'changeme';</code></pre></p>
+
+<p>3/ Create the database schema</p>
+
+<p><pre><code>cat install/create.sql | mysql -u perfwatcher -h localhost -p perfwatcher</code></pre></p>
 
 <hr >
 
