@@ -1,0 +1,19 @@
+How to initialize mysql database
+--------------------------------
+
+1/ Create the database
+
+admin> CREATE DATABASE perfwatcher;
+
+2/ Create a user (and grants)
+
+If you can access from localhost :
+admin> GRANT ALL PRIVILEGES ON perfwatcher.* TO 'perfwatcher'@'localhost' IDENTIFIED BY 'changeme';
+
+If you have to access with a TCP/IP socket :
+admin> GRANT ALL PRIVILEGES ON perfwatcher.* TO 'perfwatcher'@'yourhostname' IDENTIFIED BY 'changeme';
+
+3/ Create the database schema :
+
+cat create.sql | mysql -u perfwatcher -h localhost -p perfwatcher
+
