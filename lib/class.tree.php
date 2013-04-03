@@ -318,8 +318,16 @@ class json_tree extends _tree_struct {
     function get_children($data) {
         $tmp = $this->_get_children((int)$data["id"]);
         if((int)$data["id"] === 1 && count($tmp) === 0) {
-            $this->_create_default();
-            $tmp = $this->_get_children((int)$data["id"]);
+            return json_encode(
+                    array(
+                        "attr" => array(
+                            "id" => "node_1",
+                            "rel" => "drive"
+                            ),
+                        "data" => "INSERT A NEW ROOT AND RELOAD THE TREE",
+                        "state" => ""
+                        )
+                    );
         }
         $result = array();
         //if((int)$data["id"] === 0) return json_encode($result);
@@ -380,12 +388,6 @@ class json_tree extends _tree_struct {
             $ids[] = $parent_id;
         }
         return $ids;
-    }
-
-    function _create_default() {
-        $this->db->query("TRUNCATE tree ");
-        $this->create_node(array("id" => 0, "position" => 0, "title" => "", "type" => "drive"));
-        $this->create_node(array("id" => 1, "position" => 0, "title" => "ROOT", "type" => "folder"));
     }
 
     function _drop() {

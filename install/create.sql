@@ -12,3 +12,7 @@ CREATE TABLE tree (
   KEY type (type),
   KEY id_2 (id,title)
 );
+
+INSERT INTO tree (id,parent_id,position,title,type) VALUES (2,1,0,'ROOT', 'folder');
+
+

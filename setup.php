@@ -10,6 +10,7 @@
 		<ul>
 <?php
 require 'etc/config.default.php';
+require 'lib/common.php';
 function printok($txt) { return "<font color='green'>$txt</font>"; }
 function printko($txt) { return "<font color='red'>$txt</font>"; }
 function printoo($txt) { return "<font color='orange'>$txt</font>"; }
@@ -72,6 +73,32 @@ if (isset($rrdtool) && file_exists($rrdtool) && in_array('--border', $rrdtool_op
 $ok = "$rrds_path is present ";
 $ko = "$rrds_path does not exists, check $rrds_path in etc/config.php and your collectd installation";
 echo "<li>".(isset($rrds_path) && is_dir($rrds_path) ? printok ($ok) : printko ($ko))."</li>";
+
+# Check the database
+$ok = "Can connect to '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'.";
+$ko = "Could not connect to database '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'. You may check the install/* scripts.";
+$result_connect = 0;
+$result_tree = 0;
+$out="";
+$dbtest = new _database($db_config);
+if ($dbtest->connect()) {
+		$result_connect = 1;
+		$dbtest->prepare("SELECT id FROM tree WHERE type='drive'");
+		$dbtest->execute();
+		if($dbtest->nextr()) {
+				$result_connect = 1;
+				$out = $dbtest->get_row('assoc');
+				$dbtest->destroy();
+		}
+		if($out && (isset($out['title'])) && (isset($out['id'])) && ($out['id'] == 1)) {
+				$result_tree = 1;
+		}
+}
+echo "<li>Database connection : ".($result_connect ? printok($ok) : printko ($ko))."</li>";
+
+$ok = "Found a root drive in the tree";
+$ko = "Could not find the root of the tree (type drive) in '".$db_config{'database'}.".tree'. You may check the install/* scripts.";
+echo "<li>Database contents : ".($result_tree ? printok($ok) : printko ($ko))."</li>";
 
 ?>
 		</ul>
