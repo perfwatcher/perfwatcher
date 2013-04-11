@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 /*
  *
  * DO NOT MODIFY, create and use etc/config.php to overide configuration

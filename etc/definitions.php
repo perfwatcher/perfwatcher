@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 /*
  * Copyright (C) 2009  Bruno PrÃ©mont <bonbons AT linux-vserver.org>
  *

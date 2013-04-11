@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 
 if (!isset($_GET['id']) and !isset($_POST['id'])) {
     die('Error : POST or GET id missing !!');

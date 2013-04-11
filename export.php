@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 tw=78 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 
 if (isset($_GET['type_instance']) && $_GET['type_instance'] == '_') { unset($_GET['type_instance']); }
 if (isset($_GET['plugin_instance']) && $_GET['plugin_instance'] == '_') { unset($_GET['plugin_instance']); }
