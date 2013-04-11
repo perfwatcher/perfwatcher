@@ -136,6 +136,7 @@ $(document).ready(function() {
 			case 'menu_view_toogle_tree':
 				if (treecollapsed) {
 					$('#mainSplitter').jqxSplitter('expandAt', 0);
+					treecollapsed = false;
 				} else {
 					$('#mainSplitter').jqxSplitter('collapseAt', 0);
 					treecollapsed = true;
@@ -151,7 +152,7 @@ $(document).ready(function() {
 				refresh_status();
 			break;
 			case 'menu_about_box':
-				perfwatcher_about_box();
+				perfwatcher_alert_box();
 			break;
 			default:
 				console.log('Undefined stuff : '+ $(this).attr("id"));
