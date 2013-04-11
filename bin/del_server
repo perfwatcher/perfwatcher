@@ -1,6 +1,9 @@
 #!/usr/bin/php
 <?php
 require 'lib/common.php';
+if(count($argv) != 2) { echo "Syntaxe : ".$argv[0]." <id>\n"; exit(1); }
+$id=$argv[1];
+
 $jstree = new json_tree();
-$jstree->del_node($argv[1]);
+$jstree->del_node($id);
 ?>
