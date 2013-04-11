@@ -27,17 +27,7 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Pragma: no-cache");
 
-if (!isset($_GET['id']) and !isset($_POST['id'])) {
-    die('Error : POST or GET id missing !!');
-}
-
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $id = $_GET['id'];
-} elseif (isset($_POST['id']) && is_numeric($_POST['id'])) {
-    $id = $_POST['id'];
-} else {
-    die('Error : No valid id found !!!');
-}
+$id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
 
 $jstree = new json_tree();
 $res = $jstree->_get_node($id);

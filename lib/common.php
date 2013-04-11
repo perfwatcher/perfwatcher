@@ -27,6 +27,25 @@ require "lib/class._database.php";
 require "lib/class.tree.php";
 require_once("MDB2.php");
 
+function get_arg($key, $default_value, $check_if_is_numeric, $die_error_message, $file="unset", $line="unset") {
+    if(isset($_GET[$key])) {
+        if($check_if_is_numeric && (! is_numeric($_GET[$key]))) {
+            if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+            return($default_value); # return default if no die message.
+        }
+        return($_GET[$key]);
+    } elseif(isset($_POST[$key])) {
+        if($check_if_is_numeric && (! is_numeric($_POST[$key]))) {
+            if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+            return($default_value); # return default if no die message.
+        }
+        return($_POST[$key]);
+    }
+    if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+    return($default_value); # return default if no die message.
+
+}
+
 function load_datas($host) {
     global $rrds_path, $grouped_type, $blacklisted_type;
     if (is_array($rrds_path)) {
