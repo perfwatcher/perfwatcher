@@ -238,11 +238,20 @@ $(function () {
 		for (n in path) {
 			hash = hash + '_' + path[n].replace('node_', '');
 		}
-		location.hash = hash.substr(1);
+		location.hash = 'id_'+hash.substr(1);
 	}).bind("loaded.jstree", function (event, data) {
 		if (!location.hash) { return; }
 		var nodes = location.hash.substr(1).split('_');
-		recurse_open_node(nodes);
+		if(nodes[0] == 'id') {
+			nodes.shift();
+			recurse_open_node(nodes);
+		} else if(nodes[0] == 'host') {
+			var host;
+			host = location.hash.substr(6);
+			select_node_by_name(host);
+			$('#mainSplitter').jqxSplitter('collapseAt', 0);
+			treecollapsed = true;
+		}
     });
 
 	function recurse_open_node (nodes) {
