@@ -1,5 +1,5 @@
 
-function select_node(nodeid) {
+function select_node_with_data(datas) {
 	$('#timebutton').hide();
 	$('#datetime').hide();
 	$('#timespan').hide();
@@ -7,10 +7,14 @@ function select_node(nodeid) {
 	$('#items').html('<div id="itemtab"></div>');
 	$('#itemtab').html(ich.information_tab({ }));
 	$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697 });
-	$.getJSON('action.php?tpl=json_node_datas&id='+nodeid, function(datas) {
-		var tabid = 1;
-		json_item_datas = datas;
-		//console.log(json_item_datas);
+	var tabid = 1;
+	json_item_datas = datas;
+	var id;
+	console.log(json_item_datas);
+	if(datas['jstree'] && datas['jstree']['id']) {
+		id = datas['jstree']['id'];
+	}
+	if(id) {
 		$.ajax({
 			async : false, type: 'POST', url: "action.php?tpl=get_hosts",
 			data : { 
@@ -27,40 +31,54 @@ function select_node(nodeid) {
 			}
 		});
 		$('[tag="hostname"] b').html(datas['jstree']['title']);
-		if (datas['plugins']) {
-			$.each(datas['plugins'], function(plugin, plugin_instance) {
-				create_plugin_tab(plugin, plugin_instance, tabid++);
-			});
-		}
-		if (datas['datas'] && datas['datas']['tabs']) {
-			$.each(datas['datas']['tabs'], function(tabref, tabcontent) {
-		    	create_custom_tab(tabref, tabid++);
-			});
-		}
-		$('#itemtab').jqxTabs('select', 0);
+	} else {
+			json_item_datas['hosts'] = [ json_item_datas['host'] ];
+	}
+	if (datas['plugins']) {
+		$.each(datas['plugins'], function(plugin, plugin_instance) {
+			create_plugin_tab(plugin, plugin_instance, tabid++);
+		});
+	}
+	if (datas['datas'] && datas['datas']['tabs']) {
+		$.each(datas['datas']['tabs'], function(tabref, tabcontent) {
+	    	create_custom_tab(tabref, tabid++);
+		});
+	}
+	$('#itemtab').jqxTabs('select', 0);
+	if(id) {
 		hide_menu_for(datas['jstree']['type']);
-		$('#itemtab').bind('tabclick', function (event) {
-			current_tab = event.args.item;
-			load_tab(event.args.item);
-		});
-		var panel = 0;
-		var i = 0;
-		$.each(json_item_datas['config']['widgets'], function (widget_name, widget_datas) {
-			$(ich.widget({
-				widget_id : i,
-				widget : widget_name,
-				widget_title : widget_datas['title'],
-			})).appendTo('#infodockpanel'+panel);
-			$('#widget_content'+i).load(widget_datas['content_url']);
-			if (panel++ > 0) { panel = 0; }
-			i++;
-		});
-		$('#infodock').jqxDocking({
-			theme: theme,
-			orientation: 'horizontal',
-			mode: 'docked'
-		});
+	}
+	$('#itemtab').bind('tabclick', function (event) {
+		current_tab = event.args.item;
+		load_tab(event.args.item);
 	});
+	if(json_item_datas['config'] && json_item_datas['config']['widgets']) {
+	var panel = 0;
+	var i = 0;
+	$.each(json_item_datas['config']['widgets'], function (widget_name, widget_datas) {
+		$(ich.widget({
+			widget_id : i,
+			widget : widget_name,
+			widget_title : widget_datas['title'],
+		})).appendTo('#infodockpanel'+panel);
+		$('#widget_content'+i).load(widget_datas['content_url']);
+		if (panel++ > 0) { panel = 0; }
+		i++;
+	});
+	}
+	$('#infodock').jqxDocking({
+		theme: theme,
+		orientation: 'horizontal',
+		mode: 'docked'
+	});
+}
+
+function select_node_by_name(host) {
+	$.getJSON('action.php?tpl=json_node_defaults&host='+host, function(datas) { select_node_with_data(datas); } );
+}
+
+function select_node(nodeid) {
+	$.getJSON('action.php?tpl=json_node_datas&id='+nodeid, function(datas) { select_node_with_data(datas); } );
 }
 
 function create_plugin_tab(plugin, plugin_instance, tabid) {
