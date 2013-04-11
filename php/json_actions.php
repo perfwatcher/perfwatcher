@@ -38,6 +38,22 @@ switch ($action) {
     case 'get_js':
         echo json_encode($extra_jsfile);
         break;
+    case 'new_view':
+        $view_title = get_arg('view_title', "no name", 0, "", __FILE__, __LINE__);
+        list($id, $view_id) = create_new_view($view_title);
+        echo json_encode(array( 'id' => $id, 'view_id' => $view_id ));
+        break;
+    case 'list_views':
+        $maxrows = get_arg('maxrows', 10, 0, "", __FILE__, __LINE__);
+        $startswith = get_arg('startswith', "", 0, "", __FILE__, __LINE__);
+        $r = list_views($maxrows, $startswith);
+        echo json_encode( $r );
+        break;
+    case 'delete_view':
+        $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
+        $r = delete_view($view_id);
+        echo json_encode(array( 'view_id' => $r ));
+        break;
     default:
         $action_need_jstree = 1;
 }
@@ -45,8 +61,9 @@ switch ($action) {
 if($action_need_jstree) {
 
     $id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
+    $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
 
-    $jstree = new json_tree();
+    $jstree = new json_tree($view_id);
     $res = $jstree->_get_node($id);
     $datas = $jstree->get_datas($res['id']);
 

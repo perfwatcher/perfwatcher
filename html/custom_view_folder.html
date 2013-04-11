@@ -34,7 +34,7 @@
 		});
 		$(aggregators_selector).multiselect({ noneSelectedText: 'Select plugin(s)', selectedList: 0 }).multiselectfilter();
 
-		$.getJSON('action.php?tpl=custom_view_folder&action=get_datas&id='+json_item_datas['jstree']['id'], function(datas) {
+		$.getJSON('action.php?tpl=custom_view_folder&action=get_datas&view_id='+view_id+'&id='+json_item_datas['jstree']['id'], function(datas) {
 			json_datas = datas;
 			$.each(json_datas['hosts'], function (hostn, host) {
 				var option = document.createElement('option');
@@ -157,6 +157,7 @@
 					    async : false, type: 'POST', url: "action.php?tpl=custom_view_folder",
 					    data : { 
 							action : "save_tab",
+							view_id : view_id,
 							id : json_item_datas['jstree']['id'],
 							tab_id : custom_tab_id,
 							selected_graph : plugins,

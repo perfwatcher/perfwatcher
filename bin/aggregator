@@ -5,48 +5,63 @@ chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 
 require "lib/common.php";
 
-$jstree = new json_tree();
-$containers = $jstree->get_containers();
-$conf = '';
-foreach ($containers as $container) {
-
-    $container_host = 'aggregator_'.$container['id'];
-    $datas = $jstree->get_datas($container['id']);
-
-    $nodes = 0;
-    if (!isset($datas['plugins']) || count($datas['plugins']) == 0) { continue; } 
-
-	$childrens = $jstree->_get_children($container['id'], true);
-	foreach($childrens as $idc => $children) {
-		if ($children['type'] != 'default') { unset($childrens[$idc]); }
-	}
-	if (count($childrens) == 0) { continue; }
-	$alreadydoes = array();
-	foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
-		if (isset($alreadydoes[$pluginandcalc])) { continue; }
-		$pluginstr = substr($pluginandcalc, 0, -4);
-		$calc = substr($pluginandcalc, -3);
-		list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
-$conf .= "	<aggregator>
-		resultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n";
-		$conf .= "		operation \"$calc\"\n";
-		if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
-		if (isset($datas['plugins'][$pluginstr.'-'.$testcalc])) {
-			$conf .= "		operation \"$testcalc\"\n";
-			$alreadydoes[$pluginstr.'-'.$testcalc] = true;
+$db = new _database($db_config);
+if ($db->connect()) {
+		$result_connect = 1;
+		$db->prepare("SELECT distinct view_id FROM tree");
+		$db->execute();
+		while($db->nextr()) {
+				$r = $db->get_row('assoc');
+				$views[] = $r['view_id'];
 		}
-		$conf .= "		<valuelist manual>\n";
-		foreach($childrens as $children) {
-			if ($children['type'] != 'default') { continue; }
-			if (in_array($type, $grouped_type)) {
-				$conf .= "			alltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
-			} else {
-				$conf .= "			type	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
-			}
+		$db->destroy();
+}
+
+
+foreach ($views as $view_id) {
+		$jstree = new json_tree($view_id);
+		$containers = $jstree->get_containers();
+		$conf = '';
+		foreach ($containers as $container) {
+
+				$container_host = 'aggregator_'.$container['id'];
+				$datas = $jstree->get_datas($container['id']);
+
+				$nodes = 0;
+				if (!isset($datas['plugins']) || count($datas['plugins']) == 0) { continue; } 
+
+				$childrens = $jstree->_get_children($container['id'], true);
+				foreach($childrens as $idc => $children) {
+						if ($children['type'] != 'default') { unset($childrens[$idc]); }
+				}
+				if (count($childrens) == 0) { continue; }
+				$alreadydoes = array();
+				foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
+						if (isset($alreadydoes[$pluginandcalc])) { continue; }
+						$pluginstr = substr($pluginandcalc, 0, -4);
+						$calc = substr($pluginandcalc, -3);
+						list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
+						$conf .= "	<aggregator>
+								resultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n";
+						$conf .= "		operation \"$calc\"\n";
+						if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
+						if (isset($datas['plugins'][$pluginstr.'-'.$testcalc])) {
+								$conf .= "		operation \"$testcalc\"\n";
+								$alreadydoes[$pluginstr.'-'.$testcalc] = true;
+						}
+						$conf .= "		<valuelist manual>\n";
+						foreach($childrens as $children) {
+								if ($children['type'] != 'default') { continue; }
+								if (in_array($type, $grouped_type)) {
+										$conf .= "			alltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+								} else {
+										$conf .= "			type	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+								}
+						}
+						$conf .= "		</valuelist>\n";
+						$conf .= "	</aggregator>\n";
+				}
 		}
-		$conf .= "		</valuelist>\n";
-	$conf .= "	</aggregator>\n";
-	}
 }
 
 $localconf = file_exists('etc/aggregator.local.conf') ? file_get_contents('etc/aggregator.local.conf') : '';

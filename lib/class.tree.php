@@ -25,16 +25,19 @@
 class _tree_struct {
     // Structure table and fields
     protected $table	= "";
+    protected $view_id	= 0;
     protected $fields	= array(
             "id"		=> false,
+            "view_id"	=> false,
             "parent_id"	=> false,
             "position"	=> false,
             );
 
     // Constructor
-    function __construct($table = "tree", $fields = array()) {
+    function __construct($view_id, $table = "tree", $fields = array()) {
         global $db_config;
         $this->table = $table;
+        $this->view_id = $view_id;
         if(!count($fields)) {
             foreach($this->fields as $k => &$v) { $v = $k; }
         }
@@ -42,9 +45,9 @@ class _tree_struct {
             foreach($fields as $key => $field) {
                 switch($key) {
                     case "id":
-                        case "parent_id":
-                        case "position":
-                        $this->fields[$key] = $field;
+                    case "parent_id":
+                    case "position":
+                    $this->fields[$key] = $field;
                     break;
                 }
             }
@@ -55,10 +58,12 @@ class _tree_struct {
 
     function _get_node($id) {
         $this->db->prepare(
-                "SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE ".$this->fields["id"]." = ?",
-                array('integer')
+                "SELECT ".implode(", ", $this->fields)." FROM ".$this->table
+                ." WHERE ".$this->fields["view_id"]." = ?"
+                ." AND   ".$this->fields["id"]." = ?",
+                array('integer', 'integer')
                 );
-        $this->db->execute((int)$id);
+        $this->db->execute(array((int)$this->view_id, (int)$id));
         $this->db->nextr();
         $ret = $this->db->nf() === 0 ? false : $this->db->get_row("assoc");
         $this->db->free();
@@ -83,10 +88,13 @@ class _tree_struct {
             $datas = $this->get_datas($id);
             if (isset($datas['sort']) && $datas['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
             $this->db->prepare(
-                    "SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE ".$this->fields["parent_id"]." = ? ORDER BY ".$this->fields[$sort]." ASC",
-                    array('integer')
+                    "SELECT ".implode(", ", $this->fields)." FROM ".$this->table
+                    ." WHERE ".$this->fields["view_id"]." = ?"
+                    ." AND   ".$this->fields["parent_id"]." = ?"
+                    ." ORDER BY ".$this->fields[$sort]." ASC",
+                    array('integer', 'integer')
                     );
-            $this->db->execute((int)$id);
+            $this->db->execute(array((int)$this->view_id, (int)$id));
             while($this->db->nextr()) {
                 $tmp = $this->db->get_row("assoc");
                 $tmp["_path_"] = $path." -> ".$tmp['title'];
@@ -123,14 +131,14 @@ class _tree_struct {
     }
 
     function set_datas($id, $data) {
-        $this->db->prepare("UPDATE ".$this->table." SET datas=? WHERE id = ?", array('text', 'integer'));
-        $this->db->execute(array(serialize($data), (int)$id));
+        $this->db->prepare("UPDATE ".$this->table." SET datas=? WHERE view_id = ? AND id = ?", array('text', 'integer', 'integer'));
+        $this->db->execute(array(serialize($data), (int)$this->view_id, (int)$id));
     }
 
     function get_datas($id) {
         $containers = array();
-        $this->db->prepare("SELECT datas FROM ".$this->table." WHERE id = ?", array('integer'));
-        $this->db->execute((int) $id);
+        $this->db->prepare("SELECT datas FROM ".$this->table." WHERE view_id = ? AND id = ?", array('integer', 'integer'));
+        $this->db->execute(array((int)$this->view_id, (int) $id));
         $this->db->nextr();
         $datas = $this->db->get_row("assoc");
         if(!$ret = unserialize($datas["datas"])) { $this->db->free(); return array(); }
@@ -157,8 +165,8 @@ class _tree_struct {
     }
 
     function _create($parent, $position) {
-        $this->db->prepare("INSERT into ".$this->table." (parent_id, position, type) VALUES (?, ?, 'default')", array('integer', 'integer'));
-        $this->db->execute(array( (int)$parent,  (int)$position) );
+        $this->db->prepare("INSERT into ".$this->table." (view_id, parent_id, position, type) VALUES (?, ?, ?, 'default')", array('integer', 'integer', 'integer'));
+        $this->db->execute(array((int)$this->view_id, (int)$parent, (int)$position) );
         return $this->db->insert_id($this->table, 'id');
     }
 
@@ -166,8 +174,12 @@ class _tree_struct {
         $id = false;
         while (true) {
             $this->db->setLimit(1);
-            $this->db->prepare("SELECT id FROM ".$this->table." WHERE ".$this->fields["title"]."= ?");
-            $this->db->execute($title);
+            $this->db->prepare("SELECT id FROM ".$this->table
+                    ." WHERE ".$this->fields["view_id"]."= ?"
+                    ." AND   ".$this->fields["title"]."= ?",
+                    array('integer', 'text')
+            );
+            $this->db->execute(array((int)$this->view_id, $title));
             while($this->db->nextr()) $id = $this->db->f($this->fields["id"]);
             if (is_numeric($id)) {
                 $this->_remove($id);
@@ -179,11 +191,14 @@ class _tree_struct {
     function _remove($id) {
         if((int)$id === 1) { return false; }
         $children = $this->_get_children($id, true);
-        $this->db->prepare("DELETE FROM ".$this->table." WHERE ".$this->fields["id"]." = ?", array('integer'));
+        $this->db->prepare("DELETE FROM ".$this->table
+                ." WHERE ".$this->fields["view_id"]." = ?"
+                ." AND   ".$this->fields["id"]." = ?",
+                array('integer', 'integer'));
         foreach($children as $child) {
-            $this->db->execute((int) $child['id']);
+            $this->db->execute(array((int)$this->view_id, (int) $child['id']));
         }
-        $this->db->execute((int) $id);
+        $this->db->execute(array((int)$this->view_id, (int) $id));
         return true;
     }
 
@@ -191,26 +206,27 @@ class _tree_struct {
         if ($ref_id == 0) { $ref_id++; }
         $sql  = "UPDATE ".$this->table." ";
         $sql .= "SET position = position + 1 ";
-        $sql .= "WHERE parent_id = ? ";
+        $sql .= "WHERE view_id = ? ";
+        $sql .= "AND parent_id = ? ";
         $sql .= "AND position >= ? ";
         $sql .= "AND id != ?";
-        $this->db->prepare($sql, array('integer', 'integer', 'integer'));
-        $this->db->execute(array($ref_id,$position,$id));
+        $this->db->prepare($sql, array('integer', 'integer', 'integer', 'integer'));
+        $this->db->execute(array($this->view_id, $ref_id,$position,$id));
 
-        $this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE id = ?", array('integer', 'integer', 'integer'));
-        $this->db->execute(array($ref_id,$position,$id));
+        $this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE view_id = ? AND id = ?", array('integer', 'integer', 'integer', 'integer'));
+        $this->db->execute(array($ref_id,$position,(int)$this->view_id, $id));
 
         $this->db->query("SET @a=-1");
-        $this->db->prepare("UPDATE ".$this->table." SET position = @a:=@a+1 WHERE parent_id = ? ORDER BY position", array('integer'));
-        $this->db->execute($ref_id);
+        $this->db->prepare("UPDATE ".$this->table." SET position = @a:=@a+1 WHERE view_id = ? AND parent_id = ? ORDER BY position", array('integer', 'integer'));
+        $this->db->execute(array($this->view_id, $ref_id));
         return true;
     }
 
 }
 
 class json_tree extends _tree_struct { 
-    function __construct($table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "datas" => "datas")) {
-        parent::__construct($table, $fields);
+    function __construct($view_id, $table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "datas" => "datas")) {
+        parent::__construct($view_id, $table, $fields);
         $this->fields = array_merge($this->fields, $add_fields);
         $this->add_fields = $add_fields;
     }
@@ -246,8 +262,8 @@ class json_tree extends _tree_struct {
     }
 
     function max_pos($parent_id) {
-        $this->db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE parent_id = ?", array('integer'));
-        $this->db->execute($parent_id);
+        $this->db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
+        $this->db->execute(array((int)$this->view_id, $parent_id));
         $this->db->nextr();
         $res =  $this->db->get_row("assoc");
         return $res['position'];
@@ -263,8 +279,11 @@ class json_tree extends _tree_struct {
                 $set_type[] = 'text';
             }
         }
-        $sql .= "WHERE ".$this->fields["id"]." = ?";
+        $sql .= " WHERE ".$this->fields["view_id"]." = ?";
+        $sql .= " AND   ".$this->fields["id"]." = ?";
+        $set_value[] = (int)$this->view_id;
         $set_value[] = (int)$data["id"];
+        $set_type[] = 'integer';
         $set_type[] = 'integer';
 
         $this->db->prepare($sql, $set_type);
@@ -290,8 +309,11 @@ class json_tree extends _tree_struct {
                         $set_type[] = 'text';
                     }
                 }
-                $sql .= "WHERE ".$this->fields["id"]." = ?";
+                $sql .= " WHERE ".$this->fields["view_id"]." = ?";
+                $sql .= " AND   ".$this->fields["id"]." = ?";
+                $set_value[] = (int)$this->view_id;
                 $set_value[] = (int)$ids[$i];
+                $set_type[] = 'integer';
                 $set_type[] = 'integer';
 
                 $this->db->prepare($sql, $set_type);
@@ -356,8 +378,11 @@ class json_tree extends _tree_struct {
     function searchfield($data) {
         $result = array();
         $this->db->setLimit(30);
-        $this->db->prepare("SELECT DISTINCT(".$this->fields["title"].") FROM ".$this->table." WHERE ".$this->fields["title"]." LIKE ?");
-        $this->db->execute("%$data%");
+        $this->db->prepare("SELECT DISTINCT(".$this->fields["title"].") FROM ".$this->table
+                ." WHERE ".$this->fields["view_id"]." = ?"
+                ." AND   ".$this->fields["title"]." LIKE ?",
+                array('integer', 'text'));
+        $this->db->execute(array((int)$this->view_id, "%$data%"));
         if($this->db->nf() === 0) return "[]";
         while($this->db->nextr()) {
             $result[] = array('id' => $this->db->f("title"), 'label' => $this->db->f("title"), 'value' => $this->db->f("title"));
@@ -367,8 +392,11 @@ class json_tree extends _tree_struct {
 
     function search($data) {
         $parents = array();
-        $this->db->prepare("SELECT ".$this->fields["id"]." FROM ".$this->table." WHERE ".$this->fields["title"]." LIKE ?");
-        $this->db->execute("%".$data["search_str"]."%");
+        $this->db->prepare("SELECT ".$this->fields["id"]." FROM ".$this->table
+                ." WHERE ".$this->fields["view_id"]." = ?"
+                ." AND   ".$this->fields["title"]." LIKE ?",
+                array('integer', 'text'));
+        $this->db->execute(array((int)$this->view_id, "%".$data["search_str"]."%"));
         if($this->db->nf() === 0) return "[]";
         while($this->db->nextr()) {
             $parents = array_merge($parents, $this->get_parents($this->db->f($this->fields["id"])));
@@ -381,8 +409,11 @@ class json_tree extends _tree_struct {
     function get_parents($parent_id) {
         $ids = array();
         while ($parent_id != 0) {
-            $this->db->prepare("SELECT parent_id FROM ".$this->table." WHERE id = ?", array('integer'));
-            $this->db->execute($parent_id);
+            $this->db->prepare("SELECT parent_id FROM ".$this->table
+                    ." WHERE view_id = ?"
+                    ." AND   id = ?",
+                    array('integer', 'integer'));
+            $this->db->execute(array((int)$this->view_id, $parent_id));
             $this->db->nextr();
             $parent_id = $this->db->f("parent_id");
             $ids[] = $parent_id;

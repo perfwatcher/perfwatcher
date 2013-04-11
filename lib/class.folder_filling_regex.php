@@ -64,7 +64,7 @@ class folder_filling_regex {
         while ($hostdir = readdir($dh)) {
             if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
             if (substr($hostdir,0,11) != 'aggregator_' && @ereg($regex, $hostdir)) {
-                $out[] = $hostdir;
+                $out[] = trim($hostdir);
             }
         }
         closedir($dh);

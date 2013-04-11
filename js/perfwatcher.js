@@ -74,11 +74,63 @@ $(document).ready(function() {
 	$('li[id^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));
 		switch($(this).attr("id")) {
+			case 'menu_view_new':
+				askfor({ title: 'New view name' }, function(title) {
+					$.ajax({
+						async : false, type: "POST", url: "action.php?tpl=json_actions",
+						data : { "action" : "new_view", "view_title" : title },
+						complete : function (r) {
+							if(!r.status) {
+								notify_ko('Error, can\'t retrieve data from server !');
+							} else {
+								ids = jQuery.parseJSON(r.responseText);
+								if((ids['id'] != -1) && (ids['view_id'] != -1)) {
+									view_id = ids['view_id'];
+									location.hash = "id_"+view_id;
+									$('#tree').jstree("refresh");
+									notify_ok("New view is created");
+								} else {
+									notify_ko("New view creation failed");
+								}
+							}
+						}
+					});
+				});
+			break;
+			case 'menu_view_open':
+				select_view(function() {
+						location.hash = "id_"+view_id;
+						$('#tree').jstree("refresh");
+				});
+			break;
+			case 'menu_view_delete':
+				confirmfor({title: 'Do you really want to delete this view ?'}, function() {
+					$.ajax({
+						async : false, type: "POST", url: "action.php?tpl=json_actions",
+						data : { "action" : "delete_view", "view_id" : view_id },
+						complete : function (r) {
+							if(!r.status) {
+								notify_ko('Error, can\'t retrieve data from server !');
+							} else {
+								result = jQuery.parseJSON(r.responseText);
+								if(result['view_id'] > 0) {
+									view_id = result['view_id'];
+									location.hash = "id_"+view_id;
+									$('#tree').jstree("refresh");
+									notify_ok("View deleted");
+								} else {
+									notify_ko("View could not be deleted");
+								}
+							}
+						}
+					});
+				});
+			break;
 			case 'menu_new_tab':
 				askfornewtab({ }, function(title, lifetime) {
 					$.ajax({
 						async : false, type: "POST", url: "action.php?tpl=json_actions",
-						data : { "action" : "add_tab", "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
+						data : { "action" : "add_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
 						complete : function (r) {
 							if(!r.status) {
 								notify_ko('Error, can\'t retrieve data from server !');
@@ -105,7 +157,7 @@ $(document).ready(function() {
 					if($('div[tabid="'+current_tab+'"]').attr('custom_tab_id')) {
 						$.ajax({
 							async : false, type: "POST", url: "action.php?tpl=json_actions",
-							data : { "action" : "del_tab", "id" : json_item_datas['jstree']['id'], "tab_id" : $('div[tabid="'+current_tab+'"]').attr('custom_tab_id') },
+							data : { "action" : "del_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_id" : $('div[tabid="'+current_tab+'"]').attr('custom_tab_id') },
 							complete : function (r) {
 								if(!r.status) {
 									notify_ko('Error, can\'t retrieve data from server !');
@@ -133,7 +185,7 @@ $(document).ready(function() {
 			case 'menu_new_container':
 				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder" } });
 			break;
-			case 'menu_view_toogle_tree':
+			case 'menu_display_toggle_tree':
 				if (treecollapsed) {
 					$('#mainSplitter').jqxSplitter('expandAt', 0);
 					treecollapsed = false;
@@ -141,6 +193,9 @@ $(document).ready(function() {
 					$('#mainSplitter').jqxSplitter('collapseAt', 0);
 					treecollapsed = true;
 				}
+			break;
+			case 'menu_display_in_new_window':
+				alert('not implemented yet');
 			break;
 			case 'menu_refresh_tree':
 				$('#tree').jstree("refresh");
@@ -171,7 +226,7 @@ $(document).ready(function() {
 					return;
 				}
 
-				lastXhr = $.getJSON( "action.php?tpl=json_actions&action=search&id=0", request, function( data, status, xhr ) {
+				lastXhr = $.getJSON( "action.php?tpl=json_actions&action=search&id=0&view_id="+view_id, request, function( data, status, xhr ) {
 					cache[ term ] = data;
 					if ( xhr === lastXhr ) {
 						response( data );

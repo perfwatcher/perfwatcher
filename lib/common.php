@@ -131,20 +131,102 @@ function get_nodes_count($host_id)
     return $nodes;
 }
 
-function get_node_name($id) {
+function create_new_view($title) {
+    global $db_config;
+    $view_id = -1;
+    $id = -1;
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->prepare("INSERT INTO tree (view_id, parent_id, position, type, title) SELECT MAX(view_id)+1, 1, 0, 'folder', ? FROM tree", array('text'));
+        $db->execute($title);
+        $id = $db->insert_id('tree', 'id');
+        $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));
+        $db->execute((int)$id);
+        if($db->nextr()) {
+            $r = $db->get_row('assoc');
+            $view_id = $r['view_id'];
+        }
+        $db->destroy();
+    }
+    return(array($id,$view_id));
+}
 
-    if (substr($id, 0, 11) == 'aggregator_') {
-        $id = substr($id, 11);
-    } else { return $id; }
-    $jstree = new json_tree();
-    $node = $jstree->_get_node($id);
-    return $node['title'];
+function list_views($maxrows, $startswith) {
+    global $db_config;
+    $r = array();
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $startswith = $startswith."%";
+        $db->prepare("SELECT view_id,title FROM tree WHERE parent_id = 1 AND title LIKE ? ORDER BY title LIMIT ?", array('text', 'integer'));
+        $db->execute(array($startswith, $maxrows));
+        while($db->nextr()) {
+            $v = $db->get_row('assoc');
+            $r[] = $v;
+        }
+        $db->destroy();
+    }
+    return($r);
+}
+
+function delete_view($view_id) {
+    global $db_config;
+    $result_view_id = 0;
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->prepare("DELETE FROM tree WHERE view_id = ?", array('integer'));
+        $db->execute($view_id);
+        $db->prepare("SELECT MIN(view_id) AS v FROM tree");
+        $db->execute();
+        if($db->nextr()) {
+            $r = $db->get_row('assoc');
+            $result_view_id = $r['v'];
+        }
+        $db->destroy();
+    }
+    return($result_view_id);
+}
+
+function get_view_id_from_id($id) {
+    global $db_config;
+    $view_id = -1;
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));
+        $db->execute((int)$id);
+        if($db->nextr()) {
+            $r = $db->get_row('assoc');
+            $view_id = $r['view_id'];
+        }
+        $db->destroy();
+    }
+    return($view_id);
 }
 
 function get_node_name_by_id($id) {
-    $jstree = new json_tree();
-    $node = $jstree->_get_node($id);
-    return $node['title'];
+    global $db_config;
+    $title = "";
+    $id = substr($id, 11);
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->prepare("SELECT title FROM tree WHERE id = ?", array('integer'));
+        $db->execute((int)$id);
+        if($db->nextr()) {
+            $r = $db->get_row('assoc');
+            $title = $r['title'];
+        }
+        $db->destroy();
+    }
+}
+
+function get_node_name($id) {
+
+    if (substr($id, 0, 11) != 'aggregator_') { return($id); }
+    return get_node_name_by_id($id);
 }
 
 ?>

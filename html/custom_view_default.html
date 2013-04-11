@@ -52,7 +52,7 @@
 					});
 					$.ajax({
 					    async : false, type: 'POST', url: "action.php?tpl=custom_view_default",
-					    data : { "action" : "save_tab", "id" : json_item_datas['jstree']['id'], "tab_id" : custom_tab_id, 'selected_graph' : plugins },
+					    data : { "action" : "save_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_id" : custom_tab_id, 'selected_graph' : plugins },
 					    complete : function (r) {
 					        if(!r.status) {
 								notify_ko('Error, can\'t retrieve data from server !');

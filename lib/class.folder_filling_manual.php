@@ -50,7 +50,11 @@ class folder_filling_manual {
     function get() {
         global $jstree;
         if (isset($this->datas['serverslist']) &&  isset($this->datas['serverslist']['manuallist'])) {
-            return split("\n", trim($this->datas['serverslist']['manuallist']));
+            $r = array();
+            foreach (split("\n", $this->datas['serverslist']['manuallist']) as $l) {
+                $r[] = trim($l);
+            }
+            return $r;
         } else { return array(); }
     }
 

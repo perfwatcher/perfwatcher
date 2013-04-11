@@ -21,6 +21,8 @@
  * @link      http://www.perfwatcher.org/
  **/ 
 
+var view_id = 1;
+
 $(function () {
 	// Settings up the tree - using $(selector).jstree(options);
 	// All those configuration options are documented at http://www.jstree.com/
@@ -47,9 +49,17 @@ $(function () {
 			    // the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
 			    "data" : function (n) { 
 				// the result is fed to the AJAX request `data` option
+						if (location.hash) { 
+								var h = location.hash.substr(1).split('_');
+								if(h[0] == 'id') {
+										h.shift();
+										view_id = h[0];
+								}
+						}
 					return { 
 						"operation" : "get_children", 
-						"id" : n.attr ? n.attr("id").replace("node_","") : 1 
+						"view_id" : view_id,
+						"id" : n.attr ? n.attr("id").replace("node_","") : 1
 					}; 
 			    },
 			    "error" : function (data) {
@@ -67,6 +77,7 @@ $(function () {
 		    	"data" : function (str) {
 					return { 
 			    		"operation" : "search", 
+						"view_id" : view_id,
 			    		"search_str" : str 
 					}; 
 		    	}
@@ -158,6 +169,7 @@ $(function () {
 		"action.php?tpl=json_tree", 
 		{ 
 		    "operation" : "create_node", 
+			"view_id" : view_id,
 		    "id" : data.rslt.parent.attr("id").replace("node_",""), 
 		    "position" : data.rslt.position,
 		    "title" : data.rslt.name,
@@ -180,6 +192,7 @@ $(function () {
 			url: "action.php?tpl=json_tree",
 			data : { 
 			    "operation" : "remove_node", 
+				"view_id" : view_id,
 			    "id" : this.id.replace("node_","")
 			}, 
 			success : function (r) {
@@ -194,6 +207,7 @@ $(function () {
 		    "action.php?tpl=json_tree", 
 		    { 
 			"operation" : "rename_node", 
+			"view_id" : view_id,
 			"id" : data.rslt.obj.attr("id").replace("node_",""),
 			"title" : data.rslt.new_name
 		    }, 
@@ -211,6 +225,7 @@ $(function () {
 		    url: "action.php?tpl=json_tree",
 		    data : { 
 			"operation" : "move_node", 
+			"view_id" : view_id,
 			"id" : $(this).attr("id").replace("node_",""), 
 			"ref" : data.rslt.np.attr("id").replace("node_",""), 
 			"position" : data.rslt.cp + i,
@@ -238,11 +253,13 @@ $(function () {
 		for (n in path) {
 			hash = hash + '_' + path[n].replace('node_', '');
 		}
-		location.hash = 'id_'+hash.substr(1);
+		location.hash = 'id_'+view_id+'_'+hash.substr(1);
 	}).bind("loaded.jstree", function (event, data) {
 		if (!location.hash) { return; }
 		var nodes = location.hash.substr(1).split('_');
 		if(nodes[0] == 'id') {
+			nodes.shift();
+			view_id = nodes[0];
 			nodes.shift();
 			recurse_open_node(nodes);
 		} else if(nodes[0] == 'host') {

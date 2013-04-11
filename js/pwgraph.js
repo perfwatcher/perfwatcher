@@ -337,7 +337,7 @@ function showtop (toptime) {
 	$('#topprocess .next').click(function() {
 		showtop(toptime + 60);
 	});
-	var url = 'action.php?tpl=top&id='+json_item_datas['jstree']['id']+'&time='+toptime;
+	var url = 'action.php?tpl=top&view_id='+view_id+'&id='+json_item_datas['jstree']['id']+'&time='+toptime;
 	var source = { 
 		datatype: "json", 
 		datafields: [ 

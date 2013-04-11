@@ -1,0 +1,46 @@
+About views
+
+Views caracteristics
+--------------------
+- in the database, a tree where the root parent has parent_id = 1
+- in the database, lines with the same view_id column
+- in perfwatcher, a json_tree filled with nodes from the database with a specific view_id.
+- in perfwatcher, the name of the view is the title of the root node of the
+  view.
+
+IMPORTANT : in the database, the id remains unique. There cannot be 2 lines
+with distinct view_id and same id.
+
+As a consequence, given an id, you can find the view_id.
+
+Another consequence is that if you are looking for an id given the wrong
+view_id, you will find nothing.
+
+Example of requests in the database
+-----------------------------------
+
+Select all nodes of a view V in the database :
+SELECT * FROM tree WHERE view_id = V;
+
+Find the view_id given an id X :
+SELECT view_id FROM tree WHERE id = X;
+Note : the answer should be unique because id is unique.
+
+Find the name of a view V :
+SELECT title FROM tree WHERE view_id = V and parent_id = 1;
+
+Get the list of views :
+SELECT title FROM tree WHERE parent_id = 1;
+
+
+Notes
+-----
+
+The view_id could be put in the 'datas' column with other information. It is
+easier for programmers and probably for mysql optimizations to have this
+number in a specific column.
+
+The view_id of a node is the same as the view_id of its parent. So the
+view_id can be known from the root node view_id. However, we prefer to set it
+in a specific column, which makes it redundant, because it's easier to find
+the whole tree of a view by filtering on that comlumn.

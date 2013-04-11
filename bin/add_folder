@@ -4,7 +4,8 @@ require 'lib/common.php';
 if(count($argv) != 3) { echo "Syntaxe : ".$argv[0]." <title> <parent_id>\n"; exit(1); }
 $title=$argv[1];
 $parent=$argv[2];
+$view_id = get_view_id_from_id($parent);
 
-$jstree = new json_tree();
+$jstree = new json_tree($view_id);
 $jstree->add_folder($parent, $title);
 ?>

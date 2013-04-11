@@ -20,41 +20,57 @@ if (isset($argv[1])) {
 }
 
 
-$jstree = new json_tree();
-
-foreach($peuplator_plugins as $plugin) {
-	if (!file_exists("lib/class.$plugin.php")) { continue; }
-	if (!include ("lib/class.$plugin.php")) { continue; }
+$db = new _database($db_config);
+if ($db->connect()) {
+		$result_connect = 1;
+		$db->prepare("SELECT distinct view_id FROM tree");
+		$db->execute();
+		while($db->nextr()) {
+				$r = $db->get_row('assoc');
+				$views[] = $r['view_id'];
+		}
+		$db->destroy();
 }
 
-foreach ($jstree->get_containers() as $container) {
-    $datas = $jstree->get_datas($container['id']);
-    $serverlist = array();
-	foreach($peuplator_plugins as $plugin) {
-		if (!class_exists ($plugin)) { continue; }
-		$oplugin = new $plugin($datas);
-		$serverlist = array_merge($serverlist, $oplugin->get());
-	}
-	foreach ($serverlist as $key => $val) {
-		if ($val == '') { unset($serverlist[$key]); }
-	}
-    if (count($serverlist) > 0) {
-        $childrens = $jstree->_get_children($container['id']);
-        $childrenslist = array();
-        foreach($childrens as $children) {
-            if ($children['type'] != 'default') { continue; }
-            if (!in_array($children['title'], $serverlist)) {
-                if ($debug) { echo "Removing child ".$children['title']."(".$children['id'].") from ".$container['title']."(".$container['id'].")"."\n"; }
-                $jstree->_remove($children['id']);
-            } else { $childrenslist[] = $children['title']; }
-        }
-        foreach($serverlist as $server) {
-            if (!in_array($server, $childrenslist)) {
-                $jstree->add_node($container['id'], $server);
-                if ($debug) { echo "Adding child $server to ".$container['title']."(".$container['id'].")"."\n"; }
-            }
-        }
-    }
+foreach($peuplator_plugins as $plugin) {
+		if (!file_exists("lib/class.$plugin.php")) { continue; }
+		if (!include ("lib/class.$plugin.php")) { continue; }
+}
+
+foreach ($views as $view_id) {
+		echo "Filling view $view_id\n";
+		global $jstree;
+		$jstree = new json_tree($view_id);
+
+		foreach ($jstree->get_containers() as $container) {
+				$datas = $jstree->get_datas($container['id']);
+				$serverlist = array();
+				foreach($peuplator_plugins as $plugin) {
+						if (!class_exists ($plugin)) { continue; }
+						$oplugin = new $plugin($datas);
+						$serverlist = array_merge($serverlist, $oplugin->get());
+				}
+				foreach ($serverlist as $key => $val) {
+						if ($val == '') { unset($serverlist[$key]); }
+				}
+				if (count($serverlist) > 0) {
+						$childrens = $jstree->_get_children($container['id']);
+						$childrenslist = array();
+						foreach($childrens as $children) {
+								if ($children['type'] != 'default') { continue; }
+								if (!in_array($children['title'], $serverlist)) {
+										if ($debug) { echo "Removing child '".$children['title']."' (".$children['id'].") from '".$container['title']."' (".$container['id'].")"."\n"; }
+										$jstree->_remove($children['id']);
+								} else { $childrenslist[] = $children['title']; }
+						}
+						foreach($serverlist as $server) {
+								if (!in_array($server, $childrenslist)) {
+										$jstree->add_node($container['id'], $server);
+										if ($debug) { echo "Adding child '$server' to '".$container['title']."' (".$container['id'].")"."\n"; }
+								}
+						}
+				}
+		}
 }
 
 ?>

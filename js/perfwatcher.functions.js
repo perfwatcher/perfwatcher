@@ -18,6 +18,7 @@ function select_node_with_data(datas) {
 		$.ajax({
 			async : false, type: 'POST', url: "action.php?tpl=get_hosts",
 			data : { 
+				"view_id" : view_id,
 				"id" : json_item_datas['jstree']['id']
 			},
 			complete : function (r) {
@@ -74,11 +75,11 @@ function select_node_with_data(datas) {
 }
 
 function select_node_by_name(host) {
-	$.getJSON('action.php?tpl=json_node_defaults&host='+host, function(datas) { select_node_with_data(datas); } );
+	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&host='+host, function(datas) { select_node_with_data(datas); } );
 }
 
 function select_node(nodeid) {
-	$.getJSON('action.php?tpl=json_node_datas&id='+nodeid, function(datas) { select_node_with_data(datas); } );
+	$.getJSON('action.php?tpl=json_node_datas&view_id='+view_id+'&id='+nodeid, function(datas) { select_node_with_data(datas); } );
 }
 
 function create_plugin_tab(plugin, plugin_instance, tabid) {
@@ -142,6 +143,9 @@ function plugin_view (tabid, plugin) {
 function hide_menu_for(node_type) {
 	$('li[id^="menu_"]').hide();
 	$('li[id="menu_new_tab"]').show();
+	$('li[id="menu_view_new"]').show();
+	$('li[id="menu_view_open"]').show();
+	$('li[id="menu_view_delete"]').show();
 	$('li[id="menu_rename_node"]').show();
 	$('li[id="menu_rename_tab"]').show();
 	$('li[id="menu_delete_tab"]').show();
@@ -149,8 +153,8 @@ function hide_menu_for(node_type) {
 	$('li[id="menu_copy"]').show();
 	$('li[id="menu_paste"]').show();
 	$('li[id="menu_cut"]').show();
-	$('li[id="menu_view_toogle_tree"]').show();
-	$('li[id="menu_view_openinnewwindow"]').show();
+	$('li[id="menu_display_toggle_tree"]').show();
+	$('li[id="menu_display_in_new_window"]').show();
 	$('li[id="menu_refresh_tree"]').show();
 	$('li[id="menu_refresh_status"]').show();
 	$('li[id="menu_refresh_node"]').show();
@@ -172,7 +176,7 @@ function reload_datas() {
 	$.ajax({
 	    async : false,
 	    type: 'POST',
-	    url: 'action.php?tpl=json_node_datas&id='+json_item_datas['jstree']['id'],
+	    url: 'action.php?tpl=json_node_datas&view_id='+view_id+'&id='+json_item_datas['jstree']['id'],
 	    complete : function (r) {
 	        if(r.status) {
 				json_item_datas = jQuery.parseJSON(r.responseText);
@@ -402,4 +406,77 @@ function splitMetric (metric) {
 	}
 	
 	return [p, pi, t, ti];
+}
+
+function select_view (set_view) {
+	$('#modalwindow').jqxWindow({ title: '<span id="toptitle">Select a view</span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
+	$('#modalwindowcontent').html(
+		'<div>'+
+			'<span style="float: left; margin-top: 5px; margin-right: 4px;">View :</span>'+
+			'<input class="jqx-input" id="select_view_search" type="text" style="height: 23px; float: left; width: 223px;" />'+
+		'</div>'+
+		'<div style="clear: both;"></div>'+
+		'<div id="select_view_list" style="margin-top: 10px;"></div>'+
+		'<div style="clear: both;"></div>'+
+		'<div style="float: right;">'+
+			'<input type="button" value="No view selected" id="select_view_button_ok" />'+
+			'<input type="button" value="Cancel" id="select_view_button_cancel" />'+
+		'</div>'
+		);
+	var url = 'action.php?tpl=json_actions&action=list_views';
+	var source = { 
+		datatype: "json", 
+		datafields: [ 
+			{ name: 'view_id' }, 
+			{ name: 'title' }
+		], 
+		id: 'id', 
+		url: url,
+		data: {
+			maxrows: '10'
+		}
+	};
+	var dataAdapter = new $.jqx.dataAdapter(source, {
+		formatData: function(data) {
+			data.startswith = $("#select_view_search").val();
+			return data;
+		}
+	});
+	$('#select_view_list').jqxListBox({
+		width: 525,
+		height: 500,
+	    source: dataAdapter,
+		displayMember: 'title',
+		valueMember: 'view_id',
+	    theme: theme
+	});
+	var me = this;
+	me.view_id = 0;
+	$('#select_view_search').on('keyup', function(event) {
+		if(me.timer) clearTimeout(me.timer);
+		me.timer = setTimeout(function() {
+			dataAdapter.dataBind();
+		}, 300);
+	});
+	$('#select_view_list').on('select', function(event) {
+		var item = event.args.item;
+		if(item) {
+			me.view_id = item.value;
+			$('#select_view_button_ok').val('Load view "'+item.label+'"');
+		}
+	});
+	$('#select_view_button_ok').jqxButton({ theme: theme, width: '150', height: '25' });
+	$('#select_view_button_cancel').jqxButton({ theme: theme, width: '150', height: '25' });
+
+	$('#select_view_button_ok').on('click', function(event) {
+		$('#modalwindow').jqxWindow('closeWindow');
+		if(me.view_id > 0) {
+			view_id = me.view_id;
+			set_view();
+		}
+	});
+	$('#select_view_button_cancel').on('click', function(event) {
+		$('#modalwindow').jqxWindow('closeWindow');
+	});
+//	set_view();
 }
