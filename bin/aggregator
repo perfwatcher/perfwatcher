@@ -18,10 +18,10 @@ if ($db->connect()) {
 }
 
 
+$conf = '';
 foreach ($views as $view_id) {
 		$jstree = new json_tree($view_id);
 		$containers = $jstree->get_containers();
-		$conf = '';
 		foreach ($containers as $container) {
 
 				$container_host = 'aggregator_'.$container['id'];
