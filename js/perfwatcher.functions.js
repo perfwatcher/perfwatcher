@@ -10,7 +10,6 @@ function select_node_with_data(datas) {
 	var tabid = 1;
 	json_item_datas = datas;
 	var id;
-	console.log(json_item_datas);
 	if(datas['jstree'] && datas['jstree']['id']) {
 		id = datas['jstree']['id'];
 	}
