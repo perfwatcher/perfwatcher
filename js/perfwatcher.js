@@ -207,7 +207,7 @@ $(document).ready(function() {
 				refresh_status();
 			break;
 			case 'menu_about_box':
-				perfwatcher_alert_box();
+				perfwatcher_about_box();
 			break;
 			default:
 				console.log('Undefined stuff : '+ $(this).attr("id"));
