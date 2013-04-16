@@ -1,0 +1,20 @@
+# patch stuff
+*.rej
+*.orig
+
+# make dist stuff:
+releases/perfwatcher-*.tar.gz
+releases/perfwatcher-*.tar.bz2
+
+# backup stuff
+*~
+
+# Local stuff
+.gitignore
+.svn/
+etc/aggregator.conf
+etc/aggregator.local.conf
+etc/config.php
+etc/definitions.local.php
+logs/
+
