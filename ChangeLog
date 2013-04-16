@@ -1,7 +1,10 @@
+2013-04-16
+
+- New feature : in folder tabs, you can now display folder aggregators. Previously only aggregators (for the selected folder) and hosts/plugins could be shown.
 - New feature : views
 - Updated the database creation scripts (no more automatic initialization)
 
-2013-03- 25, Version 1.1
+2013-03-25, Version 1.1
 
 - Removed obsolete mysql_* function calls (YM - issue #25)
 - Reindent php files (YM)

@@ -36,22 +36,29 @@ $datas = $jstree->get_datas($res['id']);
 
 if (isset($_POST['action']) || isset($_GET['action'])) {
     switch (isset($_POST['action']) ? $_POST['action'] : $_GET['action']) {
-        case 'get_datas':
+        case 'get_hosts_and_folders':
             $hostlist = array();
-            $childrens = $jstree->_get_children($id, true);
+            $folderlist = array();
+            $childrens = $jstree->_get_children($id, true, "", "/");
             foreach($childrens as $children) {
                 if ($children['type'] == 'default') {
                     $hostlist[] = $children['title'];
+                } else if(($children['type'] == 'folder') || ($children['type'] == 'drive')) {
+                    $folderlist['aggregator_'.$children['id']] = substr($children['_path_'], 1);
                 }
             }
             sort(&$hostlist);
+            ksort(&$folderlist);
             echo json_encode(array(
-                        'hosts' => $hostlist
+                        'hosts' => $hostlist,
+                        'folders' => $folderlist,
                         ));
             break;
         case 'save_tab':
             $datas['tabs'][$_POST['tab_id']]['selected_graph'] = $_POST['selected_graph'];
             $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
+            $datas['tabs'][$_POST['tab_id']]['selected_folders'] = $_POST['selected_folders'];
+            $datas['tabs'][$_POST['tab_id']]['selected_folders_graph'] = $_POST['selected_folders_graph'];
             $datas['tabs'][$_POST['tab_id']]['selected_aggregators'] = $_POST['selected_aggregators'];
             $jstree->set_datas($id, $datas);
             break;

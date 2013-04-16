@@ -132,6 +132,12 @@ else if (!is_string($host))
 else if (strlen($host) == 0)
     return error400("?/?-?/?", "Host name may not be blank");
 
+$althost     = read_var('althost', $_GET, null);
+if (is_null($althost))
+    $althost = "";
+else if (!is_string($althost))
+    return error400("?/?-?/?", "Expecting exactly 1 alt host name");
+
     $plugin   = read_var('plugin', $_GET, null);
 if (is_null($plugin))
     return error400($host.'/?-?/?', "Missing plugin name");
@@ -202,6 +208,8 @@ if ($tinylegend)
     $opts['tinylegend']  = 1;
 if ($zero)
     $opts['zero']  = 1;
+if ($althost)
+    $opts['althost']  = $althost;
 
     $rrd_cmd = false;
     if (isset($MetaGraphDefs[$type])) {

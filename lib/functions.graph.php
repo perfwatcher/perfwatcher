@@ -563,10 +563,14 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
         array_unshift($opts['rrd_opts'], '-l');
         array_unshift($opts['rrd_opts'], '-r');
     }
+    $althost = "";
+    if (isset($opts['althost'])) {
+        $althost = $opts['althost'];
+    }
 
     $rrdinfo = null;
     $rrdfile = sprintf('%s/%s%s%s/%s%s%s', $host, $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
-    $rrdtitle = sprintf('%s/%s%s%s/%s%s%s', get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
+    $rrdtitle = sprintf('%s/%s%s%s/%s%s%s', $althost?$althost:get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
     foreach ($config['datadirs'] as $datadir)
         if (is_file($datadir.'/'.$rrdfile.'.rrd')) {
             $rrdinfo = _rrd_info($datadir.'/'.$rrdfile.'.rrd');
@@ -658,14 +662,19 @@ function collectd_draw_rrd($host, $plugin, $pinst = null, $type, $tinst = null, 
  * @opts
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
-function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, $tinst = null) {
+function collectd_draw_generic($timespan, $host, $plugin, $pinst = null, $type, $tinst = null, $opts = array()) {
     global $config, $GraphDefs, $begin, $end;
 
     if (!isset($GraphDefs[$type]))
         return false;
 
+    $althost = "";
+    if (isset($opts['althost'])) {
+        $althost = $opts['althost'];
+    }
+
     $rrd_file = sprintf('%s/%s%s%s/%s%s%s', $host, $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
-    $rrdtitle = sprintf('%s/%s%s%s/%s%s%s', get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
+    $rrdtitle = sprintf('%s/%s%s%s/%s%s%s', $althost?$althost:get_node_name($host), $plugin, is_null($pinst) ? '' : '-', $pinst, $type, is_null($tinst) ? '' : '-', $tinst);
     $rrd_cmd  = array('-W', 'PERFWATCHER', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $rrdtitle);
     $rrd_cmd[] = '-s';
     $rrd_cmd[] = $begin;

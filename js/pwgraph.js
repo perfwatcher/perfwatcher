@@ -80,6 +80,7 @@
       $(this).attr('src',
 		'graph.php'
 		+ '?host=' + options['host']
+		+ (options['althost'] != null ? '&althost=' + options['althost'] : '')
 		+ '&plugin=' + options['plugin']
 		+ '&plugin_instance=' + options['plugin_instance']
 		+ '&type=' + options['type']

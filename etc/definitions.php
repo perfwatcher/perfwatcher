@@ -1323,7 +1323,7 @@ function meta_graph_files_count($host, $plugin, $plugin_instance, $type, $type_i
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Mails');
@@ -1357,7 +1357,7 @@ function meta_graph_files_size($host, $plugin, $plugin_instance, $type, $type_in
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Bytes');
@@ -1391,7 +1391,7 @@ function meta_graph_df_complex($host, $plugin, $plugin_instance, $type, $type_in
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '');
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '');
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -1426,7 +1426,7 @@ function meta_graph_cpufreq($host, $plugin, $plugin_instance, $type, $type_insta
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.3lf%s';
@@ -1489,7 +1489,7 @@ function meta_graph_cache_entries($host, $plugin, $plugin_instance, $type, $type
     global $config;
     $sources = array();
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'entries');
@@ -1544,7 +1544,7 @@ function meta_graph_irq($host, $plugin, $plugin_instance, $type, $type_instances
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Issues/s');
@@ -1607,7 +1607,7 @@ function meta_graph_users($host, $plugin, $plugin_instance, $type, $type_instanc
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'User(s)');
@@ -1633,7 +1633,7 @@ function meta_graph_cpu($host, $plugin, $plugin_instance, $type, $type_instances
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     if (substr($plugin_instance, -4) == '_sum') {
@@ -1675,7 +1675,7 @@ function meta_graph_celerra_io($host, $plugin, $plugin_instance, $type, $type_in
     global $config;
     $sources = array();
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type".($type_instance != '' ? "-$type_instance" : '');
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type".($type_instance != '' ? "-$type_instance" : '');
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     switch($type) {
@@ -1726,7 +1726,7 @@ function meta_graph_celerra_if($host, $plugin, $plugin_instance, $type, $type_in
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -1776,7 +1776,7 @@ function meta_graph_swap_io($host, $plugin, $plugin_instance, $type, $type_insta
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Pages/s');
@@ -1809,7 +1809,7 @@ function meta_graph_specs($host, $plugin, $plugin_instance, $type, $type_instanc
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Specs');
@@ -1842,7 +1842,7 @@ function meta_graph_grid($host, $plugin, $plugin_instance, $type, $type_instance
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     //$opts['rrd_opts'] = array('-v', 'Specs');
@@ -1879,7 +1879,7 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -1931,7 +1931,7 @@ function meta_graph_vs_threads($host, $plugin, $plugin_instance, $type, $type_in
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -1967,7 +1967,7 @@ function meta_graph_vs_memory($host, $plugin, $plugin_instance, $type, $type_ins
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -2003,7 +2003,7 @@ function meta_graph_if_rx_errors($host, $plugin, $plugin_instance, $type, $type_
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.2lf';
@@ -2032,7 +2032,7 @@ function meta_graph_mysql_threads($host, $plugin, $plugin_instance, $type, $type
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Issues/s');
@@ -2062,7 +2062,7 @@ function meta_graph_mysql_commands($host, $plugin, $plugin_instance, $type, $typ
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Issues/s');
@@ -2092,7 +2092,7 @@ function meta_graph_nfs_procedure($host, $plugin, $plugin_instance, $type, $type
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -2121,7 +2121,7 @@ function meta_graph_ps_state($host, $plugin, $plugin_instance, $type, $type_inst
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Processes');
@@ -2160,7 +2160,7 @@ function meta_graph_swap($host, $plugin, $plugin_instance, $type, $type_instance
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%5.1lf%s';
@@ -2195,7 +2195,7 @@ function meta_graph_apache_scoreboard($host, $plugin, $plugin_instance, $type, $
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%6.2lf%s';
@@ -2238,7 +2238,7 @@ function meta_graph_tcp_connections($host, $plugin, $plugin_instance, $type, $ty
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['number_format'] = '%6.2lf%s';
@@ -2281,7 +2281,7 @@ function meta_graph_dns_event($host, $plugin, $plugin_instance, $type, $type_ins
     $sources = array();
 
     $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = get_node_name($host)."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
     $opts['rrd_opts'] = array('-v', 'Events', '-r', '-l', '0');
