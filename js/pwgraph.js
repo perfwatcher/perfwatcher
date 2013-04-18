@@ -46,7 +46,7 @@
 			var diff = options['end'] - options['begin'];
 			var step = diff / (options['gridXend'] - options['gridXstart']);
 			var toptime = options['begin'] + Math.round(step * x);
-			showtop(toptime);
+			showtop($(current_graph).data().host, toptime);
 		break;
        	case 'save':
 			var url = $(current_graph).attr('src') + '&download';
@@ -329,16 +329,16 @@
   };
 })( jQuery );
 
-function showtop (toptime) {
+function showtop (id, toptime) {
 	$('#modalwindow').jqxWindow({ title: '<span id="toptitle"></span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
 	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
 	$('#topprocess .prev').click(function() {
-		showtop(toptime - 60);
+		showtop(id, toptime - 60);
 	});
 	$('#topprocess .next').click(function() {
-		showtop(toptime + 60);
+		showtop(id, toptime + 60);
 	});
-	var url = 'action.php?tpl=top&view_id='+view_id+'&id='+json_item_datas['jstree']['id']+'&time='+toptime;
+	var url = 'action.php?tpl=top&view_id='+view_id+'&id='+id+'&time='+toptime;
 	var source = { 
 		datatype: "json", 
 		datafields: [ 
