@@ -221,10 +221,10 @@ function get_node_name_by_id($id) {
         }
         $db->destroy();
     }
+    return $title;
 }
 
 function get_node_name($id) {
-
     if (substr($id, 0, 11) != 'aggregator_') { return($id); }
     return get_node_name_by_id($id);
 }
