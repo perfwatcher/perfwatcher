@@ -1,16 +1,9 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 #
 //header("Content-type: application/json");
-$id = get_arg('id', 0, 0, "Error : No valid id found !!!", __FILE__, __LINE__);
+$host = get_arg('host', 0, 0, "Error : No valid host found !!!", __FILE__, __LINE__);
 $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
 
-if (!is_numeric($id)) {
-	$host = $id;
-} else {
-	$jstree = new json_tree($view_id);
-	$res = $jstree->_get_node($id);
-	$host = $res['type'] == 'default' ? $res['title'] : 'aggregator_'.$res['id'];
-}
 // ps-1335804082.gz
 $time = isset($_GET['time']) ? $_GET['time'] : time();
 
