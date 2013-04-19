@@ -721,6 +721,11 @@ function collectd_draw_meta_stack(&$opts, &$sources) {
         $opts['colors'] = array();
     if (isset($opts['logarithmic']) && $opts['logarithmic'])
         array_unshift($opts['rrd_opts'], '-o');
+    if (isset($opts['zero']) && $opts['zero']) {
+        array_unshift($opts['rrd_opts'], '0');
+        array_unshift($opts['rrd_opts'], '-l');
+        array_unshift($opts['rrd_opts'], '-r');
+    }
 
     $cmd = array('-W', 'PERFWATCHER', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title']);
     $cmd = array_merge($cmd, $config['rrd_opts'], $opts['rrd_opts']);
@@ -803,6 +808,11 @@ function collectd_draw_meta_line(&$opts, &$sources) {
         $opts['colors'] = array();
     if (isset($opts['logarithmic']) && $opts['logarithmic'])
         array_unshift($opts['rrd_opts'], '-o');
+    if (isset($opts['zero']) && $opts['zero']) {
+        array_unshift($opts['rrd_opts'], '0');
+        array_unshift($opts['rrd_opts'], '-l');
+        array_unshift($opts['rrd_opts'], '-r');
+    }
 
     $cmd = array('-W', 'PERFWATCHER', '-a', 'PNG', '-w', $config['rrd_width'], '-h', $config['rrd_height'], '-t', $opts['title']);
     $cmd = array_merge($cmd, $config['rrd_opts'], $opts['rrd_opts']);
