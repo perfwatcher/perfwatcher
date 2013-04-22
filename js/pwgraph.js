@@ -17,6 +17,7 @@
     init : function( initoptions ) { 
 	  var myoptions = options;
 	  $.extend(myoptions, initoptions);
+	  myoptions['althost'] = null;
 	  this.data(myoptions);
 	  //$(this).bind('dblclick', methods.reposition);
 	  //$(this).bind('click', methods.timespan);
