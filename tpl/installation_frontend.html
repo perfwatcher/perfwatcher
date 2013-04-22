@@ -12,9 +12,9 @@
 		<li>MySQL Server &gt;= 4</li>
 		<li>PHP CLI 
 			<ul>
-				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear mysql-server mysql</code></pre></li>
-				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql mysql-server mysql-client</code></pre></li>
-				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear</code></pre></li>
+				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear php5-curl mysql-server mysql</code></pre></li>
+				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql php5-curl mysql-server mysql-client</code></pre></li>
+				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear php5-curl</code></pre></li>
 			</ul>
 		</li>
 		<li>MDB2 PEAR library
@@ -106,19 +106,6 @@ mkdir logs
 		<li>Copy the sample config file to config.php :<pre><code>cp etc/config.sample.php etc/config.php</code></pre></li>
 		<li>Edit etc/config.php and follow the instructions</li>
 	</ul>
-</p>
-
-<hr >
-
-<h4>Configure Apache</h4>
-<p>To permit Perfwatcher, through your browser, to access to your Collectd-pw server, you need to add these lines into your Apache configuration
-<pre><code>&lt;Location /perfwatcher/json-rpc&gt;
-	ProxyPass	http://localhost:8080/
-&lt;/Location&gt;</code></pre>
-Then :
-<pre><code>service (httpd|apache2) restart</code></pre>
-If you are usin selinux run this command :
-<pre><code>/usr/sbin/setsebool -P httpd_can_network_connect 1</code></pre>
 </p>
 
 <hr >
