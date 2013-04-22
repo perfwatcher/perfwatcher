@@ -205,7 +205,7 @@ function refresh_status() {
     $.ajax({
         async : true,
         type: 'POST',
-        url: "json-rpc",
+        url: "action.php?tpl=jsonrpc",
 		data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hosts}, "id": 0}),
         dataType : 'json',
         complete : function (r) {

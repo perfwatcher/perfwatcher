@@ -14,7 +14,7 @@ $(function () {
 		$.ajax({
 			async: true,
 			type: 'POST',
-			url: 'json-rpc',
+			url: 'action.php?tpl=jsonrpc',
 			data: JSON.stringify({"jsonrpc": "2.0", "method": "getval", "params": metrics, "id": 0}),
 			dataType: 'json',
 			cache: false, 

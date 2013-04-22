@@ -53,7 +53,7 @@
 		$.ajax({
 			async: true,
 			type: 'POST',
-			url: 'json-rpc',
+			url: 'action.php?tpl=jsonrpc',
 			data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_metric", "params": json_item_datas['hosts'], "id": 0}),
 			dataType: 'json',
 			cache: false, 

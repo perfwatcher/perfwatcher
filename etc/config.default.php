@@ -44,6 +44,7 @@ $peuplator_plugins[] = 'folder_filling_manual';
 $extra_jsfile = array();
 $extra_jsfile[] = 'js/custom_plugin_view.js';
 
+$jsonrpc_server = 'http://127.0.0.1:8080/json-rpc';
 
 $jsonrpc_topps_path = '/var/lib/collectd/top';
 $jsonrpc_topps_server = 'http://127.0.0.1:8080/';
