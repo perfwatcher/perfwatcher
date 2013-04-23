@@ -1074,7 +1074,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             'GPRINT:s_avg:AVERAGE:%7.3lf%s Avg,',
             'GPRINT:s_avg:LAST:%7.3lf%s Last');
     $GraphDefs['if_octets'] = array(
-            '-v', 'Bits/s', '--units=si',
+            '-v', 'Bytes/s', '--units=si',
             'DEF:out_avg={file}:tx:AVERAGE',
             'DEF:inc_avg={file}:rx:AVERAGE',
             'CDEF:overlap=out_avg,inc_avg,GT,inc_avg,out_avg,IF',
