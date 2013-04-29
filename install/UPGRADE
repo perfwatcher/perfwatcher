@@ -1,0 +1,6 @@
+Upgrade from version <= 1.1 to version 1.2
+------------------------------------------
+Update the database schema with upgrade_to_1.2.sql :
+cat upgrade_to_1.2.sql | mysql <your options here>
+
+

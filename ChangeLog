@@ -1,8 +1,10 @@
-2013-04-16
+2013-04-29, Version 1.2
 
 - New feature : in folder tabs, you can now display folder aggregators. Previously only aggregators (for the selected folder) and hosts/plugins could be shown.
-- New feature : views
+- New feature : views (old menu 'views' was renamed as 'display' and there is a new 'view' menu )
 - Updated the database creation scripts (no more automatic initialization)
+- Apache proxy is no longer needed. Connection to jsonrpc is now done thanks to curl library
+- Bugs fixed
 
 2013-03-25, Version 1.1
 
