@@ -41,77 +41,127 @@
 
 <h3>Collectd patches and addons for Perfwatcher</h3>
 
-<h4>Collectd-5.1</h4>
+<h4>Collectd-pw main versions</h4>
+<p>The main versions are the versions known to be (or to have been) used in production environment)</p>
 	<table>
-		<caption>Patch applied since Collectd 5.1 (and maybe obsoleted by mainstream collectd)</caption>
-		<tr><th>Patch</th><th>Description</th></tr>
+		<caption>Patch applied since Collectd 5.1<br />(and maybe obsoleted by mainstream collectd, see notes below)</caption>
+		<tr>
+			<th>Patch</th><th>Description</th>
+			<th>5.3.0</th><th>5.2.1</th><th>5.1</th>
+		</tr>
 		<tr>
 			<td>patch/backports</td><td>Some cool features/fixes from mainstream collectd that we do not want to wait for next release</td>
+			<td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/compilation_fix</td><td>Some fixes when mainstream collectd does not compile</td>
+			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>patch/config_rra_in_rrdcached_plugin</td><td>Report a feature of older and removed patch/plugin rrdtool_create_only</td>
+			<td>X</td><td>&nbsp;</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/cpu</td><td>Add cpu-total instance</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
-			<td>patch/disk</td><td>Fix strange I/O calculation; Use cXtXdX notation instead of driver's notation</td>
+			<td>patch/disk_solaris</td><td>Fix strange I/O calculation; Use cXtXdX notation instead of driver's notation</td>
+			<td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/Fix-for-large-MaxPacketSize</td><td>Allow to use notification &gt; 256 bytes</td>
+			<td>X</td><td>X</td><td>X</td>
+		</tr>
+		<tr>
+			<td>patch/fix_interfaces_solaris</td><td>Fix for interfaces on Solaris</td>
+			<td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/fix_make_distcheck</td><td><code>make distcheck</code> is now working fine</td>
+			<td>(fim)</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
-			<td>patch/fix_interfaces_solars</td><td>Fix a bug with Solaris interfaces</td>
+			<td>patch/limit_write_queue_length</td><td>Limit write queue length (drops metrics instead of exploding memory to 100%)</td>
+			<td>X</td><td>&nbsp;</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/logfile</td><td>Allow to do not log notification</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/mysql_close_memory_leak</td><td>Fix a memory leak in mysql plugin</td>
+			<td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/network_queue_length</td><td>Limit network queue length (drops metrics instead of exploding memory to 100%)</td>
+			<td>(rwo)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/nfs_stats_with_network_plugin</td><td>Add a lot of new metrics</td>
-		</tr>
-		<tr>
-			<td>patch/protocols_solaris</td><td>Add protocols for Solaris</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/notification_forwarding</td><td>Allow notification to be forwarded</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/process</td><td>Add context-switch metric</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
-			<td>patch/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update)</td>
+			<td>patch/protocols_solaris</td><td>Add protocols for Solaris</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
-			<td>patch/utils_cache_bugfix</td><td>Improve performance and fix an uninitialised variable</td>
+			<td>(*)patch/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update). (*) This plugin was buggy. It was present in first 5.2.1 then removed in next 5.2.1 and replaced with new plugin plugin/rrdtool_createonly</td>
+			<td></td><td>(rwo)</td><td>X</td>
 		</tr>
 		<tr>
 			<td>perfwatcher_addons</td><td>Add some new Collectd types for perfwatcher specific metrics</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/basic_aggregator</td><td>Plugin : aggregate data from a set of hosts</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/jsonrpc</td><td>Plugin : communicate with Collectd through json-rpc over http. Includes specific methods for perfwatcher and to read files created by write_top plugin</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/notify_file</td><td>Plugin : write notifications into a gzipped file</td>
+			<td>X</td><td>X</td><td>X</td>
+		</tr>
+		<tr>
+			<td>plugin/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update). Note : this plugin was written from scratch in order to replace buggy patch/rrdtool_create_only.</td>
+			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+		</tr>
+		<tr>
+			<td>plugin/sysconfig</td><td>Plugin : collectd data on the server (collectd release for example) and send it in a notification</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/top</td><td>Great plugin to Collectd and display all process running on a host</td>
+			<td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/write_top</td><td>Plugin : write "top" notifications grouped into a gzipped file (similar to notify_file) with a cache</td>
+			<td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 	</table>
+<p>Notes:</p>
+<ul>
+	<li><b>X</b> : Present in this release</li>
+	<li><b>rwo</b> : No longer needed, <b>r</b>eplaced <b>w</b>ith <b>o</b>ther plugin/patch</li>
+	<li><b>fim</b> : No longer needed, <b>f</b>ixed <b>i</b>n Collectd <b>m</b>ainstream (or made useless)</li>
+</ul>
+
+<h4>Other versions</h4>
+<ul>
+<li><b>5.2.2</b> : Check Changelog - 5.2.2 was not tested since 5.3.0 was released soon after</li>
+<li><b>5.2.0</b> : This versio was rather experimental and not maintained a long time</li>
+
       </section>
     </div>
     <footer>

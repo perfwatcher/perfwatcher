@@ -37,7 +37,7 @@ zypper in libart_lgpl-devel</code></pre>
 <h4>Compile and install Collectd-pw</h4>
 <p>
 	<pre><code>cd collectd
-./configure --enable-top --enable-cpu --prefix=/usr
+./configure --enable-top --enable-sysconfig --enable-cpu --prefix=/usr
 make -j
 make install
 cp src/types-perfwatcher.db /etc</code></pre>
@@ -74,6 +74,7 @@ LoadPlugin load
 LoadPlugin memory
 LoadPlugin processes
 LoadPlugin swap
+LoadPlugin sysconfig
 LoadPlugin top
 LoadPlugin uptime
 

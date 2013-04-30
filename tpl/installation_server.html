@@ -67,6 +67,7 @@ Note : on RHEL and Suse, if your system is x86_64, you need to put your libs in 
 	</ul>
 </p>
 
+<p>Note : take a branch more recent than <code>release/5.1</code></p>
 
 <hr >
 <h4>Compile and install Collectd-pw</h4>
@@ -74,6 +75,7 @@ Note : on RHEL and Suse, if your system is x86_64, you need to put your libs in 
 	<pre><code>cd collectd
 ./configure --enable-top --enable-cpu --enable-rrdtool \
 --enable-jsonrpc --enable-notify_file --enable-basic_aggregator \
+--enable-write_top \
 --prefix=/usr
 make -j
 make install

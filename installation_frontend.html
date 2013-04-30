@@ -53,9 +53,9 @@
 		<li>MySQL Server &gt;= 4</li>
 		<li>PHP CLI 
 			<ul>
-				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear mysql-server mysql</code></pre></li>
-				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql mysql-server mysql-client</code></pre></li>
-				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear</code></pre></li>
+				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear php5-curl mysql-server mysql</code></pre></li>
+				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql php5-curl mysql-server mysql-client</code></pre></li>
+				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear php5-curl</code></pre></li>
 			</ul>
 		</li>
 		<li>MDB2 PEAR library
@@ -74,8 +74,8 @@
 <p>
 	Two possibility :
 	<ul>
-		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.0' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
-		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/perfwatcher/perfwatcher-1.1.20130325.tar.gz</code></pre></li>
+		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.2' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
+		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/perfwatcher/perfwatcher-1.2.20130429.tar.gz</code></pre></li>
 	</ul>
 </p>
 
@@ -95,7 +95,7 @@
 		</li>
 	</ul>
 	<pre><code>
-tar xzf /&lt;your download directory&gt;/perfwatcher-1.1.20130325.tar.gz # If downloaded as tar.gz
+tar xzf /&lt;your download directory&gt;/perfwatcher-1.2.20130429.tar.gz # If downloaded as tar.gz
  or
 mv /&lt;your clone directory&gt;/perfwatcher . # If cloned from GitHub
 
@@ -131,13 +131,18 @@ mkdir logs
 
 <p><pre><code>cat install/create.sql | mysql -u perfwatcher -h localhost -p perfwatcher</code></pre></p>
 
+<p>Note : If you upgrade from older version, please check for any script/README file in the <code>install/</code> directory.</p>
+
 <hr >
 
 <h4>Configuring crontab</h4>
 <p>Put this in your web server's user crontab:
-	<pre><code>* * * * * /&lt;path to perfwatcher&gt;/bin/peuplator
+<pre><code>* * * * * /&lt;path to perfwatcher&gt;/bin/peuplator
 * * * * * /&lt;path to perfwatcher&gt;/bin/aggregator</code></pre>
 </p>
+
+<p>Note : you may want to customize those line, for example redirecting the stdout/stderr to some log file</p>
+<p>Note : on large environments, those scripts may run in more than one minute. Run them every 2 or 5 minutes if this happens.</p>
 
 <hr >
 
@@ -147,19 +152,6 @@ mkdir logs
 		<li>Copy the sample config file to config.php :<pre><code>cp etc/config.sample.php etc/config.php</code></pre></li>
 		<li>Edit etc/config.php and follow the instructions</li>
 	</ul>
-</p>
-
-<hr >
-
-<h4>Configure Apache</h4>
-<p>To permit Perfwatcher, through your browser, to access to your Collectd-pw server, you need to add these lines into your Apache configuration
-<pre><code>&lt;Location /perfwatcher/json-rpc&gt;
-	ProxyPass	http://localhost:8080/
-&lt;/Location&gt;</code></pre>
-Then :
-<pre><code>service (httpd|apache2) restart</code></pre>
-If you are usin selinux run this command :
-<pre><code>/usr/sbin/setsebool -P httpd_can_network_connect 1</code></pre>
 </p>
 
 <hr >

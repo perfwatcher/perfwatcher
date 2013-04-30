@@ -9,85 +9,94 @@ release branchs.
 <p>A new version is released upstream. We will merge it.</p>
 <p><u>WARNING</u> : this will delete all files in your current repository (if not saved in a branch)</p>
 
-<p>First, create a new and empty branch. Then merge collectd from upstream (one commit for all : --squash) and tag it.</p>
+<p>First, update the upstream branch (called here <code>up/master</code>). Then create a new branch. Then return back to the upstream release</p>
 <pre>
-# Create the empty branch
-  $ git symbolic-ref HEAD refs/head/newempty
-  $ rm .git/index
-# The following will remove all the files in your path
-  $ git clean -fdx
-# Commit the new branch with a new file inside and with its name
-  $ echo "2012-11-15 version 5.1.1" &gt; ChangeLog-collectd_pw
-  $ git add ChangeLog-collectd_pw
-  $ git commit -m "Initial commit for release/5.1.1 branch"
-# Checkout the new branch
-  $ git checkout -b release/5.1.1
-# Merge collectd from upstream
-  $ git merge --squash upstream/collectd-5.1
-# Commit and tag the merge
-  $ git commit -a -m "Merge upstream/collectd-5.1 branch"
-  $ git tag -a "collectd-5.1.1-upstream" -m "Version 5.1.1 from git branch collectd-5.1 on collectd/collectd"
+# Update the local copy of upstream collectd (master or any release branch)
+  $ git remote update
+  $ git checkout up/master
+  $ git pull
+# Create the new branch
+  $ git branch release/5.3.0
+# Go back to the last release commit
+  $ git log --oneline
+  $ git reset --hard xxxxxx
 </pre>
 
 <p>Clean, build, make some basic checks before pushing on perfwatcher repo</p>
 
 <pre>
-$ git push -n origin release/5.1.1
-$ git push origin release/5.1.1
-</pre>
-
-<pre>
-$ git push -n origin refs/tags/collectd-5.1.1-upstream
-$ git push origin refs/tags/collectd-5.1.1-upstream
+$ git push -n origin release/5.3.0
+$ git push origin release/5.3.0
 </pre>
 
 <p><u>WARNING</u> : first <code>git push -n</code> to check that you do not push unwanted stuff (like unwanted tags - it happened to me)</p>
 
 <p>Note : if you have an error <code>RPC failed; result=56</code>..., edit your git config (<code>git config</code> or <code>vi ~/.gitconfig</code>) and set the <code>http.postbuffer</code> variable to something bigger (<code>http.postbuffer=5M</code> for release/5.1.1)</p>
 
-<h4>Make a patch file from a branch</h4>
-
-<p>Note : this is useful when trying to apply patches from a version to another</p>
-
+<p>Now, apply all needed Perfwatcher patches that make the difference between collectd-vanilla and collectd-pw</p>
 <pre>
-$ git checkout patch-fix_make_distcheck/5.1.1
-$ git format-patch collectd-5.1.1-upstream
+  $ git merge patch/cpu
+  $ git merge patch/perfwatcher_addons
+  [...]
+  $ git merge plugin/aggregator
+  $ git merge plugin/jsonrpc
+  [...]
 </pre>
 
-<p>This will go the the branch containing the patch. Then it will create patch files (one per commit in the branch) since the beginning (here, the beginning is the tag <code>collectd-5.1.1-upstream</code>).
+<p>For each merge, do not forget that there was no conflict. If any, resolve with <code>git mergetool</code> then commit again with <code>git commit</code>.</p>
 
+<p>Again, clean, build, make some basic checks before pushing on perfwatcher repo</p>
+
+<pre>
+$ git push -n origin release/5.3.0
+$ git push origin release/5.3.0
+$ git tag -a "collectd-5.3.0-20130429" -m "Unofficial version 5.3.0-20130429 with perfwatcher patches"
+$ git push -u -n origin refs/tags/collectd-5.3.0-20130429
+$ git push -u origin refs/tags/collectd-5.3.0-20130429
+</pre>
+
+<p>Then release : <code>make distcheck</code> and upload the tar.gz file.</p>
+
+<h4>Create a new patch</h4>
+
+<p>Note : the following is an example with the patch <i>buggyfix</i>.</p>
+
+<p>Create a test branch</p>
+<pre>
+$ git checkout release/5.3.0
+$ git branch test
+$ git checkout test
+</pre>
+
+<p>Now work on your patch then commit the changes (<code>git commit -a</code>) in the test branch. Pay attention to the commit <i>sha</i> (or get it with <code>git log --oneline</code>).</p>
+
+<p>Then create a new <i>patch/plugin</i> branch</p>
+<pre>
+$ git checkout release/5.3.0
+$ git branch patch/buggyfix
+$ git checkout buggyfix
+$ git reset --hard xxxxxx
+</pre>
+<p>The last command is used to get back to an unpatched version of collectd-pw (to make it easier to make generic patches).</p>
+
+<p>Copy your patch to the patch/plugin branch with cherry-pick</p>
+<pre>
+$ git cherry-pick &lt;sha of your patch&gt;
+</pre>
+
+<p>Now upload your patch</p>
+<pre>
+$ git push -n origin patch/buggyfix
+$ git push origin patch/buggyfix
+</pre>
 
 <h4>Maintain a patch</h4>
 
-<p>Note : the following is an example with the patch <i>fix_make_distcheck</i>.</p>
+<p>Work on any test branch, cherry-pick from the test branch to the patch/plugin branch. Then upload the branch to github.</p>
 
-<p>1/ First patch (or moving patch from one release to another)</p>
-<pre>
-$ git checkout release/5.1.1
-$ git checkout -b patch-fix_make_distcheck/5.1.1 refs/tags/collectd-5.1.1-upstream
-$ git push -u origin patch-fix_make_distcheck/5.1.1
-</pre>
+<p>Do not forget to edit the ChangeLog-pw file</p>
 
-<p>1/ Next times, only go to that branch</p>
-<pre>
-$ git checkout patch-fix_make_distcheck/5.1.1
-</pre>
-
-<p>2/ Then work on the patch.</p>
-<p>3/ Then commit</p>
-
-<pre>
-$ git status
-$ git add &lt;file1&gt; &lt;file2&gt;...
-$ git commit -a
-</pre>
-
-<p>4/ Apply the patch : merge it on the main branch (<i>release/x.y</i>) </p>
-
-<pre>
-$ git checkout release/5.1.1
-$ git merge patch-fix_make_distcheck/5.1.1
-</pre>
+<p>Then apply the changes on the release branchs. Either <code>git merge</code> or <code>git cherry-pick</code> from the patch/plugin branch to the release branchs</p>.
 
 <h4>Release a collectd-pw new version</h4>
 <p>Yes, there is not a lot of fun here</p>
@@ -103,17 +112,17 @@ $ make
 $ make distcheck
 </pre>
 <ul>
-<li>Test the generated package (something like <i>collectd-5.1.1.upstream.29.g2875a48.tar.gz</i>. Well, it should be working because the only thing we change here is ChangeLog-collectd-pw. However, it's better to check again.</li>
+<li>Test the generated package (something like <i>collectd-5.3.0.upstream.29.g2875a48.tar.gz</i>. Well, it should be working because the only thing we change here is ChangeLog-collectd-pw. However, it's better to check again.</li>
 <li>Commit the modification on ChangeLog-collectd_pw</li>
 </ul>
 <pre>
-$ git commit -a -m "New release 20121115"
+$ git commit -a -m "New release 20130429"
 </pre>
 <ul>
 <li>Tag the new release</li>
 </ul>
 <pre>
-$ git tag -a "collectd-5.1.1-20121115" -m "Unofficial version 5.1.1-20121115 with perfwatcher patches"
+$ git tag -a "collectd-5.3.0-20130429" -m "Unofficial version 5.3.0-20130429 with perfwatcher patches"
 </pre>
 <ul>
 <li>Make the new tar.gz file. Run the following (again) :</li>
@@ -125,14 +134,14 @@ $ ./configure
 $ make distcheck
 </pre>
 <ul>
-<li>You should now have archives like <i>collectd-5.1.1.20121115</i> (you recognize the tag).</li>
+<li>You should now have archives like <i>collectd-5.3.0.20130429</i> (you recognize the tag).</li>
 <li>Push the branch upstream (check first and don't upload unwanted stuff - don't upload unwanted tags)</li>
 </ul>
 <pre>
 $ git push -u -n
 $ git push -u
-$ git push -u -n origin refs/tags/collectd-5.1.1-20121115
-$ git push -u origin refs/tags/collectd-5.1.1-20121115
+$ git push -u -n origin refs/tags/collectd-5.5.3.0-20130429
+$ git push -u origin refs/tags/collectd-5.3.0-20130429
 </pre>
 <ul>
 <li>Upload the files</li>
@@ -140,6 +149,7 @@ $ git push -u origin refs/tags/collectd-5.1.1-20121115
 <ul>
   <li>Update <code>genpages.sh</code> (change the version number)</li>
   <li>Update the compatibility matrix</li>
+  <li>Update the patchs page if needed</li>
   <li>Run <code>genpages.sh</code></li>
   <li><code>git commit</code></li>
   <li><code>git push</code></li>

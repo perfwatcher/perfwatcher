@@ -33,7 +33,7 @@
 <p>
 	Two possibility :
 	<ul>
-		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.0' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
+		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.2' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
 		<li>Download last stable version : <pre><code>wget https://github.com/downloads/perfwatcher/perfwatcher/@PERFWATCHER_PACKAGE@</code></pre></li>
 	</ul>
 </p>
@@ -90,13 +90,18 @@ mkdir logs
 
 <p><pre><code>cat install/create.sql | mysql -u perfwatcher -h localhost -p perfwatcher</code></pre></p>
 
+<p>Note : If you upgrade from older version, please check for any script/README file in the <code>install/</code> directory.</p>
+
 <hr >
 
 <h4>Configuring crontab</h4>
 <p>Put this in your web server's user crontab:
-	<pre><code>* * * * * /&lt;path to perfwatcher&gt;/bin/peuplator
+<pre><code>* * * * * /&lt;path to perfwatcher&gt;/bin/peuplator
 * * * * * /&lt;path to perfwatcher&gt;/bin/aggregator</code></pre>
 </p>
+
+<p>Note : you may want to customize those line, for example redirecting the stdout/stderr to some log file</p>
+<p>Note : on large environments, those scripts may run in more than one minute. Run them every 2 or 5 minutes if this happens.</p>
 
 <hr >
 
