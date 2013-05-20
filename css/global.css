@@ -32,16 +32,3 @@ a { text-decoration:none; color:black; }
 .toprowalt { background-color:#CCCCCC; }
 .ui-autocomplete { max-height: 250px; overflow-y: auto; overflow-x: hidden; padding-right: 20px; }
 * html .ui-autocomplete { height: 250px; }
-#electronictrading { border: 1px solid #AAAAAA; margin-bottom:10px; padding:10px; width:800px; white-space:normal; }
-#electronictrading .socket, .core, .version { border: 1px solid #AAAAAA; clear:both; display:inline-table; text-align:center; }
-#electronictrading .socket { width:48px; clear:both; padding-bottom: 4px; }
-#electronictrading .isolated { background-color:green; }
-#electronictrading .cpus, .nic, .kernel, .misc, .sysctl, .smp { border: 1px solid #AAAAAA; padding:5px; width:auto; margin-top:5px; margin-left:5px; display:inline-block; vertical-align:top; }
-#electronictrading .core { width: 14px; background-color:green; }
-#electronictrading .hyperthreadedcore { background-color:#90EE90; }
-#electronictrading .isolatedcore { background-color:yellow; }
-#electronictrading .isolatedhyperthreadedcore { background-color:#FFFFE0;}
-#electronictrading .stable { background-color:#2E8B57; border: 1px solid #AAAAAA; width:auto; }
-#electronictrading .old { background-color:#FF4500; border: 1px solid #AAAAAA; width:auto; }
-#electronictrading .unknown { background-color:gray; border: 1px solid #AAAAAA; width:auto; }
-#electronictrading .servers { border: 1px solid #AAAAAA; padding: 5px 5px 5px 5px; }
