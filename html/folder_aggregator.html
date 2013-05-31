@@ -33,20 +33,24 @@
 	}
 	folder_aggregator_fill_pl();
 	$('div[widget="folder_aggregator"] input[type="button"][class="add"]').button().click(function () {
-        $.ajax({
-            async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
-            data : { 
-                "action" : "add_plugin", 
-                "plugin" : $('div[widget="folder_aggregator"] select[class=select_plugin]').val(),
-                "cf" : $('input[type=radio][name=plugin_type]:checked').val(),
-				"view_id" : view_id,
-				"id" : json_item_datas['jstree']['id']
-            },
-            complete : function (r) {
-                if(!r.status) { $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !'); }
-                else { reload_datas(); folder_aggregator_fill_pl(); }
-            }
-        });
+	if($('div[widget="folder_aggregator"] select[class=select_plugin]').val() == null) {
+		alert("Load plugin list and select one to add");
+	} else {
+		$.ajax({
+		    async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
+		    data : { 
+		        "action" : "add_plugin", 
+		        "plugin" : $('div[widget="folder_aggregator"] select[class=select_plugin]').val(),
+		        "cf" : $('input[type=radio][name=plugin_type]:checked').val(),
+					"view_id" : view_id,
+					"id" : json_item_datas['jstree']['id']
+		    },
+		    complete : function (r) {
+		        if(!r.status) { $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !'); }
+		        else { reload_datas(); folder_aggregator_fill_pl(); }
+		    }
+		});
+	}
     });
 	$('div[widget="folder_aggregator"] select[class=select_plugin]').hide();
 	$('div[widget="folder_aggregator"] input[type="button"][class="load"]').button().click(function () {
