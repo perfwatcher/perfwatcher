@@ -1,3 +1,7 @@
+
+- Fixed bug #33
+- new URL syntax : #host_<hostname>/<plugin> (replaces undocumented #host_<hostname>)
+
 2013-04-29, Version 1.2
 
 - New feature : in folder tabs, you can now display folder aggregators. Previously only aggregators (for the selected folder) and hosts/plugins could be shown.
