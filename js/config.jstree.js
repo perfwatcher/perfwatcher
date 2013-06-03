@@ -265,7 +265,7 @@ $(function () {
 		} else if(nodes[0] == 'host') {
 			var host;
 			host = location.hash.substr(6);
-			select_node_by_name(host);
+			select_node_by_name(host, "");
 			$('#mainSplitter').jqxSplitter('collapseAt', 0);
 			treecollapsed = true;
 		}

@@ -1,3 +1,28 @@
+function get_tab_id_from_name(name) {
+	var tabid = 1;
+	var result = 0;
+	if (json_item_datas['plugins']) {
+		$.each(json_item_datas['plugins'], function(plugin, plugin_instance) {
+			if ( plugin == name) {
+				result = tabid;
+				return(false);
+			}
+			tabid++;
+		});
+	}
+	if(result > 0) { return(result); }
+
+	if (json_item_datas['datas'] && json_item_datas['datas']['tabs']) {
+		$.each(json_item_datas['datas']['tabs'], function(tabref, tabcontent) {
+			if ( json_item_datas['datas']['tabs'][tabref]['tab_title'] == name ) {
+				result = tabid;
+				return(false);
+			}
+			tabid++;
+		});
+	}
+	return(result);
+}
 
 function select_node_with_data(datas) {
 	$('#timebutton').hide();
@@ -73,8 +98,20 @@ function select_node_with_data(datas) {
 	});
 }
 
-function select_node_by_name(host) {
-	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&host='+host, function(datas) { select_node_with_data(datas); } );
+
+function select_node_by_name(host, tab) {
+	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&host='+host, function(datas) {
+		var tabid = 0;
+		select_node_with_data(datas);
+		if(tab != "") {
+			tabid = get_tab_id_from_name(tab);
+		}
+		if(tabid > 0) { 
+			current_tab = tabid;
+			load_tab(tabid);
+			$('#itemtab').jqxTabs('select', tabid);
+		}
+	} );
 }
 
 function select_node(nodeid) {
@@ -88,7 +125,6 @@ function create_plugin_tab(plugin, plugin_instance, tabid) {
 function create_custom_tab(tabref, tabid) {
 	$('#itemtab').jqxTabs('addAt', tabid, json_item_datas['datas']['tabs'][tabref]['tab_title'], '<div plugin="custom_view_'+json_item_datas['jstree']['type']+'" custom_tab_id="'+tabref+'" tabid="'+tabid+'"></div>');
 }
-
 
 function load_tab(tabid) {
 	$('#timebutton').hide();
