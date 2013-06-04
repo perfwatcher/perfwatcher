@@ -34,7 +34,7 @@
 	folder_aggregator_fill_pl();
 	$('div[widget="folder_aggregator"] input[type="button"][class="add"]').button().click(function () {
 	if($('div[widget="folder_aggregator"] select[class=select_plugin]').val() == null) {
-		alert("Load plugin list and select one to add");
+		notify_ko("Load plugin list and select one to add");
 	} else {
 		$.ajax({
 		    async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
