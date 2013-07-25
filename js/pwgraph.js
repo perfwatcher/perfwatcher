@@ -460,15 +460,47 @@ function showtimeline (host, tm_start, tm_end) {
           }
     });
 }
+
+$.top = {};
+
 function showtop (host, toptime) {
-	$('#modalwindow').jqxWindow({ title: '<span id="toptitle"></span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
-	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
+    $.top.time = toptime;
+    $('<div id="modaldialogcontents"></div>')
+        .html(
+                '<table id="topprocess" width="100%"><tr>'
+                +  '<td class="prev" width="50%"><b>&#x2190;</b> previous</td>'
+                +  '<td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td>'
+                +'</tr></table>'
+                +'<div id="table"></div>'
+                )
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(toptime),
+            width: 545,
+            height: 620,
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                $('#table').remove();
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                load_top(host, $.top.time);
+          }
+    });
 	$('#topprocess .prev').click(function() {
-		showtop(host, toptime - 60);
+        $.top.time = $.top.time - 60;
+		load_top(host, $.top.time);
 	});
 	$('#topprocess .next').click(function() {
-		showtop(host, toptime + 60);
+        $.top.time = $.top.time + 60;
+		load_top(host, $.top.time);
 	});
+}
+
+function load_top(host, toptime) {
 	var url = 'action.php?tpl=top&view_id='+view_id+'&host='+host+'&time='+toptime;
 	var source = { 
 		datatype: "json", 
@@ -488,12 +520,12 @@ function showtop (host, toptime) {
                 downloadComplete: function (data, status, xhr) {
 			if (data.date2) {
 				var topdate = new Date(data.date2 * 1000).toString();
-				$('#toptitle').html('Top process at '+topdate);
+                $('#modaldialogcontents').dialog("option", "title", 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(data.date2));
 			} else if (data.error) {
 				if (data.error.result && data.error.result.status == 'path not found or no file for this tm') {
-					$('#toptitle').html('ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
+                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
 				} else {
-					$('#toptitle').html('ERROR : No data for this date '+data.error);
+                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+data.error);
 				} 
 			}
 		},
@@ -526,6 +558,7 @@ function showtop (host, toptime) {
 		}
 	});
 }
+
 // From http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
 (function( $ ){
 	$.fn.compare = function(t) {
@@ -540,3 +573,4 @@ function showtop (host, toptime) {
 		return true;
 	};
 })( jQuery );
+// vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
