@@ -49,6 +49,10 @@
 			var toptime = options['begin'] + Math.round(step * x);
 			showtop($(current_graph).data().host, toptime);
 		break;
+       	case 'timeline':
+			var options = $(current_graph).data();
+			showtimeline($(current_graph).data().host,options['begin'],options['end']);
+		break;
        	case 'save':
 			var url = $(current_graph).attr('src') + '&download';
 			document.location = url;
@@ -330,6 +334,132 @@
   };
 })( jQuery );
 
+function tm_to_ddmmyy_hhmmss (tm) {
+    var my_date = new Date(tm * 1000);
+    var y = my_date.getFullYear();
+    var m = my_date.getMonth();
+    var d = my_date.getDate();
+    m = (m<10) ? '0'+m : m;
+    d = (d<10) ? '0'+d : d;
+
+    var h = my_date.getHours();
+    var min = my_date.getMinutes();
+    var s = my_date.getSeconds();
+    h = (h<10) ? '0'+h : h;
+    min = (min<10) ? '0'+min : min;
+    s = (s<10) ? '0'+s : s;
+
+    return(d + '/' + m + '/' + y + ' ' + h + ':' + min + ':' + s);
+}
+
+$.timeline = {};
+
+function parse_timeline_data(host, tm_start, tm_end, jsondata) {
+    var timelinedata;
+    var show_pid_uid_gid=false;
+
+    timelinedata = [];
+
+    if(jsondata['result']['status'] == 'OK') {
+        for(var i in jsondata['result']['timeline']) {
+            timelinedata.push({
+                    'start': new Date(1000*jsondata['result']['timeline'][i]['start']),
+                    'end': new Date(1000*jsondata['result']['timeline'][i]['end']),
+                    //                                    'group': jsondata['result']['timeline'][i]['ppid'],
+                    'content': jsondata['result']['timeline'][i]['cmd']
+                    +(show_pid_uid_gid?'<br />PID: '+jsondata['result']['timeline'][i]['pid']
+                        +'<br />UID: '+jsondata['result']['timeline'][i]['uname']
+                        +'<br />GID: '+jsondata['result']['timeline'][i]['gname'] : "")
+                    });
+        }
+
+    } else if(jsondata['result']['status'] == 'TIMEOUT') {
+        notify_ko('jsonrpc error : TIMEOUT');
+    } else {
+        notify_ko('jsonrpc error : '+jsondata['result']['status']);
+    };
+    return(timelinedata);
+}
+
+function display_timeline(host, tm_start, tm_end, timelinedata) {
+    $('#timeline').html("<p>Data received.</p><p>Building Timeline...</p>");
+    var timeline = new links.Timeline(document.getElementById('timeline'));
+    var timeline_options = {};
+    timeline_options = {
+        "width":  "100%",
+        "height": "auto",
+        "min": new Date(1000*tm_start),
+        "max": new Date(1000*tm_end),
+        "style": "box",
+        "animate": false,
+        "animateZoom": false,
+        "minHeight": 200,
+        "selectable": false,
+        "showNavigation": true
+    };
+
+    // Draw our timeline with the created timelinedata and options
+    timeline.draw(timelinedata, timeline_options);
+}
+
+function load_timeline_data(host, tm_start, tm_end) {
+    $.ajax({
+        async : true,
+        type: 'POST',
+        url: "action.php?tpl=jsonrpc",
+        data: JSON.stringify({"jsonrpc": "2.0", "method": "topps_get_timeline", "params": {
+            "hostname" : host,
+            "start_tm" : tm_start,
+            "end_tm" : tm_end,
+            "interval" : 0,            /* hard coded option; maybe the user could set it with a form ? */
+            "ignore_short_lived" : 30, /* hard coded option; maybe the user could set it with a form ? */
+            "ignore_resident" : true,  /* hard coded option; maybe the user could set it with a form ? */
+            "timeout" : 60
+            }, "id": 0}),
+        dataType : 'json',
+        complete : function (r) {
+            if(r.status) {
+                var timelinedata;
+                var jsondata = jQuery.parseJSON(r.responseText);
+
+                timelinedata = parse_timeline_data(host, tm_start, tm_end, jsondata);
+                display_timeline(host, tm_start, tm_end, timelinedata);
+
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+            notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+        }
+    });
+
+}
+
+function showtimeline (host, tm_start, tm_end) {
+    var timeline_width = 1000;
+    var timeline_height = 600;
+    $('<div id="modaldialogcontents"></div>')
+        .html(
+                '<form id="timelineoptions"></form>'
+                +'<div id="timeline"><p>Waiting for data...</p></div>'
+                )
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Timeline for '+host+' between '+tm_to_ddmmyy_hhmmss(tm_start)+' and '+tm_to_ddmmyy_hhmmss(tm_end),
+            width: timeline_width,
+            height: timeline_height,
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                load_timeline_data(host, tm_start, tm_end);
+          }
+    });
+}
 function showtop (host, toptime) {
 	$('#modalwindow').jqxWindow({ title: '<span id="toptitle"></span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
 	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
