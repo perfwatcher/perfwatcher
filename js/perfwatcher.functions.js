@@ -368,16 +368,29 @@ function confirmfor(optionsarg, func) {
 }
 
 function perfwatcher_about_box() {
-	  $('#modalwindow').jqxWindow({ height: 287, width: 262, title: 'About Perfwatcher', isModal: true, theme: theme }).show();
-	  $('#modalwindowcontent').html('<p>About Perfwatcheur</p>');
-		$.ajax({
-			async : false, type: 'POST', url: "action.php?tpl=version",
-			complete : function (r) {
-				if(r.status) {
-					$('#modalwindowcontent').html(r.responseText);
-				}
-			}
-		});
+    $('<div id="modaldialogcontents"></div>')
+        .html('<p>About Perfwatcher...</p>')
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'About Perfwatcher',
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $.ajax({
+                    async : false, type: 'POST', url: "action.php?tpl=version",
+                    complete : function (r) {
+                        if(r.status) {
+                            $('#modaldialogcontents').html(r.responseText);
+                        }
+                    }
+                });
+            }
+        });
 }
 
 function isRightClick(event) {
@@ -515,3 +528,4 @@ function select_view (set_view) {
 	});
 //	set_view();
 }
+// vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
