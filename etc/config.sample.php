@@ -81,15 +81,15 @@
 
 /**
  *
- *	Top jsonRPC server
+ *	JsonRPC server for RRD informations
  *	Default value http://127.0.0.1:8080/
  *
  */
-# $jsonrpc_topps_path = '/var/lib/collectd/top';
+# $jsonrpc_server = 'http://127.0.0.1:8080/';
 
 /**
  *
- *	Top jsonRPC server
+ *	JsonRPC server for Top-ps informations
  *	Default value http://127.0.0.1:8080/
  *
  */
