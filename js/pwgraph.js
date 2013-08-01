@@ -80,12 +80,12 @@
 	  this.pwgraph('check_boundary');
       $(this).attr('src',
 		'graph.php'
-		+ '?host=' + options['host']
-		+ (options['althost'] != null ? '&althost=' + options['althost'] : '')
-		+ '&plugin=' + options['plugin']
-		+ '&plugin_instance=' + options['plugin_instance']
-		+ '&type=' + options['type']
-		+ '&type_instance=' + options['type_instance']
+		+ '?host=' + encodeURIComponent(options['host'])
+		+ (options['althost'] != null ? '&althost=' + encodeURIComponent(options['althost']) : '')
+		+ '&plugin=' + encodeURIComponent(options['plugin'])
+		+ '&plugin_instance=' + encodeURIComponent(options['plugin_instance'])
+		+ '&type=' + encodeURIComponent(options['type'])
+		+ '&type_instance=' + encodeURIComponent(options['type_instance'])
 		+ '&begin=' + options['begin']
 		+ (options['end'] != null ? '&end=' + options['end'] : '')
 		+ '&width=' + options['width']
