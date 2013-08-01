@@ -510,7 +510,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             'GPRINT:avg:AVERAGE:%6.2lf Avg,',
             'GPRINT:avg:LAST:%6.2lf Last\l');
     $GraphDefs['load'] = array(
-            '-v', 'System load',
+            '-v', 'System load', '-u', '2',
             'DEF:s_avg={file}:shortterm:AVERAGE',
             'DEF:m_avg={file}:midterm:AVERAGE',
             'DEF:l_avg={file}:longterm:AVERAGE',
