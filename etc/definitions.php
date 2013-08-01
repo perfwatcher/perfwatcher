@@ -1906,7 +1906,7 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
             'Lost'        => '222222'
             );
 
-    $type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable', 'user', 'system');
+    $type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable', 'user', 'system', 'available', 'pool_paged', 'pool_nonpaged', 'system_cache', 'code', 'driver', 'working_set');
     while (list($k, $inst) = each($type_instances)) {
         $file = '';
         foreach ($config['datadirs'] as $datadir)
