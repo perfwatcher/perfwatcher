@@ -352,44 +352,49 @@ function tm_to_ddmmyy_hhmmss (tm) {
     return(d + '/' + m + '/' + y + ' ' + h + ':' + min + ':' + s);
 }
 
+// Timeline global var
 $.timeline = {};
+// $.timeline.jsondata : raw data from jsonrpc server
+// $.timeline.displaydata : formatted data for timeline.draw()
+// $.timeline.host : host name
+// $.timeline.tm_start : tm of the start of the timeline
+// $.timeline.tm_end : tm of the end of the timeline
+// $.timeline.show_pid_uid_gid : show or hide PID, UID and GID in the timeline.
+// $.timeline.ignore_resident : show or hide processes that are running and do not stop between tm_start and tm_end
 
-function parse_timeline_data(host, tm_start, tm_end, jsondata) {
-    var timelinedata;
-    var show_pid_uid_gid=false;
+function parse_timeline_data() {
 
-    timelinedata = [];
+    $.timeline.displaydata = [];
 
-    if(jsondata['result']['status'] == 'OK') {
-        for(var i in jsondata['result']['timeline']) {
-            timelinedata.push({
-                    'start': new Date(1000*jsondata['result']['timeline'][i]['start']),
-                    'end': new Date(1000*jsondata['result']['timeline'][i]['end']),
-                    //                                    'group': jsondata['result']['timeline'][i]['ppid'],
-                    'content': jsondata['result']['timeline'][i]['cmd']
-                    +(show_pid_uid_gid?'<br />PID: '+jsondata['result']['timeline'][i]['pid']
-                        +'<br />UID: '+jsondata['result']['timeline'][i]['uname']
-                        +'<br />GID: '+jsondata['result']['timeline'][i]['gname'] : "")
+    if($.timeline.jsondata['result']['status'] == 'OK') {
+        for(var i in $.timeline.jsondata['result']['timeline']) {
+            $.timeline.displaydata.push({
+                    'start': new Date(1000*$.timeline.jsondata['result']['timeline'][i]['start']),
+                    'end': new Date(1000*$.timeline.jsondata['result']['timeline'][i]['end']),
+                    //                                    'group': $.timeline.jsondata['result']['timeline'][i]['ppid'],
+                    'content': $.timeline.jsondata['result']['timeline'][i]['cmd']
+                    +($.timeline.show_pid_uid_gid?'<br />PID: '+$.timeline.jsondata['result']['timeline'][i]['pid']
+                        +'<br />UID: '+$.timeline.jsondata['result']['timeline'][i]['uname']
+                        +'<br />GID: '+$.timeline.jsondata['result']['timeline'][i]['gname'] : "")
                     });
         }
 
-    } else if(jsondata['result']['status'] == 'TIMEOUT') {
+    } else if($.timeline.jsondata['result']['status'] == 'TIMEOUT') {
         notify_ko('jsonrpc error : TIMEOUT');
     } else {
-        notify_ko('jsonrpc error : '+jsondata['result']['status']);
+        notify_ko('jsonrpc error : '+$.timeline.jsondata['result']['status']);
     };
-    return(timelinedata);
 }
 
-function display_timeline(host, tm_start, tm_end, timelinedata) {
+function display_timeline() {
     $('#timeline').html("<p>Data received.</p><p>Building Timeline...</p>");
     var timeline = new links.Timeline(document.getElementById('timeline'));
     var timeline_options = {};
     timeline_options = {
         "width":  "100%",
         "height": "auto",
-        "min": new Date(1000*tm_start),
-        "max": new Date(1000*tm_end),
+        "min": new Date(1000*$.timeline.tm_start),
+        "max": new Date(1000*$.timeline.tm_end),
         "style": "box",
         "animate": false,
         "animateZoom": false,
@@ -398,32 +403,31 @@ function display_timeline(host, tm_start, tm_end, timelinedata) {
         "showNavigation": true
     };
 
-    // Draw our timeline with the created timelinedata and options
-    timeline.draw(timelinedata, timeline_options);
+    // Draw our timeline with the created $.timeline.displaydata and options
+    timeline.draw($.timeline.displaydata, timeline_options);
 }
 
-function load_timeline_data(host, tm_start, tm_end) {
+function load_timeline_data() {
     $.ajax({
         async : true,
         type: 'POST',
         url: "action.php?tpl=jsonrpc",
         data: JSON.stringify({"jsonrpc": "2.0", "method": "topps_get_timeline", "params": {
-            "hostname" : host,
-            "start_tm" : tm_start,
-            "end_tm" : tm_end,
+            "hostname" : $.timeline.host,
+            "start_tm" : $.timeline.tm_start,
+            "end_tm" : $.timeline.tm_end,
             "interval" : 0,            /* hard coded option; maybe the user could set it with a form ? */
             "ignore_short_lived" : 30, /* hard coded option; maybe the user could set it with a form ? */
-            "ignore_resident" : true,  /* hard coded option; maybe the user could set it with a form ? */
+            "ignore_resident" : $.timeline.ignore_resident,
             "timeout" : 60
             }, "id": 0}),
         dataType : 'json',
         complete : function (r) {
             if(r.status) {
-                var timelinedata;
-                var jsondata = jQuery.parseJSON(r.responseText);
+                $.timeline.jsondata = jQuery.parseJSON(r.responseText);
 
-                timelinedata = parse_timeline_data(host, tm_start, tm_end, jsondata);
-                display_timeline(host, tm_start, tm_end, timelinedata);
+                parse_timeline_data();
+                display_timeline();
 
             }
         },
@@ -435,12 +439,21 @@ function load_timeline_data(host, tm_start, tm_end) {
 
 }
 
+function timeline_update_buttons() {
+    $('#switch_show_pid_uid_gid').html(($.timeline.show_pid_uid_gid?"Hide":"Show") + " PID, UID and GID");
+    $('#switch_ignore_resident').html(($.timeline.ignore_resident?"Show":"Hide") + " resident processes");
+}
+
 function showtimeline (host, tm_start, tm_end) {
     var timeline_width = 1000;
     var timeline_height = 600;
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<form id="timelineoptions"></form>'
+                +'<div id="timelinebuttons">'
+                +'  <button id="switch_show_pid_uid_gid"></button>'
+                +'  <button id="switch_ignore_resident"></button>'
+                +'</div>'
                 +'<div id="timeline"><p>Waiting for data...</p></div>'
                 )
         .dialog({
@@ -453,10 +466,35 @@ function showtimeline (host, tm_start, tm_end) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
+                $.timeline = {};
             },
             open: function(event, ui) {
+                // Set timeline options
+                $.timeline = {};
+                $.timeline.show_pid_uid_gid = true;
+                $.timeline.tm_start = tm_start;
+                $.timeline.tm_end = tm_end;
+                $.timeline.host = host;
+                $.timeline.ignore_resident = true;
+
                 $('#modaldialog').show();
-                load_timeline_data(host, tm_start, tm_end);
+                load_timeline_data();
+                timeline_update_buttons();
+
+                $('#switch_show_pid_uid_gid').click(function() {
+                    $.timeline.show_pid_uid_gid = ! $.timeline.show_pid_uid_gid;
+                    parse_timeline_data();
+                    display_timeline();
+                    timeline_update_buttons();
+                });
+                $('#switch_ignore_resident').click(function() {
+                    $.timeline.ignore_resident = ! $.timeline.ignore_resident;
+                    $('#timeline').html("<p>Waiting for data...</p>");
+                    load_timeline_data();
+                    parse_timeline_data();
+                    display_timeline();
+                    timeline_update_buttons();
+                });
           }
     });
 }
