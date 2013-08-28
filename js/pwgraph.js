@@ -49,6 +49,10 @@
 			var toptime = options['begin'] + Math.round(step * x);
 			showtop($(current_graph).data().host, toptime);
 		break;
+       	case 'timeline':
+			var options = $(current_graph).data();
+			showtimeline($(current_graph).data().host,options['begin'],options['end']);
+		break;
        	case 'save':
 			var url = $(current_graph).attr('src') + '&download';
 			document.location = url;
@@ -330,15 +334,211 @@
   };
 })( jQuery );
 
+function tm_to_ddmmyy_hhmmss (tm) {
+    var my_date = new Date(tm * 1000);
+    var y = my_date.getFullYear();
+    var m = my_date.getMonth();
+    var d = my_date.getDate();
+    m = (m<10) ? '0'+m : m;
+    d = (d<10) ? '0'+d : d;
+
+    var h = my_date.getHours();
+    var min = my_date.getMinutes();
+    var s = my_date.getSeconds();
+    h = (h<10) ? '0'+h : h;
+    min = (min<10) ? '0'+min : min;
+    s = (s<10) ? '0'+s : s;
+
+    return(d + '/' + m + '/' + y + ' ' + h + ':' + min + ':' + s);
+}
+
+// Timeline global var
+$.timeline = {};
+// $.timeline.jsondata : raw data from jsonrpc server
+// $.timeline.displaydata : formatted data for timeline.draw()
+// $.timeline.host : host name
+// $.timeline.tm_start : tm of the start of the timeline
+// $.timeline.tm_end : tm of the end of the timeline
+// $.timeline.show_pid_uid_gid : show or hide PID, UID and GID in the timeline.
+// $.timeline.ignore_resident : show or hide processes that are running and do not stop between tm_start and tm_end
+
+function parse_timeline_data() {
+
+    $.timeline.displaydata = [];
+
+    if($.timeline.jsondata['result']['status'] == 'OK') {
+        for(var i in $.timeline.jsondata['result']['timeline']) {
+            $.timeline.displaydata.push({
+                    'start': new Date(1000*$.timeline.jsondata['result']['timeline'][i]['start']),
+                    'end': new Date(1000*$.timeline.jsondata['result']['timeline'][i]['end']),
+                    //                                    'group': $.timeline.jsondata['result']['timeline'][i]['ppid'],
+                    'content': $.timeline.jsondata['result']['timeline'][i]['cmd']
+                    +($.timeline.show_pid_uid_gid?'<br />PID: '+$.timeline.jsondata['result']['timeline'][i]['pid']
+                        +'<br />UID: '+$.timeline.jsondata['result']['timeline'][i]['uname']
+                        +'<br />GID: '+$.timeline.jsondata['result']['timeline'][i]['gname'] : "")
+                    });
+        }
+
+    } else if($.timeline.jsondata['result']['status'] == 'TIMEOUT') {
+        notify_ko('jsonrpc error : TIMEOUT');
+    } else {
+        notify_ko('jsonrpc error : '+$.timeline.jsondata['result']['status']);
+    };
+}
+
+function display_timeline() {
+    $('#timeline').html("<p>Data received.</p><p>Building Timeline...</p>");
+    var timeline = new links.Timeline(document.getElementById('timeline'));
+    var timeline_options = {};
+    timeline_options = {
+        "width":  "100%",
+        "height": "auto",
+        "min": new Date(1000*$.timeline.tm_start),
+        "max": new Date(1000*$.timeline.tm_end),
+        "style": "box",
+        "animate": false,
+        "animateZoom": false,
+        "minHeight": 200,
+        "selectable": false,
+        "showNavigation": true
+    };
+
+    // Draw our timeline with the created $.timeline.displaydata and options
+    timeline.draw($.timeline.displaydata, timeline_options);
+}
+
+function load_timeline_data() {
+    $.ajax({
+        async : true,
+        type: 'POST',
+        url: "action.php?tpl=jsonrpc",
+        data: JSON.stringify({"jsonrpc": "2.0", "method": "topps_get_timeline", "params": {
+            "hostname" : $.timeline.host,
+            "start_tm" : $.timeline.tm_start,
+            "end_tm" : $.timeline.tm_end,
+            "interval" : 0,            /* hard coded option; maybe the user could set it with a form ? */
+            "ignore_short_lived" : 30, /* hard coded option; maybe the user could set it with a form ? */
+            "ignore_resident" : $.timeline.ignore_resident,
+            "timeout" : 60
+            }, "id": 0}),
+        dataType : 'json',
+        complete : function (r) {
+            if(r.status) {
+                $.timeline.jsondata = jQuery.parseJSON(r.responseText);
+
+                parse_timeline_data();
+                display_timeline();
+
+            }
+        },
+        error: function(XMLHttpRequest, textStatus, errorThrown) {
+            var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+            notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+        }
+    });
+
+}
+
+function timeline_update_buttons() {
+    $('#switch_show_pid_uid_gid').html(($.timeline.show_pid_uid_gid?"Hide":"Show") + " PID, UID and GID");
+    $('#switch_ignore_resident').html(($.timeline.ignore_resident?"Show":"Hide") + " resident processes");
+}
+
+function showtimeline (host, tm_start, tm_end) {
+    var timeline_width = 1000;
+    var timeline_height = 600;
+    $('<div id="modaldialogcontents"></div>')
+        .html(
+                '<form id="timelineoptions"></form>'
+                +'<div id="timelinebuttons">'
+                +'  <button id="switch_show_pid_uid_gid"></button>'
+                +'  <button id="switch_ignore_resident"></button>'
+                +'</div>'
+                +'<div id="timeline"><p>Waiting for data...</p></div>'
+                )
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Timeline for '+host+' between '+tm_to_ddmmyy_hhmmss(tm_start)+' and '+tm_to_ddmmyy_hhmmss(tm_end),
+            width: timeline_width,
+            height: timeline_height,
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                $.timeline = {};
+            },
+            open: function(event, ui) {
+                // Set timeline options
+                $.timeline = {};
+                $.timeline.show_pid_uid_gid = true;
+                $.timeline.tm_start = tm_start;
+                $.timeline.tm_end = tm_end;
+                $.timeline.host = host;
+                $.timeline.ignore_resident = true;
+
+                $('#modaldialog').show();
+                load_timeline_data();
+                timeline_update_buttons();
+
+                $('#switch_show_pid_uid_gid').click(function() {
+                    $.timeline.show_pid_uid_gid = ! $.timeline.show_pid_uid_gid;
+                    parse_timeline_data();
+                    display_timeline();
+                    timeline_update_buttons();
+                });
+                $('#switch_ignore_resident').click(function() {
+                    $.timeline.ignore_resident = ! $.timeline.ignore_resident;
+                    $('#timeline').html("<p>Waiting for data...</p>");
+                    load_timeline_data();
+                    parse_timeline_data();
+                    display_timeline();
+                    timeline_update_buttons();
+                });
+          }
+    });
+}
+
+$.top = {};
+
 function showtop (host, toptime) {
-	$('#modalwindow').jqxWindow({ title: '<span id="toptitle"></span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
-	$('#modalwindowcontent').html('<table id="topprocess" width="100%"><tr><td class="prev" width="50%"><b>&#x2190;</b> previous</td><td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td></tr></table><div id="table"></div>');
+    $.top.time = toptime;
+    $('<div id="modaldialogcontents"></div>')
+        .html(
+                '<table id="topprocess" width="100%"><tr>'
+                +  '<td class="prev" width="50%"><b>&#x2190;</b> previous</td>'
+                +  '<td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td>'
+                +'</tr></table>'
+                +'<div id="table"></div>'
+                )
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(toptime),
+            width: 545,
+            height: 620,
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                $('#table').remove();
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                load_top(host, $.top.time);
+          }
+    });
 	$('#topprocess .prev').click(function() {
-		showtop(host, toptime - 60);
+        $.top.time = $.top.time - 60;
+		load_top(host, $.top.time);
 	});
 	$('#topprocess .next').click(function() {
-		showtop(host, toptime + 60);
+        $.top.time = $.top.time + 60;
+		load_top(host, $.top.time);
 	});
+}
+
+function load_top(host, toptime) {
 	var url = 'action.php?tpl=top&view_id='+view_id+'&host='+host+'&time='+toptime;
 	var source = { 
 		datatype: "json", 
@@ -358,12 +558,12 @@ function showtop (host, toptime) {
                 downloadComplete: function (data, status, xhr) {
 			if (data.date2) {
 				var topdate = new Date(data.date2 * 1000).toString();
-				$('#toptitle').html('Top process at '+topdate);
+                $('#modaldialogcontents').dialog("option", "title", 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(data.date2));
 			} else if (data.error) {
 				if (data.error.result && data.error.result.status == 'path not found or no file for this tm') {
-					$('#toptitle').html('ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
+                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
 				} else {
-					$('#toptitle').html('ERROR : No data for this date '+data.error);
+                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+data.error);
 				} 
 			}
 		},
@@ -396,6 +596,7 @@ function showtop (host, toptime) {
 		}
 	});
 }
+
 // From http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
 (function( $ ){
 	$.fn.compare = function(t) {
@@ -410,3 +611,4 @@ function showtop (host, toptime) {
 		return true;
 	};
 })( jQuery );
+// vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
