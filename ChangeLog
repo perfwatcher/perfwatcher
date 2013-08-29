@@ -1,6 +1,8 @@
+2013-08-29, Version 1.3
 
-- Fixed bug #33
+- Fixed bug #33 (Broken aggregators / an aggregator for "n")
 - new URL syntax : #host_<hostname>/<plugin> (replaces undocumented #host_<hostname>)
+- New feature : timeline
 
 2013-04-29, Version 1.2
 
