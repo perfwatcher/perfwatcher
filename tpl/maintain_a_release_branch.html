@@ -50,9 +50,9 @@ $ git push origin release/5.3.0
 <pre>
 $ git push -n origin release/5.3.0
 $ git push origin release/5.3.0
-$ git tag -a "collectd-5.3.0-20130429" -m "Unofficial version 5.3.0-20130429 with perfwatcher patches"
-$ git push -u -n origin refs/tags/collectd-5.3.0-20130429
-$ git push -u origin refs/tags/collectd-5.3.0-20130429
+$ git tag -a "collectd-5.3.0-20130829" -m "Unofficial version 5.3.0-20130829 with perfwatcher patches"
+$ git push -u -n origin refs/tags/collectd-5.3.0-20130829
+$ git push -u origin refs/tags/collectd-5.3.0-20130829
 </pre>
 
 <p>Then release : <code>make distcheck</code> and upload the tar.gz file.</p>
@@ -116,13 +116,13 @@ $ make distcheck
 <li>Commit the modification on ChangeLog-collectd_pw</li>
 </ul>
 <pre>
-$ git commit -a -m "New release 20130429"
+$ git commit -a -m "New release 20130829"
 </pre>
 <ul>
 <li>Tag the new release</li>
 </ul>
 <pre>
-$ git tag -a "collectd-5.3.0-20130429" -m "Unofficial version 5.3.0-20130429 with perfwatcher patches"
+$ git tag -a "collectd-5.3.0-20130829" -m "Unofficial version 5.3.0-20130829 with perfwatcher patches"
 </pre>
 <ul>
 <li>Make the new tar.gz file. Run the following (again) :</li>
@@ -134,14 +134,14 @@ $ ./configure
 $ make distcheck
 </pre>
 <ul>
-<li>You should now have archives like <i>collectd-5.3.0.20130429</i> (you recognize the tag).</li>
+<li>You should now have archives like <i>collectd-5.3.0.20130829</i> (you recognize the tag).</li>
 <li>Push the branch upstream (check first and don't upload unwanted stuff - don't upload unwanted tags)</li>
 </ul>
 <pre>
 $ git push -u -n
 $ git push -u
-$ git push -u -n origin refs/tags/collectd-5.5.3.0-20130429
-$ git push -u origin refs/tags/collectd-5.3.0-20130429
+$ git push -u -n origin refs/tags/collectd-5.3.0-20130829
+$ git push -u origin refs/tags/collectd-5.3.0-20130829
 </pre>
 <ul>
 <li>Upload the files</li>
