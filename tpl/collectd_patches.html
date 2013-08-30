@@ -4,6 +4,7 @@
 <table>
 		<caption>Versions of Collectd-pw that are/were actively developped/maintained</caption>
 		<tr><th>Version</th><th>Last maintained version</th><th>Still developped</th></tr>
+		<tr><td>5.4.0</td><td>Check download pages</td><td>Soon</td></tr>
 		<tr><td>5.3.0</td><td>Check download pages</td><td>Yes</td></tr>
 		<tr><td>5.2.1</td><td>20130527</td><td>No</td></tr>
 		<tr><td>5.1.1</td><td>20121205</td><td>No</td></tr>
@@ -16,71 +17,71 @@
 		<caption>Patch applied since Collectd 5.1<br />(and maybe obsoleted by mainstream collectd, see notes below)</caption>
 		<tr>
 			<th>Patch</th><th>Description</th>
-			<th>5.3.0</th><th>5.2.1</th><th>5.1</th>
+			<th>5.4.0</th><th>5.3.0</th><th>5.2.1</th><th>5.1</th>
 		</tr>
 		<tr>
 			<td>patch/backports</td><td>Some cool features/fixes from mainstream collectd that we do not want to wait for next release</td>
-			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+			<td></td><td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/compilation_fix</td><td>Some fixes when mainstream collectd does not compile</td>
-			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+			<td></td><td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/config_rra_in_rrdcached_plugin</td><td>Report a feature of older and removed patch/plugin rrdtool_create_only</td>
-			<td>X</td><td>&nbsp;</td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td>&nbsp;</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/cpu</td><td>Add cpu-total instance</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/disk_solaris</td><td>Fix strange I/O calculation; Use cXtXdX notation instead of driver's notation</td>
-			<td>X</td><td>X</td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/Fix-for-large-MaxPacketSize</td><td>Allow to use notification &gt; 256 bytes</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/fix_interfaces_solaris</td><td>Fix for interfaces on Solaris</td>
-			<td>X</td><td>X</td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/fix_make_distcheck</td><td><code>make distcheck</code> is now working fine</td>
-			<td>(fim)</td><td>X</td><td>X</td>
+			<td></td><td>(fim)</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/limit_write_queue_length</td><td>Limit write queue length (drops metrics instead of exploding memory to 100%)</td>
-			<td>X</td><td>&nbsp;</td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td>&nbsp;</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/logfile</td><td>Allow to do not log notification</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/memory_percent</td><td>Provides a new graph for memory : percent-used</td>
-			<td>X</td><td></td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td></td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/mysql_close_memory_leak</td><td>Fix a memory leak in mysql plugin</td>
-			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+			<td></td><td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/network_queue_length</td><td>Limit network queue length (drops metrics instead of exploding memory to 100%)</td>
-			<td>(rwo)</td><td>X</td><td>&nbsp;</td>
+			<td></td><td>(rwo)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>patch/nfs_stats_with_network_plugin</td><td>Add a lot of new metrics</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/notification_forwarding</td><td>Allow notification to be forwarded</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/process</td><td>Add context-switch metric</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>patch/protocols_solaris</td><td>Add protocols for Solaris</td>
@@ -88,39 +89,39 @@
 		</tr>
 		<tr>
 			<td>(*)patch/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update). (*) This plugin was buggy. It was present in first 5.2.1 then removed in next 5.2.1 and replaced with new plugin plugin/rrdtool_createonly</td>
-			<td></td><td>(rwo)</td><td>X</td>
+			<td></td><td></td><td>(rwo)</td><td>X</td>
 		</tr>
 		<tr>
 			<td>perfwatcher_addons</td><td>Add some new Collectd types for perfwatcher specific metrics</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/basic_aggregator</td><td>Plugin : aggregate data from a set of hosts</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/jsonrpc</td><td>Plugin : communicate with Collectd through json-rpc over http. Includes specific methods for perfwatcher and to read files created by write_top plugin</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/notify_file</td><td>Plugin : write notifications into a gzipped file</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/rrdtool_create_only</td><td>Allow rrdtool plugin to create rrds and only create them (use rrdcached to update). Note : this plugin was written from scratch in order to replace buggy patch/rrdtool_create_only.</td>
-			<td>(fim)</td><td>X</td><td>&nbsp;</td>
+			<td></td><td>(fim)</td><td>X</td><td>&nbsp;</td>
 		</tr>
 		<tr>
 			<td>plugin/sysconfig</td><td>Plugin : collectd data on the server (collectd release for example) and send it in a notification</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/top</td><td>Great plugin to Collectd and display all process running on a host</td>
-			<td>X</td><td>X</td><td>X</td>
+			<td>X</td><td>X</td><td>X</td><td>X</td>
 		</tr>
 		<tr>
 			<td>plugin/write_top</td><td>Plugin : write "top" notifications grouped into a gzipped file (similar to notify_file) with a cache</td>
-			<td>X</td><td>X</td><td>&nbsp;</td>
+			<td>X</td><td>X</td><td>X</td><td>&nbsp;</td>
 		</tr>
 	</table>
 <p>Notes:</p>
