@@ -1903,7 +1903,15 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
             'InUse'       => 'ff0000',
             'BlockSize'   => '8888dd',
             'ContextSize' => '444499',
-            'Lost'        => '222222'
+            'Lost'        => '222222',
+            // Windows
+            'available'     => '34B3A2',
+            'pool_paged'    => 'C82A6F',
+            'pool_nonpaged' => '390FC4',
+            'system_cache'  => '9B7909',
+            'code'          => '5A8727',
+            'driver'        => '48E2D3',
+            'working_set'   => 'F77F87',
             );
 
     $type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable', 'user', 'system', 'available', 'pool_paged', 'pool_nonpaged', 'system_cache', 'code', 'driver', 'working_set');
