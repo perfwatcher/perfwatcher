@@ -541,6 +541,52 @@ function rrd_get_color($code, $line = true) {
     return $config['rrd_colors'][$name];
 }
 
+function rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances) {
+    global $config;
+    $rrdfiles = array();
+
+    $hostplugin = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '');
+
+    foreach ($config['datadirs'] as $datadir) {
+        $files = scandir("$datadir/$hostplugin");
+
+        while (list($k, $f) = each($files)) {
+            if (substr($f, -4) != '.rrd') { continue; }
+            $metric = explode('-', substr($f, -0, -4), 2);
+            if($metric[0] != $type) { continue; }
+            if(!isset($metric[1])) { $metric[1] = ""; }
+
+            if(count($type_instances)) {
+                foreach($type_instances as $ti) {
+                    if($ti == $metric[1]) {
+                        $rrdfiles[] = array("$datadir/$hostplugin/$f", $metric[0], $metric[1]);
+                        continue;
+                    }
+                }
+
+            } else {
+                $rrdfiles[] = array("$datadir/$hostplugin/$f", $metric[0], $metric[1]);
+            }
+        }
+    }
+
+    return ($rrdfiles);
+}
+
+function rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances) {
+    global $config;
+    $sources = array();
+
+    $files = rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances);
+
+    while (list($k, $a) = each($files)) {
+        if(is_file($a[0])) {
+            $sources[] = array('name'=> $a[2], 'file'=> $a[0]);
+        }
+    }
+    return ($sources);
+}
+
 /**
  * Draw RRD file based on it's structure
  * @host

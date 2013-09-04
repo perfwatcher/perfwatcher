@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et :
 /*
  * Copyright (C) 2009  Bruno PrÃ©mont <bonbons AT linux-vserver.org>
  *
@@ -170,7 +170,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             'GPRINT:used_avg:AVERAGE:%5.1lf%sB Avg,',
             'GPRINT:used_avg:LAST:%5.1lf%sB Last\l');
     $GraphDefs['df_complex'] = array(
-            '-b', '1024', '-v', 'Bytes' ,'--units=si', 
+            '-b', '1024', '-v', 'Bytes' ,'--units=si',
             'DEF:free_avg={pathplugin}df_complex-free.rrd:value:AVERAGE',
             //        'CDEF:free_nnl=free_avg,UN,0,free_avg,IF',
             'DEF:used_avg={pathplugin}df_complex-used.rrd:value:AVERAGE',
@@ -203,8 +203,8 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             "GPRINT:used_avg:AVERAGE:%5.1lf%s Avg,",
             "GPRINT:used_avg:LAST:%5.1lf%s Last\l",
             "AREA:reserved_stk#ffebbf",
-            "LINE1:reserved_stk#ffb000:reserved", 
-            "GPRINT:reserved_avg:AVERAGE:%5.1lf%s Avg,", 
+            "LINE1:reserved_stk#ffb000:reserved",
+            "GPRINT:reserved_avg:AVERAGE:%5.1lf%s Avg,",
             "GPRINT:reserved_avg:LAST:%5.1lf%s Last\l",
             "LINE1:avgul#$FullMagenta:usage trend until free space\l",
             );
@@ -782,7 +782,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             'GPRINT:permission_avg:LAST:Last\:%5.1lf%s\l'
                 );
     $GraphDefs['pressure'] = array(
-            '-v', 'millibar', '-X', '-1', '-b', '1000', 
+            '-v', 'millibar', '-X', '-1', '-b', '1000',
             '--units-exponent', '0', '-Y',
             '-l', '860', '-u', '1090', '-r',
             'DEF:value={file}:value:AVERAGE',
@@ -1319,104 +1319,59 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
 }
 
 function meta_graph_files_count($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
 
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Mails');
 
-    $files = array();
     $opts['colors'] = array(
             'incoming' => '00e000',
             'active'   => 'a0e000',
             'deferred' => 'a00050'
             );
 
-    $type_instances = array('incoming', 'active', 'deferred');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_files_size($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
 
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Bytes');
 
-    $files = array();
     $opts['colors'] = array(
             'incoming' => '00e000',
             'active'   => 'a0e000',
             'deferred' => 'a00050'
             );
 
-    $type_instances = array('incoming', 'active', 'deferred');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_df_complex($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
 
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '');
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '');
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts']      = array('-b', '1024', '-v', 'Bytes', '--units=si');
 
-    $files = array();
     $opts['colors'] = array(
             'used'      => '0000ff',
             'reserved'  => 'ffb000',
             'free'      => 'ff0000'
             );
 
-    $type_instances = array('free', 'used', 'reserved');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
@@ -1458,7 +1413,6 @@ function meta_graph_cpufreq($host, $plugin, $plugin_instance, $type, $type_insta
        'GPRINT:avg:AVERAGE:%6.2lf Avg,',
        'GPRINT:avg:LAST:%6.2lf Last\l');
      */
-    $files = array();
 
     $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
     foreach($type_instances as $key => $val) {
@@ -1512,7 +1466,6 @@ function meta_graph_cache_entries($host, $plugin, $plugin_instance, $type, $type
             15  => 'ff0000'
 
             );
-    $files = array();
 
     $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
     foreach($type_instances as $key => $val) {
@@ -1575,7 +1528,6 @@ function meta_graph_irq($host, $plugin, $plugin_instance, $type, $type_instances
        'GPRINT:avg:AVERAGE:%6.2lf Avg,',
        'GPRINT:avg:LAST:%6.2lf Last\l');
      */
-    $files = array();
 
     $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
     foreach($type_instances as $key => $val) {
@@ -1603,10 +1555,6 @@ function meta_graph_irq($host, $plugin, $plugin_instance, $type, $type_instances
 }
 
 function meta_graph_users($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
         $opts['title'] = $title2;
@@ -1617,32 +1565,23 @@ function meta_graph_users($host, $plugin, $plugin_instance, $type, $type_instanc
             'inactive'    => 'ff0000'
             );
 
-    $files = array();
-    $type_instances = scandir($config['datadirs'][0]."/$host/$plugin/");
-    while (list($k, $inst) = each($type_instances)) {
-        if (substr($inst, -4) != '.rrd') { continue; }
-        $metric = strpos($inst, '-') !== false ? substr($inst, strlen($type) + 1, -4) : substr($inst, 0, -4);
-        $sources[] = array('name'=> $metric, 'file'=> $config['datadirs'][0]."/$host/$plugin/$inst");
-    }
+    $type_instances = array_keys($opts['colors']);
+    $type_instances[] = "";
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
 
 function meta_graph_cpu($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     if (substr($plugin_instance, -4) == '_sum') {
         $opts['rrd_opts'] = array('-v', 'Percent', '-r');
     } else {
         $opts['rrd_opts'] = array('-v', 'Percent', '-r', '-u', '100');
     }
 
-    $files = array();
     $opts['colors'] = array(
             'idle'      => 'bbbbbb',
             'nice'      => '00e000',
@@ -1654,19 +1593,8 @@ function meta_graph_cpu($host, $plugin, $plugin_instance, $type, $type_instances
             'steal'     => '000000'
             );
 
-    $type_instances = array('idle', 'wait', 'nice', 'user', 'system', 'softirq', 'interrupt', 'steal');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
@@ -1691,7 +1619,6 @@ function meta_graph_celerra_io($host, $plugin, $plugin_instance, $type, $type_in
     }
     $opts['number_format'] = '%5.1lf%s';
 
-    $files = array();
     $opts['colors'] = array(
             'read_min'      => '0000ff',
             'read_avg'      => '0000af',
@@ -1717,7 +1644,6 @@ function meta_graph_celerra_io($host, $plugin, $plugin_instance, $type, $type_in
     $sources[] = array('name' => 'write_avg', 'file' => $file, 'ds' => 'write_avg', 'reverse' => true);
     $sources[] = array('name' => 'write_max', 'file' => $file, 'ds' => 'write_max', 'reverse' => true);
 
-
     return collectd_draw_meta_line($opts, $sources);
 }
 
@@ -1742,7 +1668,6 @@ function meta_graph_celerra_if($host, $plugin, $plugin_instance, $type, $type_in
             break;
     }
 
-    $files = array();
     $opts['colors'] = array(
             'min_in'      => '0000ff',
             'avg_in'      => '0000af',
@@ -1772,82 +1697,45 @@ function meta_graph_celerra_if($host, $plugin, $plugin_instance, $type, $type_in
 }
 
 function meta_graph_swap_io($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Pages/s');
 
-    $files = array();
     $opts['colors'] = array(
             'in'      => '0000ff',
             'out'      => 'ff0000'
             );
 
-    $type_instances = array('in', 'out');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
 
 function meta_graph_specs($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Specs');
 
-    $files = array();
     $opts['colors'] = array(
             'cfp'      => '0000ff',
             'cint'      => 'ffb000'
             );
 
-    $type_instances = array('cfp', 'cint');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
 
 function meta_graph_grid($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     //$opts['rrd_opts'] = array('-v', 'Specs');
 
-    $files = array();
     $opts['colors'] = array(
             'processes'      => '0000ff',
             'nodes' => 'ffb000',
@@ -1855,19 +1743,9 @@ function meta_graph_grid($host, $plugin, $plugin_instance, $type, $type_instance
             'cpus'      => '8888dd'
             );
 
-    $type_instances = array('processes', 'cpus', 'nodes');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
     if (file_exists("$datadir/$host/load_sum/load.rrd")) {
         $sources[] = array('name'=> 'load', 'file'=> "$datadir/$host/load_sum/load.rrd", 'ds' => 'midterm');
     }
@@ -1875,17 +1753,12 @@ function meta_graph_grid($host, $plugin, $plugin_instance, $type, $type_instance
 }
 
 function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts']      = array('-b', '1024', '-v', 'Bytes');
 
-    $files = array();
     $opts['colors'] = array(
             // Linux - System memoery
             'free'     => '00e000',
@@ -1914,19 +1787,8 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
             'working_set'   => 'F77F87',
             );
 
-    $type_instances = array('free', 'cached', 'buffered', 'used',   'TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost', 'kernel', 'locked', 'unusable', 'user', 'system', 'available', 'pool_paged', 'pool_nonpaged', 'system_cache', 'code', 'driver', 'working_set');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     if ($plugin == 'bind')
         return collectd_draw_meta_line($opts, $sources);
@@ -1935,17 +1797,12 @@ function meta_graph_memory($host, $plugin, $plugin_instance, $type, $type_instan
 }
 
 function meta_graph_vs_threads($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts']      = array('-v', 'Threads');
 
-    $files = array();
     $opts['colors'] = array(
             'total'   => 'F0A000',
             'running'  => 'FF0000',
@@ -1953,35 +1810,19 @@ function meta_graph_vs_threads($host, $plugin, $plugin_instance, $type, $type_in
             'uninterruptable' => '0000FF'
             );
 
-    $type_instances = array('total', 'running', 'onhold', 'uninterruptable');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
 
 function meta_graph_vs_memory($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts']      = array('-b', '1024', '-v', 'Bytes');
 
-    $files = array();
     $opts['colors'] = array(
             'vm'   => 'F0A000',
             'vml'  => 'FF0000',
@@ -1989,152 +1830,69 @@ function meta_graph_vs_memory($host, $plugin, $plugin_instance, $type, $type_ins
             'anon' => '0000FF'
             );
 
-    $type_instances = array('anon', 'rss', 'vml', 'vm');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
 
 function meta_graph_if_rx_errors($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.2lf';
     $opts['rrd_opts']      = array('-v', 'Errors/s');
 
-    $files = array();
-
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_mysql_threads($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Issues/s');
     $opts['number_format'] = '%5.2lf';
 
-    $files = array();
     $type_instances = array('cached','connected','running');
-
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_mysql_commands($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Issues/s');
     $opts['number_format'] = '%5.2lf';
 
-    $files = array();
     $type_instances = array('admin_commands','alter_table','change_db','delete','flush','insert','insert_select','kill','lock_tables','optimize','repair','replace','select','set_option','show_binlogs','show_charsets','show_collations','show_create_db','show_create_table','show_databases','show_fields','show_grants','show_keys','show_master_status','show_plugins','show_processlist','show_slave_status','show_status','show_storage_engines','show_tables','show_table_status','show_triggers','show_variables','truncate','unlock_tables','update','commit','read_first','read_key','read_next','read_rnd_next','read_rnd','rollback','write');
-
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_nfs_procedure($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts'] = array('-v', 'Ops/s');
 
-    $files = array();
     $type_instances = array('access','commit','create','fsinfo','fsstat','getattr','link','lookup','mkdir','mknod','null','pathconf','readdirplus','readdir','readlink','read','remove','rename','rmdir','setattr','symlink','write');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=> $inst, 'file'=> $file);
-    }
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_ps_state($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Processes');
 
-    $files = array();
     $opts['colors'] = array(
             'running'  => '00e000',
             'runnable'  => '00e000',
@@ -2146,72 +1904,40 @@ function meta_graph_ps_state($host, $plugin, $plugin_instance, $type, $type_inst
             'stopped'  => 'a000a0'
             );
 
-    $type_instances = array('paging', 'blocked', 'zombies', 'stopped', 'running', 'sleeping', 'I_J_Z', 'runnable');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_swap($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%5.1lf%s';
     $opts['rrd_opts']      = array('-b', '1024', '-v', 'Bytes');
 
-    $files = array();
     $opts['colors'] = array(
             'free'     => '00e000',
             'cached'   => '0000ff',
             'used'     => 'ff0000'
             );
 
-    $type_instances = array('free', 'cached', 'used');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_apache_scoreboard($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%6.2lf%s';
     $opts['rrd_opts']      = array('-v', 'Processes');
 
-    $files = array();
     $opts['colors'] = array(
-            'open'         => '00e000',
+    /*        'open'         => '00e000',*/
             'waiting'      => '0000ff',
             'starting'     => 'a00000',
             'reading'      => 'ff0000',
@@ -2224,35 +1950,19 @@ function meta_graph_apache_scoreboard($host, $plugin, $plugin_instance, $type, $
             'idle_cleanup' => '000000',
             );
 
-    $type_instances = array(/* 'open',*/ 'waiting', 'starting', 'reading', 'sending', 'keepalive', 'dnslookup', 'logging', 'closing', 'finishing', 'idle_cleanup');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file, 'ds'=>'count');
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_tcp_connections($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['number_format'] = '%6.2lf%s';
     $opts['rrd_opts']      = array('-v', 'Connections');
 
-    $files = array();
     $opts['colors'] = array(
             'ESTABLISHED' => '00e000',
             'SYN_SENT'    => '00e0ff',
@@ -2267,51 +1977,20 @@ function meta_graph_tcp_connections($host, $plugin, $plugin_instance, $type, $ty
             'CLOSING'     => '000000'
             );
 
-    $type_instances = array('ESTABLISHED', 'SYN_SENT', 'SYN_RECV', 'FIN_WAIT1', 'FIN_WAIT2', 'TIME_WAIT', 'CLOSE', 'CLOSE_WAIT', 'LAST_ACK', 'CLOSING', 'LISTEN');
-    while (list($k, $inst) = each($type_instances)) {
-        $file = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file, 'ds'=>'value');
-    }
+    $type_instances = array_keys($opts['colors']);
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_stack($opts, $sources);
 }
 
 function meta_graph_dns_event($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
-    global $config;
-    $sources = array();
-
-    $title = "$host/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
-    $title2 = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
+    $title = ((isset($opts['althost']) && $opts['althost'])?$opts['althost']:get_node_name($host))."/$plugin".(!is_null($plugin_instance) ? "-$plugin_instance" : '')."/$type";
     if (!isset($opts['title']))
-        $opts['title'] = $title2;
+        $opts['title'] = $title;
     $opts['rrd_opts'] = array('-v', 'Events', '-r', '-l', '0');
 
-    $files = array();
-    //	$opts['colors'] = array(
-    //	);
-
     //	$type_instances = array('IQUERY', 'NOTIFY');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        $title = $opts['title'];
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
     return collectd_draw_meta_stack($opts, $sources);
 }
 
