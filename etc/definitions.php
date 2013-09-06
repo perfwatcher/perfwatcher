@@ -1413,28 +1413,7 @@ function meta_graph_cpufreq($host, $plugin, $plugin_instance, $type, $type_insta
        'GPRINT:avg:AVERAGE:%6.2lf Avg,',
        'GPRINT:avg:LAST:%6.2lf Last\l');
      */
-
-    $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
-    foreach($type_instances as $key => $val) {
-        if (preg_match("/^cpufreq\-([0-9]+).rrd/", $val, $reg)) {
-            $type_instances[$key] = $reg[1];
-        } else {
-            unset($type_instances[$key]);
-        }
-    }
-    sort($type_instances, SORT_NUMERIC);
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files_sorted_by_type_instance($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
@@ -1467,27 +1446,7 @@ function meta_graph_cache_entries($host, $plugin, $plugin_instance, $type, $type
 
             );
 
-    $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
-    foreach($type_instances as $key => $val) {
-        if (preg_match("/^$type\-([0-9]+).rrd/", $val, $reg)) {
-            $type_instances[$key] = $reg[1];
-        } else {
-            unset($type_instances[$key]);
-        }
-    }
-    sort($type_instances, SORT_NUMERIC);
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files_sorted_by_type_instance($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
@@ -1529,27 +1488,7 @@ function meta_graph_irq($host, $plugin, $plugin_instance, $type, $type_instances
        'GPRINT:avg:LAST:%6.2lf Last\l');
      */
 
-    $type_instances = scandir($config['datadirs'][0]."/$host/$plugin");
-    foreach($type_instances as $key => $val) {
-        if (preg_match("/^irq\-([0-9]+).rrd/", $val, $reg)) {
-            $type_instances[$key] = $reg[1];
-        } else {
-            unset($type_instances[$key]);
-        }
-    }
-    sort($type_instances, SORT_NUMERIC);
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
-
-        $sources[] = array('name'=>$inst, 'file'=>$file);
-    }
+    $sources = rrd_sources_from_files_sorted_by_type_instance($host, $plugin, $plugin_instance, $type, $type_instances);
 
     return collectd_draw_meta_line($opts, $sources);
 }
@@ -1628,21 +1567,17 @@ function meta_graph_celerra_io($host, $plugin, $plugin_instance, $type, $type_in
             'write_max'      => '005f00'
             );
 
-    $file  = '';
-    foreach ($config['datadirs'] as $datadir)
-        if (is_file($datadir.'/'.$title.($type_instance != '' ? "-$type_instance" : '').'.rrd')) {
-            $file = $datadir.'/'.$title.($type_instance != '' ? "-$type_instance" : '').'.rrd';
-            break;
-        }
-    if ($file == '')
-        return;
+    $files = rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
-    $sources[] = array('name' => 'read_min', 'file' => $file, 'ds' => 'read_min');
-    $sources[] = array('name' => 'read_avg', 'file' => $file, 'ds' => 'read_avg');
-    $sources[] = array('name' => 'read_max', 'file' => $file, 'ds' => 'read_max');
-    $sources[] = array('name' => 'write_min', 'file' => $file, 'ds' => 'write_min', 'reverse' => true);
-    $sources[] = array('name' => 'write_avg', 'file' => $file, 'ds' => 'write_avg', 'reverse' => true);
-    $sources[] = array('name' => 'write_max', 'file' => $file, 'ds' => 'write_max', 'reverse' => true);
+    while (list($k, $a) = each($files)) {
+        $sources[] = array('name' => 'read_min', 'file' => $a[0], 'ds' => 'read_min');
+        $sources[] = array('name' => 'read_avg', 'file' => $a[0], 'ds' => 'read_avg');
+        $sources[] = array('name' => 'read_max', 'file' => $a[0], 'ds' => 'read_max');
+        $sources[] = array('name' => 'write_min', 'file' => $a[0], 'ds' => 'write_min', 'reverse' => true);
+        $sources[] = array('name' => 'write_avg', 'file' => $a[0], 'ds' => 'write_avg', 'reverse' => true);
+        $sources[] = array('name' => 'write_max', 'file' => $a[0], 'ds' => 'write_max', 'reverse' => true);
+        break; /* only 1st file is taken into account. Is this a bug ? */
+    }
 
     return collectd_draw_meta_line($opts, $sources);
 }
@@ -1678,19 +1613,13 @@ function meta_graph_celerra_if($host, $plugin, $plugin_instance, $type, $type_in
             );
 
     $type_instances = array('min', 'avg', 'max');
-    while (list($k, $inst) = each($type_instances)) {
-        $file  = '';
-        foreach ($config['datadirs'] as $datadir)
-            if (is_file($datadir.'/'.$title.'-'.$inst.'.rrd')) {
-                $file = $datadir.'/'.$title.'-'.$inst.'.rrd';
-                break;
-            }
-        if ($file == '')
-            continue;
+    $sources = array();
 
-        $sources[] = array('name' => $inst.'_in', 'file' => $file, 'ds' => 'rx');
-        $sources[] = array('name' => $inst.'_out', 'file' => $file, 'ds' => 'tx', 'reverse' => true);
+    $files = rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
+    while (list($k, $a) = each($files)) {
+        $sources[] = array('name' => $a[2].'_in', 'file' => $a[0], 'ds' => 'rx');
+        $sources[] = array('name' => $a[2].'_out', 'file' => $a[0], 'ds' => 'tx', 'reverse' => true);
     }
 
     return collectd_draw_meta_line($opts, $sources);
@@ -1746,8 +1675,11 @@ function meta_graph_grid($host, $plugin, $plugin_instance, $type, $type_instance
     $type_instances = array_keys($opts['colors']);
     $sources = rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances);
 
-    if (file_exists("$datadir/$host/load_sum/load.rrd")) {
-        $sources[] = array('name'=> 'load', 'file'=> "$datadir/$host/load_sum/load.rrd", 'ds' => 'midterm');
+# Append "$host/load_sum/load.rrd"
+    $files = rrd_get_files($host, "load_sum", "", "load", array(""));
+
+    while (list($k, $a) = each($files)) {
+        $sources[] = array('name'=> $a[2], 'file'=> $a[0], 'ds' => 'midterm');
     }
     return collectd_draw_meta_line($opts, $sources);
 }

@@ -559,12 +559,14 @@ function rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances)
             if(count($type_instances)) {
                 foreach($type_instances as $ti) {
                     if($ti == $metric[1]) {
+                        #$rrdfiles[] = array(fqdn, type, type_instance);
                         $rrdfiles[] = array("$datadir/$hostplugin/$f", $metric[0], $metric[1]);
                         continue;
                     }
                 }
 
             } else {
+                #$rrdfiles[] = array(fqdn, type, type_instance);
                 $rrdfiles[] = array("$datadir/$hostplugin/$f", $metric[0], $metric[1]);
             }
         }
@@ -573,8 +575,25 @@ function rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances)
     return ($rrdfiles);
 }
 
-function rrd_sources_from_files($host, $plugin, $plugin_instance, $type, $type_instances) {
-    global $config;
+function rrd_sources_from_files_sorted_by_type_instance ($host, $plugin, $plugin_instance, $type, $type_instances) {
+    $sources = array();
+
+    $files = rrd_get_files($host, $plugin, $plugin_instance, $type, array());
+
+    while (list($k, $a) = each($files)) {
+        if(preg_match("/^([0-9]+)$/", $a[2], $reg) ) {
+            $sources[] = array('name'=> $a[2], 'file'=> $a[0]);
+        }
+    }
+    usort($sources, function($a, $b) {
+        if($a['name'] == $b['name']) { return 0; }
+        return ($a['name'] < $b['name']) ? -1 : 1;
+    });
+
+    return ($sources);
+}
+
+function rrd_sources_from_files ($host, $plugin, $plugin_instance, $type, $type_instances) {
     $sources = array();
 
     $files = rrd_get_files($host, $plugin, $plugin_instance, $type, $type_instances);
