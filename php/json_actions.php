@@ -69,7 +69,6 @@ if($action_need_jstree) {
 
     switch ($action) {
         case 'add_tab':
-            print_r($datas);
             if (!isset($datas['tabs'])) {
                 $datas['tabs'] = array();
             }
