@@ -70,6 +70,20 @@ function disk_plugin_view(tabid, plugin) {
 	});
 }
 
+function processes_plugin_view(tabid, plugin) {
+	$.ajax({
+	    async : true,
+	    type: 'GET',
+	    url: 'html/processes_plugin_view.html',
+	    complete : function (r) {
+	        if(r.status) {
+				ich.addTemplate('processes_plugin_view', r.responseText);
+				ich.processes_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+	        }
+	    }
+	});
+}
+
 function protocols_plugin_view(tabid, plugin) {
 	$.ajax({
 	    async : true,
