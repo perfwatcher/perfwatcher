@@ -58,7 +58,7 @@
 				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear php5-curl</code></pre></li>
 			</ul>
 		</li>
-		<li>MDB2 PEAR library
+		<li>MDB2 PEAR library (check your umask - you may want to do <code>umask 0022</code> before installing MDB2 drivers)
 			<ul>
 				<li>On Redhat like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
 				<li>On Debian like :<pre><code>aptitude install php-mdb2-driver-mysql</code></pre></li>
