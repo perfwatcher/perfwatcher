@@ -159,7 +159,8 @@ class _tree_struct {
 
     function get_containers() {
         $containers = array();
-        $this->db->query("SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE type = 'folder' or type = 'drive'");
+        $this->db->prepare("SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE (type = 'folder' or type = 'drive') and view_id = ?", array('integer'));
+        $this->db->execute(array((int)$this->view_id));
         while($this->db->nextr()) $containers[$this->db->f($this->fields["id"])] = $this->db->get_row("assoc");
         return $containers;
     }

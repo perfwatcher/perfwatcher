@@ -38,10 +38,12 @@ foreach($peuplator_plugins as $plugin) {
 }
 
 foreach ($views as $view_id) {
-		global $jstree;
+		if ($debug) { print "============== Working on view $view_id ===============\n"; }
 		$jstree = new json_tree($view_id);
 
-		foreach ($jstree->get_containers() as $container) {
+		$all_containers = $jstree->get_containers();
+		foreach ($all_containers as $container) {
+				if ($debug) { echo "Working on container ".$container['title']." (".$container['id'].")\n"; }
 				$datas = $jstree->get_datas($container['id']);
 				$serverlist = array();
 				foreach($peuplator_plugins as $plugin) {
