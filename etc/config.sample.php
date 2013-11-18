@@ -13,48 +13,6 @@
 #	"database"	=> "perfwatcher"
 #);
 
-/**
- *
- *	Directory where Collectd write RRD file
- *
- */
-# $rrds_path = "/var/lib/collectd/rrd";
-
-/**
- *
- *	Directory where Collectd write notification through notify_file plugin
- *
- */
-# $notification_path = "/var/lib/collectd/_notification";
-
-/**
- *
- *	Path to rrdtool binary
- *
- */
-# $rrdtool = '/usr/bin/rrdtool';
-
-/**
- *
- *	rrdcached socket (if used)
- *
- */
-# $rrdcached = "/var/run/rrdcached/rrdcached.sock";
-
-/** 
- *
- *	Path to Collectd unix socket (see unixsock plugin) 
- *
- */
-# $collectd_socket  = '/var/run/collectd-unixsock';
-
-/** 
- *
- *	Hostname used by aggregator. If not set, hostname from posix_uname() is used
- *
- */
-# $aggregator_hostname  = 'my_custom_hostname';
-
 /** 
  *
  *	Custom widget. 
@@ -78,6 +36,19 @@
  *
  */
 # $extra_jsfile[] = 'js/custom_plugin_view.js';
+
+/**
+ *
+ *	Collectd sources definitions
+ *	Add/set your collectd sources
+ *  Note : localhost as a server needs a Unix socket for rrdcached
+ *
+ */
+$collectd_source_default = "localhost";
+$collectd_sources = array(
+    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/" ),
+);
+
 
 /**
  *

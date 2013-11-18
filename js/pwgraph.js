@@ -82,9 +82,11 @@
     display : function( ) {
 	  var options = this.data();
 	  this.pwgraph('check_boundary');
+      // TODO/remote_sources : do not use hard-coded 'localhost' below but dynamic value.
       $(this).attr('src',
 		'graph.php'
-		+ '?host=' + encodeURIComponent(options['host'])
+		+ '?collectd_source=' + encodeURIComponent('localhost')
+		+ '&host=' + encodeURIComponent(options['host'])
 		+ (options['althost'] != null ? '&althost=' + encodeURIComponent(options['althost']) : '')
 		+ '&plugin=' + encodeURIComponent(options['plugin'])
 		+ '&plugin_instance=' + encodeURIComponent(options['plugin_instance'])

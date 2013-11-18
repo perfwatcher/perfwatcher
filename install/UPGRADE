@@ -1,3 +1,20 @@
+Upgrade from version >= 1.3 to version 1.4
+------------------------------------------
+
+1/ MetaGraphDefs callbacks prototype
+
+Check your etc/definitions.local.php : MetaGraphDefs callbacks prototype changed.
+Before :
+callback($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array())
+After :
+callback($collectd_source, $host, $plugin, $plugin_instance, $type, $type_instances, $opts = array())
+
+
+2/ Database schema
+
+Update the database schema with upgrade_to_1.4.sql :
+cat upgrade_to_1.4.sql | mysql <your options here>
+
 Upgrade from version >= 1.2 to version 1.3
 ------------------------------------------
 Database schema did not change.

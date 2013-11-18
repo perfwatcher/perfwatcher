@@ -124,6 +124,14 @@ function error500($title, $msg) {
 }
 
 // Process input arguments
+$collectd_source  = read_var('collectd_source', $_GET, null);
+if (is_null($collectd_source))
+    return error400("?/?-?/?", "Missing collectd_source name");
+else if (!is_string($collectd_source))
+    return error400("?/?-?/?", "Expecting exactly 1 collectd_source name");
+else if (strlen($collectd_source) == 0)
+    return error400("?/?-?/?", "Collectd source name may not be blank");
+
 $host     = read_var('host', $_GET, null);
 if (is_null($host))
     return error400("?/?-?/?", "Missing host name");
@@ -138,7 +146,7 @@ if (is_null($althost))
 else if (!is_string($althost))
     return error400("?/?-?/?", "Expecting exactly 1 alt host name");
 
-    $plugin   = read_var('plugin', $_GET, null);
+$plugin   = read_var('plugin', $_GET, null);
 if (is_null($plugin))
     return error400($host.'/?-?/?', "Missing plugin name");
 else if (!is_string($plugin))
@@ -146,11 +154,11 @@ else if (!is_string($plugin))
 else if (strlen($plugin) == 0)
     return error400($host.'/?-?/?', "Plugin name may not be blank");
 
-    $pinst    = read_var('plugin_instance', $_GET, '');
+$pinst    = read_var('plugin_instance', $_GET, '');
 if (!is_string($pinst))
     return error400($host.'/'.$plugin.'-?/?', "Plugin instance name must be a string");
 
-    $type     = read_var('type', $_GET, '');
+$type     = read_var('type', $_GET, '');
 if (is_null($type))
     return error400($host.'/'.$plugin.(strlen($pinst) ? '-'.$pinst : '').'/?', "Missing type name");
 else if (!is_string($type))
@@ -158,25 +166,25 @@ else if (!is_string($type))
 else if (strlen($type) == 0)
     return error400($host.'/'.$plugin.(strlen($pinst) ? '-'.$pinst : '').'/?', "Type name may not be blank");
 
-    $tinst    = read_var('type_instance', $_GET, '');
+$tinst    = read_var('type_instance', $_GET, '');
 
-    $graph_identifier = $host.'/'.$plugin.(strlen($pinst) ? '-'.$pinst : '').'/'.$type.(strlen($tinst) ? '-'.$tinst : '-*');
+$graph_identifier = $host.'/'.$plugin.(strlen($pinst) ? '-'.$pinst : '').'/'.$type.(strlen($tinst) ? '-'.$tinst : '-*');
 
-    $timespan = read_var('timespan', $_GET, $config['timespan'][0]['name']);
-    $timespan_ok = false;
-    foreach ($config['timespan'] as &$ts)
+$timespan = read_var('timespan', $_GET, $config['timespan'][0]['name']);
+$timespan_ok = false;
+foreach ($config['timespan'] as &$ts)
     if ($ts['name'] == $timespan)
-    $timespan_ok = true;
+        $timespan_ok = true;
 if (!$timespan_ok)
     return error400($graph_identifier, "Unknown timespan requested");
 
-    $begin = read_var('begin', $_GET, -86400);
-    $end = read_var('end', $_GET, null);
+$begin = read_var('begin', $_GET, -86400);
+$end = read_var('end', $_GET, null);
 
-    $xcenter = $begin < 0 ? $xcenter = time() + ($begin / 2) : $xcenter = $end - (($end - $begin) / 2);
-    $xcenter = intval($xcenter);
+$xcenter = $begin < 0 ? $xcenter = time() + ($begin / 2) : $xcenter = $end - (($end - $begin) / 2);
+$xcenter = intval($xcenter);
 
-    $xconfig = array();
+$xconfig = array();
 if(is_numeric($end) and $begin > 0 and  $end - $begin > 2160000 and $end - $begin < 12960000)
 {
     if($end - $begin < 12960000 - (86400*7))
@@ -190,18 +198,18 @@ $tinylegend = (boolean)read_var('tinylegend', $_GET, false);
 $zero 		= (boolean)read_var('zero', $_GET, false);
 
 // Check that at least 1 RRD exists for the specified request
-$all_tinst = collectd_list_types($host, $plugin, $pinst, $type);
+$all_tinst = collectd_list_types($collectd_source, $host, $plugin, $pinst, $type);
 if (count($all_tinst) == 0)
     return error404($graph_identifier, "No rrd file found for graphing : $host, $plugin, $pinst, $type");
 
-    // Now that we are read, do the bulk work
-    load_graph_definitions($logscale, $tinylegend, $zero);
+// Now that we are read, do the bulk work
+load_graph_definitions($logscale, $tinylegend, $zero);
 
-    $pinst = strlen($pinst) == 0 ? null : $pinst;
-    $tinst = strlen($tinst) == 0 ? null : $tinst;
+$pinst = strlen($pinst) == 0 ? null : $pinst;
+$tinst = strlen($tinst) == 0 ? null : $tinst;
 
-    $opts  = array();
-    $opts['timespan'] = $timespan;
+$opts  = array();
+$opts['timespan'] = $timespan;
 if ($logscale)
     $opts['logarithmic'] = 1;
 if ($tinylegend)
@@ -211,59 +219,101 @@ if ($zero)
 if ($althost)
     $opts['althost']  = $althost;
 
-    $rrd_cmd = false;
-    if (isset($MetaGraphDefs[$type])) {
-        if ($type == '_') {
-            $rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
-        } else {
-            $rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $tinst, $opts);
-        }
+$rrd_cmd = false;
+if (isset($MetaGraphDefs[$type])) {
+    if ($type == '_') {
+        $rrd_cmd = $MetaGraphDefs[$type]($collectd_source, $host, $plugin, $pinst, $type, $all_tinst, $opts);
     } else {
-        //	collectd_flush(collectd_identifier($host, $plugin, is_null($pinst) ? '' : $pinst, $type, is_null($tinst) ? '' : $tinst));
-        if (isset($GraphDefs[$type]))
-            $rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst, $opts);
-        else
-            $rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst, $opts);
+        $rrd_cmd = $MetaGraphDefs[$type]($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
     }
+} else if (isset($GraphDefs[$type])) {
+    $rrd_cmd = collectd_draw_generic($collectd_source, $timespan, $host, $plugin, $pinst, $type, $tinst, $opts);
+} else {
+    $rrd_cmd = collectd_draw_rrd($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
+}
 $rrd_cmd[] = 'VRULE:'.$GLOBALS['xcenter'].'#888888:'.date("Y/m/d H\\\\:i\\\\:s",$GLOBALS['xcenter']).'\l:dashes';
 $rrd_cmd = array_merge($rrd_cmd,$xconfig);
 $rrd_cmd[] = "-m";
 $rrd_cmd[] = "1";
-if (isset($rrdcached) && file_exists($rrdcached)) {
-    $rrd_cmd[] = "--daemon";
-    $rrd_cmd[] = $rrdcached;
-}
 if (isset($_GET['debug'])) {
     header('Content-Type: text/plain; charset=utf-8');
-    printf("Would have executed:\n%s\n", is_array($rrd_cmd) ? "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'" : $rrd_cmd);
+    printf("Would have executed on '%s' :\n%s\n", $collectd_source, is_array($rrd_cmd) ? "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'" : $rrd_cmd);
     return 0;
-} else if ($rrd_cmd) {
-    if (!isset($_GET['download'])) {
-        header('Content-Type: image/png');
-    } else {
-        header("Pragma: public");
-        header("Expires: 0");
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-        header("Cache-Control: private",false);
-        header("Content-Type: application/octet-stream");
-        header("Content-Disposition: attachment; filename=\"graph.png\";" );
-        header("Content-Transfer-Encoding: binary"); 
-    }
-    header('Cache-Control: max-age=60');
-    if (version_compare(phpversion("rrd"), '0.0.0', '>=')) {
-        $tmpfile = tempnam('/dev/shm/','rrd-phpcollectd-');
-        $ret = rrd_graph($tmpfile, $rrd_cmd);
-        readfile($tmpfile);
-        unlink($tmpfile);
-    } else {
-        $cmd = "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'";
-        echo `$cmd`;
-    }
-    exit();
-    if (!is_array($ret))
-        return error500($graph_identifier, "RRD failed to generate the graph");
-} else {
+}
+if(!$rrd_cmd) {
     return error500($graph_identifier, "Failed to tell RRD how to generate the graph");
 }
+
+if (isset($_GET['download'])) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private",false);
+    header("Content-Type: application/octet-stream");
+    header("Content-Disposition: attachment; filename=\"graph.png\";" );
+    header("Content-Transfer-Encoding: binary"); 
+} else {
+    header('Content-Type: image/png');
+}
+header('Cache-Control: max-age=60');
+
+################################################################
+# The following commented code allows to flush rrdcached before
+# drawing.
+# However, when using pw_rrd_graphonly with jsonrpc, rrdcached
+# will automatically be flushed.
+# So this code is useless here.
+# We leave it only in case somebody needs it.
+#
+#    /* Get list of files to flush */
+#    $files = array();
+#    foreach ($rrd_cmd as $l) {
+#        if(0 < preg_match("/^DEF:[^=:]+=([^:]+):/", $l, $m)) {
+#            $files[$m[1]] = 1;
+#        }
+#    }
+#
+#    /* Flush the rrds */
+#    putenv('http_proxy');
+#    putenv('https_proxy');
+#    $json = json_encode(array(
+#                "jsonrpc" => "2.0",
+#                "method" => "pw_rrd_flush",
+#                "params" => array_keys($files),
+#                "id" => 0)
+#            );
+#    $ra = jsonrpc_query($collectd_source, $json);
+#
+#    $ret = array();
+#    if(!(isset($ra[0]) && isset($ra[1]))) { return($ret); }
+################################################################
+
+/* Graph the rrds */
+    $json = json_encode(array(
+                "jsonrpc" => "2.0",
+                "method" => "pw_rrd_graphonly",
+                "params" => $rrd_cmd,
+                "id" => 0)
+            );
+    $ra = jsonrpc_query($collectd_source, $json);
+
+    $ret = array();
+    if(!(isset($ra[0]) && isset($ra[1]))) { echo file_get_contents($config["failed_rrdgraph_png"]); exit(); }
+    $r = $ra[0];
+    if(isset($r["image"])) {
+    echo base64_decode($r["image"]);
+    } else {
+        echo file_get_contents($config["failed_rrdgraph_png"]);
+    }
+
+################################################################
+# This is how we generated the graphs before.
+# We keep it in case somebody needs it one day...
+#
+#    $cmd = "'$rrdtool' 'graph' '-' '".implode("' '", $rrd_cmd )."'";
+#    echo `$cmd`;
+################################################################
+
+    exit();
 
 ?>

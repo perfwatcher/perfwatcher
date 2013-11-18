@@ -46,7 +46,9 @@ switch ($res['type']) {
         break;
 }
 
-$plugins = load_datas($host);
+/* TODO/remote_sources */
+/* remove the hard-coded source */
+$plugins = get_list_of_rrds("localhost", $host);
 $datas = $jstree->get_datas($res['id']);
 
 if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) > 0) {

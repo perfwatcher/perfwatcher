@@ -10,6 +10,7 @@ require 'lib/common.php';
 
 
 
+$collectd_source  = read_var('collectd_source', $_GET, null);
 $host     = read_var('host', $_GET, null);
 $plugin   = read_var('plugin', $_GET, null);
 $pinst    = read_var('plugin_instance', $_GET, '');
@@ -24,19 +25,19 @@ $pinst = $pinst == '_' ? null : $pinst;
 $tinst = $tinst == '_' ? null : $tinst;
 $pinst = strlen($pinst) == 0 ? null : $pinst;
 $tinst = strlen($tinst) == 0 ? null : $tinst;
-$all_tinst = collectd_list_types($host, $plugin, $pinst, $type);
+$all_tinst = collectd_list_types($collectd_source, $host, $plugin, $pinst, $type);
 load_graph_definitions($logscale, $tinylegend);
 if (isset($MetaGraphDefs[$type])) {
     if ($type == '_') {
-        $rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $all_tinst, $opts);
+        $rrd_cmd = $MetaGraphDefs[$type]($collectd_source, $host, $plugin, $pinst, $type, $all_tinst, $opts);
     } else {
-        $rrd_cmd = $MetaGraphDefs[$type]($host, $plugin, $pinst, $type, $tinst, $opts);
+        $rrd_cmd = $MetaGraphDefs[$type]($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
     }
 } else {
     if (isset($GraphDefs[$type])) {
-        $rrd_cmd = collectd_draw_generic($timespan, $host, $plugin, $pinst, $type, $tinst);
+        $rrd_cmd = collectd_draw_generic($collectd_source, $timespan, $host, $plugin, $pinst, $type, $tinst);
     } else {
-        $rrd_cmd = collectd_draw_rrd($host, $plugin, $pinst, $type, $tinst);
+        $rrd_cmd = collectd_draw_rrd($collectd_source, $host, $plugin, $pinst, $type, $tinst);
     }
 }
 

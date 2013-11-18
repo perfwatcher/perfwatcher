@@ -59,15 +59,11 @@ class folder_filling_regex {
                 $regex = $this->datas['serverslist']['servernameregex'];
             }
         }
-        $out = array();
-        $dh = opendir($rrds_path);
-        while ($hostdir = readdir($dh)) {
-            if ($hostdir == '..' || $hostdir == '.' || $hostdir == '_csv') { continue; }
-            if (substr($hostdir,0,11) != 'aggregator_' && @ereg($regex, $hostdir)) {
-                $out[] = trim($hostdir);
-            }
+        if (! $regex) {
+            return array();
         }
-        closedir($dh);
+        $list = get_list_of_hosts_having_rrds(0, false);
+        $out = preg_grep("/${regex}/", array_keys($list));
         return $out;
     }
 

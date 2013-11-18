@@ -46,41 +46,223 @@ function get_arg($key, $default_value, $check_if_is_numeric, $die_error_message,
 
 }
 
-function load_datas($host) {
-    global $rrds_path, $grouped_type, $blacklisted_type;
-    if (is_array($rrds_path)) {
-        $array_rrds_path = $rrds_path;
+function exit_jsonrpc_error($error) {
+#    file_put_contents('php://stderr', "exit_jsonrpc_error : $error\n");
+    echo json_encode(array("error" => $error, "data" => array())); exit;
+}
+
+function jsonrpc_query($source = null, $json_encoded_request) {
+    /* Returns an array $ret[$plugin][$plugin_instance][$type][$type_instance].
+     * If $type is in the array $blacklisted_type, the item is not inserted.
+     * If $type is in the array $grouped_type, the $type_instance is set to "_".
+     */
+    global $collectd_sources;
+
+    putenv('http_proxy');
+    putenv('https_proxy');
+    if($source) {
+        $sources = array("$source" => $collectd_sources[$source]);
     } else {
-        $array_rrds_path = array($rrds_path);
+        $sources = $collectd_sources;
     }
+    foreach ($sources as $collectd_source_alias => $collectd_source_data) {
+        if(! isset($collectd_source_data["jsonrpc"])) {
+            next;
+        }
+        $jsonrpc_url = $collectd_source_data{"jsonrpc"};
+        $ch = curl_init($jsonrpc_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json_encoded_request);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($json_encoded_request))
+                );
+
+        /* Send the request */
+        $ra = array(null, null, null);
+        if($result = curl_exec($ch)) {
+            if ($result  != '' && $result = json_decode($result, true)) {
+                if(!isset($result['result'])) file_put_contents("php://stderr", "Bug !!!\n\$json_encoded_request='$json_encoded_request'\n\$result=".print_r($result,1)."\nToo bad !\n");
+                $ra = array($result['result'], $collectd_source_alias, null);
+                break;
+            }
+        } else {
+            exit_jsonrpc_error(curl_error($ch));
+        }
+        curl_close($ch);
+    }
+    return($ra);
+}
+
+
+function get_list_of_types_instances($collectd_source, $host, $plugin, $plugin_instance, $type = null) {
+    /* Returns an array with/without aggregators as $ret[host] = array(source1, source2...)
+     */
+    global $collectd_sources;
+
+    $plugin_and_instance = $plugin.((isset($plugin_instance) && ($plugin_instance != ""))?"-$plugin_instance":"");
+
     $ret = array();
-    foreach($array_rrds_path as $rrds_path) {
-        if (!is_dir($rrds_path.'/'.$host)) { continue; }
-        $dh = scandir($rrds_path.'/'.$host, 1);
-        foreach ($dh as $plugindir) {
-            if (!is_dir($rrds_path.'/'.$host.'/'.$plugindir) || $plugindir == '.' || $plugindir == '..') { continue; }
-            $plugin = $plugin_instance = '';
-            @list($plugin, $plugin_instance ) = split('-', $plugindir, 2);
-            if ($plugin_instance == '') { $plugin_instance = '_'; }
-            $ret[$plugin][$plugin_instance] = array();
-            $dh2 = scandir($rrds_path.'/'.$host.'/'.$plugindir);
-            foreach ($dh2 as $rrd) {
-                if ($rrd == '.' || $rrd == '..' || substr($rrd, -4) != '.rrd') { continue; }
-                $type = $type_instance = '';
-                @list($type, $type_instance) = split('-', substr($rrd,0, -4), 2);
-                if (in_array($type, $blacklisted_type)) { continue; }
-                if ($type_instance == '') { $type_instance = '_'; }
-                //if ($type == $plugin) { $type_instance = '_'; }
-                if (in_array($type,$grouped_type)) {
-                    $ret[$plugin][$plugin_instance][$type]['_'] = true;
-                } else {
-                    $ret[$plugin][$plugin_instance][$type][$type_instance] = true;
+
+    $json = json_encode(array(
+                "jsonrpc" => "2.0",
+                "method" => "pw_get_dir_types",
+                "params" => array( "hostname" => $host, "plugin" => $plugin_and_instance ),
+                "id" => 0)
+            );
+    $ra = jsonrpc_query($collectd_source, $json);
+
+    if(!(isset($ra[0]) && isset($ra[1]))) { return($ret); }
+    $r = $ra[0];
+    if (! isset($r['nb'])) { return($ret); }
+
+    $data = $r['values'];
+    if($data) {
+        if($type) {
+            foreach ($data as $t) {
+                if (substr($t, strlen($t)-4) != '.rrd') continue;
+                $t= substr($t, 0, strlen($t)-4);
+                $a = explode("-", $t, 2);
+                if($type == $a[0]) {
+                    if(isset($a[1])) {
+                        $ret[] = $a[1];
+                    } else {
+                        $ret[] = "";
+                    }
                 }
-                ksort($ret[$plugin]);
+            }
+        } else {
+            foreach ($data as $t) {
+                if (substr($t, strlen($t)-4) != '.rrd') continue;
+                $ret[] = $t;
             }
         }
     }
+    return $ret;
+}
+
+function get_list_of_hosts_having_rrds($collectd_source_forced, $include_aggregators) {
+    /* Returns an array with/without aggregators as $ret[host] = array(source1, source2...)
+     */
+    global $collectd_sources;
+
+    $ret = array();
+    if($collectd_source_forced) {
+        $local_collectd_sources[] = $collectd_source_forced;
+    } else {
+        $local_collectd_sources = $collectd_sources;
+    }
+
+    putenv('http_proxy');
+    putenv('https_proxy');
+    foreach ($local_collectd_sources as $collectd_source_alias => $collectd_source_data) {
+        if(! isset($collectd_source_data["jsonrpc"])) {
+            next;
+        }
+        $jsonrpc_url = $collectd_source_data{"jsonrpc"};
+        $ch = curl_init($jsonrpc_url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
+
+        /* Create the request */
+        $json = json_encode(array(
+                    "jsonrpc" => "2.0",
+                    "method" => "pw_get_dir_hosts",
+                    "params" => "",
+                    "id" => 0)
+                );
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen($json))
+                );
+
+        /* Send the request */
+        if($result = curl_exec($ch)) {
+            if ($result  != '' && $result = json_decode($result)) {
+                if (isset($result->result->nb)) {
+                    $source = $collectd_source_alias;
+                    $data = $result->result->values;
+                    if($data) {
+                        if($include_aggregators) {
+                            foreach ($data as $h) {
+                                $ret[$h][] = $source;
+                            }
+                        } else {
+                            foreach ($data as $h) {
+                                if(substr($h, 0, 11) != "aggregator_") $ret[$h][] = $source;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            exit_jsonrpc_error(curl_error($ch));
+        }
+        curl_close($ch);
+    }
     ksort($ret);
+
+    return $ret;
+}
+
+function get_list_of_rrds($collectd_source, $host) {
+    /* Returns an array $ret[$plugin][$plugin_instance][$type][$type_instance].
+     * If $type is in the array $blacklisted_type, the item is not inserted.
+     * If $type is in the array $grouped_type, the $type_instance is set to "_".
+     */
+    global $grouped_type, $blacklisted_type, $collectd_sources;
+
+    putenv('http_proxy');
+    putenv('https_proxy');
+    /* Create the request */
+    $json = json_encode(array(
+                "jsonrpc" => "2.0",
+                "method" => "pw_get_dir_all_rrds_for_host",
+                "params" => array("hostname" => $host),
+                "id" => 0)
+            );
+    $ra = jsonrpc_query($collectd_source, $json);
+
+    $ret = array();
+    if(!(isset($ra[0]) && isset($ra[1]))) { return($ret); }
+    $r = $ra[0];
+    if (! isset($r['nb'])) { return($ret); }
+
+    $data = $r['values'];
+    if(!isset($data)) { return($ret); }
+    foreach ($data as $p => $o1) { /* Plugins */
+        foreach ($o1 as $pi => $o2) { /* Plugin instances */
+            if($pi === "") { $pi = "_"; }
+            foreach ($o2 as $t => $o3) { /* Types */
+                if (in_array($t, $blacklisted_type)) { 
+                    /* blacklisted type : do nothing */
+                } else if(in_array($t, $grouped_type)) {
+                    /* grouped type : replace the type instances with only "_" */
+                    $ret[$p][$pi][$t]["_"] = true;
+                } else {
+                    /* Any other type : keep type instances and set them as true */
+                    foreach ($o3 as $ti => $o4) {
+                        if($ti === '')  {
+                            $ret[$p][$pi][$t]["_"] = true;
+                        } else {
+                            $ret[$p][$pi][$t][$ti] = true;
+                        }
+                    }
+                }
+                if(isset($ret[$p][$pi][$t])) ksort($ret[$p][$pi][$t]);
+            }
+            if(isset($ret[$p][$pi])) ksort($ret[$p][$pi]);
+        }
+        if(isset($ret[$p])) ksort($ret[$p]);
+    }
+    if(isset($ret)) ksort($ret);
+
     return $ret;
 }
 

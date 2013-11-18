@@ -39,7 +39,9 @@ if (isset($_GET['host'])) {
     die('Error : No valid name found !!!');
 }
 
-$plugins = load_datas($host);
+/* TODO/remote_sources */
+/* remove the hard-coded source */
+$plugins = get_list_of_rrds("localhost", $host);
 
 echo json_encode(
         array(

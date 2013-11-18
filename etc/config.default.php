@@ -26,8 +26,6 @@ $rrdtool = '/usr/bin/rrdtool';
 
 $rrdtool_options = array('--border', '0', '-c', 'BACK#FFFFFF', '-v', ' ');
 
-$collectd_socket  = '/var/run/collectd-unixsock';
-
 $widgets = array();
 $widgets[] = 'vu_cpu_memory';
 $widgets[] = 'folder_status';
@@ -43,6 +41,11 @@ $peuplator_plugins[] = 'folder_filling_manual';
 
 $extra_jsfile = array();
 $extra_jsfile[] = 'js/custom_plugin_view.js';
+
+$collectd_source_default = "localhost";
+$collectd_sources = array(
+    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/" ),
+);
 
 $jsonrpc_server = 'http://127.0.0.1:8080/';
 

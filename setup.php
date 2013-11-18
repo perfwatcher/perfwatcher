@@ -70,10 +70,6 @@ if (isset($rrdtool) && file_exists($rrdtool) && in_array('--border', $rrdtool_op
 	}
 }
 
-$ok = "$rrds_path is present ";
-$ko = "$rrds_path does not exists, check $rrds_path in etc/config.php and your collectd installation";
-echo "<li>".(isset($rrds_path) && is_dir($rrds_path) ? printok ($ok) : printko ($ko))."</li>";
-
 # Check the database
 $ok = "Can connect to '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'.";
 $ko = "Could not connect to database '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'. You may check the install/* scripts.";
