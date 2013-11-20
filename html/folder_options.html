@@ -1,20 +1,92 @@
 <script type="text/javascript">
-	$('div[widget="folder_options"] input[name=sort]').click(function () {
-        $.ajax({
-            async : false, type: 'POST', url: "action.php?tpl=folder_options",
-            data : { "action" : "sort", "sort" : $('div[widget="folder_options"] input[name=sort]:checked').val(),
-			"view_id" : view_id,
-			"id" : json_item_datas['jstree']['id'] },
-            complete : function (r) {
-				$('#tree').jstree("refresh");
-            }
-        });
-	});
-	if (json_item_datas['datas'] && json_item_datas['datas']['sort'] && json_item_datas['datas']['sort'] == 1) {
-		$('div[widget="folder_options"] input[name=sort][value="1"]').attr('checked', 'checked');
-	} else {
-		$('div[widget="folder_options"] input[name=sort][value="0"]').attr('checked', 'checked');
+    $('#options_server_sorting').hide();
+    $('#options_collectd_source').hide();
+
+	// Sort options
+	if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+    	if (json_item_datas['datas'] && json_item_datas['datas']['sort'] && json_item_datas['datas']['sort'] == 1) {
+    		$('#options_server_sorting input[name=sort][value="1"]').attr('checked', 'checked');
+    	} else {
+    		$('#options_server_sorting input[name=sort][value="0"]').attr('checked', 'checked');
+    	}
+		$('#options_server_sorting').show();
 	}
+	// Collectd source
+	if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+    	var select_cdsrc = 'select[part="cdsrc"]';
+    	var json_data = null;
+    
+    	$.getJSON('action.php?tpl=folder_options&action=get_config_list', function(data) {
+    		var current_src = "default";
+    		json_data = data;
+    		json_data.unshift("default");
+    		$.each(json_data, function (n, value) {
+    				var option = document.createElement('option');
+    				if(value.length > 50) {
+    					option.innerHTML = value.substring(0,45) + ' ... ' + value.substr(-5);
+    				} else {
+    					option.innerHTML = value;
+    				}
+    				$(option).val(value);
+    				$(option).appendTo(select_cdsrc);
+    		});
+    
+    		if (json_item_datas['datas'] && json_item_datas['datas']['CdSrc'] ) {
+    			current_src = json_item_datas['datas']['CdSrc'];
+    		}
+    
+    		$(select_cdsrc+' option').each(function () {
+    				if ($(this).val() == current_src) {
+    					$(this).attr('selected', 'selected');
+    				}
+    		});
+    
+    		$(select_cdsrc).multiselect({ noneSelectedText: 'Select Source', multiple : false, selectedList: 1 }).multiselectfilter();
+    
+    	});
+    
+		$('#options_collectd_source').show();
+	}
+
+    $('div[widget="folder_options"] button').button();
+    $('div[widget="folder_options"] button.save').click(function () {
+	// Sort options
+	    if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+            $.ajax({
+                async : false, type: 'POST', url: "action.php?tpl=folder_options",
+                data : { "action" : "save_sort", "sort" : $('#options_server_sorting input[name=sort]:checked').val(),
+    			"view_id" : view_id,
+    			"id" : json_item_datas['jstree']['id'] },
+                complete : function (r) {
+    				$('#tree').jstree("refresh");
+                }
+            });
+		}
+	// Collectd source
+	    if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+    		var src = [];
+    		$(select_cdsrc+' option:selected').each(function() { src.push($(this).val()); });
+            $.ajax({
+                async : false, type: 'POST', url: "action.php?tpl=folder_options",
+                data : {
+    				"action" : "save_cdsrc", 
+    				"src" : src[0],
+    				"view_id" : view_id,
+    				"id" : json_item_datas['jstree']['id']
+    			},
+                complete : function (r) {
+                    if(!r.status) { ('div[widget="folder_options"] div.result').html('Error, can\'t retrieve data from server !'); }
+                    else { $('div[widget="folder_options"] div.result').html(r.responseText); }
+                }
+            });
+		}
+	});
 </script>
+<div id='options_server_sorting'>
 Server sorting : <input type="radio" name="sort" value="0" /> Manual
 <input type="radio" name="sort" value="1" /> Alphanumeric
+</div>
+<div id='options_collectd_source'>
+Collectd source : <select multiple="multiple" part="cdsrc"></select><br />
+</div>
+<button class="save">Save</button>

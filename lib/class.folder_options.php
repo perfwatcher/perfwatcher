@@ -40,18 +40,43 @@ class folder_options {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
                 'title' => $this->datas['type']." options",
                 'content_url' => 'html/folder_options.html'
                 );
     }
 
+    /* Note: this function may be useless. To be checked. */
     function save ($list) {
         global $jstree, $id;
         $datas = $jstree->get_datas($this->datas['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['manuallist'] = $list;
+        $jstree->set_datas($id, $datas);
+        return true;
+    }
+
+    function save_sort ($sort) {
+        global $jstree, $id;
+        $datas = $jstree->get_datas($this->datas['id']);
+        $datas['sort'] = $sort;
+        $jstree->set_datas($id, $datas);
+        return true;
+    }
+
+    function get_config_list () {
+        global $collectd_sources;
+        return array_keys($collectd_sources);
+    }
+
+    function save_cdsrc ($cdsrc) {
+        global $jstree, $id, $collectd_source_default;
+        $datas = $jstree->get_datas($this->datas['id']);
+        if($cdsrc == "default") {
+            $datas['CdSrc'] = $collectd_source_default;
+        } else {
+            $datas['CdSrc'] = $cdsrc;
+        }
         $jstree->set_datas($id, $datas);
         return true;
     }

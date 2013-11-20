@@ -216,7 +216,7 @@ function get_list_of_rrds($collectd_source, $host) {
      * If $type is in the array $blacklisted_type, the item is not inserted.
      * If $type is in the array $grouped_type, the $type_instance is set to "_".
      */
-    global $grouped_type, $blacklisted_type, $collectd_sources;
+    global $grouped_type, $blacklisted_type;
 
     putenv('http_proxy');
     putenv('https_proxy');

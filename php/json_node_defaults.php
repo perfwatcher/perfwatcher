@@ -27,10 +27,6 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Pragma: no-cache");
 
-if (!isset($_GET['host']) and !isset($_POST['host'])) {
-    die('Error : POST or GET id missing !!');
-}
-
 if (isset($_GET['host'])) {
     $host = $_GET['host'];
 } elseif (isset($_POST['host'])) {
@@ -39,19 +35,38 @@ if (isset($_GET['host'])) {
     die('Error : No valid name found !!!');
 }
 
-/* TODO/remote_sources */
-/* remove the hard-coded source */
-$plugins = get_list_of_rrds("localhost", $host);
+$collectd_source_list = array();
+if (isset($_GET['CdSrc']) && $_GET['CdSrc']) {
+    $collectd_source_list[] = $_GET['CdSrc'];
+} elseif (isset($_POST['CdSrc']) && $_POST['CdSrc']) {
+    $collectd_source_list[] = $_POST['CdSrc'];
+} else {
+    $collectd_source_list = array_keys($collectd_sources);
+}
 
-echo json_encode(
-        array(
-            'host' => $host,
-            'plugins' => $plugins,
-            'jstree' => array('title' => $host),
-            'datas' => array(),
-            'config' => array(
-                'widgets' => get_widget(array( 'type' => 'default' ) )
-                )
-            ));
+$collectd_source = "";
+foreach ($collectd_source_list as $cs) {
+    $plugins = get_list_of_rrds($cs, $host);
+    if(! empty($plugins)) {
+        $collectd_source = $cs;
+        break;
+    }
+}
+
+if("" == $collectd_source) {
+    echo json_encode(array());
+} else {
+    echo json_encode(
+            array(
+                'host' => $host,
+                'plugins' => $plugins,
+                'jstree' => array('title' => $host),
+                'datas' => array(),
+                'config' => array(
+                    'widgets' => get_widget(array( 'type' => 'default' ) ),
+                    'CdSrc' => $collectd_source
+                    )
+                ));
+}
 ?>
 

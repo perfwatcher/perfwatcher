@@ -46,6 +46,8 @@ switch ($res['type']) {
         break;
 }
 
+$collectd_source = $jstree->get_node_collectd_source($id);
+
 /* TODO/remote_sources */
 /* remove the hard-coded source */
 $plugins = get_list_of_rrds("localhost", $host);
@@ -66,7 +68,8 @@ echo json_encode(
             'jstree' => $res,
             'datas' => $datas,
             'config' => array(
-                'widgets' => get_widget($res)
+                'widgets' => get_widget($res),
+                'CdSrc' => $collectd_source
                 )
             ));
 ?>

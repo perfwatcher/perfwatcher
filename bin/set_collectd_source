@@ -1,0 +1,93 @@
+#!/usr/bin/php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
+
+chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
+
+
+require "lib/common.php";
+
+$debug=false;
+
+function usage_and_exit($argv, $msg = "") {
+    echo "Syntaxe : ".$argv[0]." [--container=<container>] [--id=<id>] --collectd_source=<Collectd Source(s)>\n";
+    echo "where \n";
+    echo "  container : is the name of the container (folder) to update\n";
+    echo "  id        : is the id of the folder to update (if you want to update only one)\n";
+    echo "  Collectd Source(s) : is a CSV list of Collectd sources\n";
+    echo "\n";
+    if($msg) print "$msg\n";
+    exit;
+}
+
+$container_ids = array();
+foreach ($argv as $i => $v) {
+    if($i == 0) continue;
+    if(preg_match('/^--([^=]+)=([-A-Za-z0-9_., \t]+)$/', $v, $match)) {
+        switch($match[1]) {
+            case "container" :
+                $containername = $match[2];
+                break;
+
+            case "id" :
+                $view_id = get_view_id_from_id($match[2]);
+                if( !isset($view_id)) {
+                    echo "Could not find '".$match[2]."'\n";
+                    exit;
+                }
+                $container_ids[$view_id][] = $match[2];
+                break;
+
+            case "collectd_source" :
+                $cdsrc = $match[2];
+                break;
+
+            default :
+                usage_and_exit($argv, "Unknown '".$match[1]."' option");
+        }
+    }
+}
+
+if(!isset($cdsrc)) usage_and_exit($argv, "No 'collectd_source' was provided");
+$cdsrc = preg_replace('/[ \t]*,[ \t]*/', ',', $cdsrc);
+$cdsrc = preg_replace('/,$/', '', $cdsrc);
+$cdsrc = preg_replace('/^,/', '', $cdsrc);
+
+
+if(count($container_ids) == 0) {
+    if( !isset($containername)) {
+        usage_and_exit($argv, "No id and no container was provided");
+    }
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $db->prepare("SELECT id,view_id FROM tree where (type = 'drive' || type = 'folder') and (title = ?)", array('text'));
+        $db->execute(array($containername));
+        while($db->nextr()) {
+            $r = $db->get_row('assoc');
+            $container_ids[$r['view_id']][] = $r['id'];
+        }
+        $db->free();
+        $db->destroy();
+    }
+}
+
+if(count($container_ids) == 0) {
+    echo "Found no container with name as '$containername'\n";
+    exit;
+}
+
+
+foreach ($container_ids as $view_id => $id_list) {
+    foreach ($id_list as  $id) {
+
+        $jstree = new json_tree($view_id);
+        $res = $jstree->_get_node($id);
+        echo "Updating $id (".$res['title'].")\n";
+        $datas = $jstree->get_datas($res['id']);
+
+        $datas['CdSrc'] = $cdsrc;
+        $jstree->set_datas($res['id'], $datas);
+
+    }
+}
+
+?>

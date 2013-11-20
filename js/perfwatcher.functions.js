@@ -99,8 +99,22 @@ function select_node_with_data(datas) {
 }
 
 
-function select_node_by_name(host, tab) {
-	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&host='+host, function(datas) {
+function select_node_by_name(fullhost) {
+    var a = fullhost.split("/");
+    var collectd_source = "";
+    var host;
+    var tab;
+    if(a[0] == "") {
+        // Syntax "/collectd_source/host/tab"
+        collectd_source = a[1];
+        host = a[2];
+        tab = a[3];
+    } else {
+        // Syntax "host/tab"
+        host = a[0];
+        tab = a[1];
+    }
+	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&CdSrc='+collectd_source+'&host='+host, function(datas) {
 		var tabid = 0;
 		select_node_with_data(datas);
 		if(tab != "") {

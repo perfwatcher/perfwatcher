@@ -422,6 +422,27 @@ class json_tree extends _tree_struct {
         return $ids;
     }
 
+    function get_node_collectd_source($parent_id) {
+        global $collectd_source_default;
+        $cdsrc = $collectd_source_default;
+        while ($parent_id != 0) {
+            $this->db->prepare("SELECT parent_id,datas FROM ".$this->table
+                    ." WHERE view_id = ?"
+                    ." AND   id = ?",
+                    array('integer', 'integer'));
+            $this->db->execute(array((int)$this->view_id, $parent_id));
+            $this->db->nextr();
+            $parent_id = $this->db->f("parent_id");
+            $datas = $this->db->f("datas");
+            if(!$ret = unserialize($datas)) { continue; }
+            if(isset($ret['CdSrc']) ) {
+                $cdsrc = $ret['CdSrc'];
+                break;
+            }
+        }
+        return $cdsrc;
+    }
+
     function _create_default() {
     }
 

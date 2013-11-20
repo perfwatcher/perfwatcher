@@ -264,8 +264,7 @@ $(function () {
 			recurse_open_node(nodes);
 		} else if(nodes[0] == 'host') {
 			var fullhost = location.hash.substr(6);
-			var a = fullhost.split("/");
-			select_node_by_name(a[0], a[1]);
+			select_node_by_name(fullhost);
 			$('#mainSplitter').jqxSplitter('collapseAt', 0);
 			treecollapsed = true;
 		}
