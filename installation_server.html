@@ -75,7 +75,7 @@ cd json-c-0.10
 ./configure --prefix=/usr
 make -j
 make install
-cp json_object_iterator.h /usr/include/json # Bug in libjson install script
+cp json_object_iterator.h /usr/include/json # Bug in libjson install script, seems to be fixed in 0.11
 cp /usr/lib/libjson.* /usr/lib64/ # Needed on RHEL and Suse x86_64</code></pre>
 </p>
 
@@ -103,8 +103,8 @@ Note : on RHEL and Suse, if your system is x86_64, you need to put your libs in 
 <p>
 	Two possibility :
 	<ul>
-		<li>Clone GitHub repo : <pre><code>git clone -b 'release/5.1' https://github.com/perfwatcher/collectd-pw.git</code></pre></li>
-		<li>Download last stable version : <pre><code>wget http://perfwatcher.free.fr/download/collectd/collectd-5.4.0.20131029.tar.gz</code></pre></li>
+		<li>Clone GitHub repo : <pre><code>git clone -b 'release/5.4.0' https://github.com/perfwatcher/collectd-pw.git</code></pre></li>
+		<li>Download last stable version : <pre><code>wget http://perfwatcher.free.fr/download/collectd/collectd-5.4.0.20131118.tar.gz</code></pre></li>
 	</ul>
 </p>
 
@@ -180,6 +180,10 @@ LoadPlugin jsonrpc
 	MaxClients 64
 # Note : write_top and jsonrpc work together.
 # This is why we need to define this path twice.
+	DataDir "/var/lib/collectd"
+# If you prefer to use rrdcached, uncomment and update the next line
+#	RRDCachedDaemonAddress "/var/run/rrdcached/rrdcached.sock"
+	RRDToolPath "/usr/bin/rrdtool"
 	TopPsDataDir "/var/lib/collectd/top"
 &lt;/Plugin&gt;
 
