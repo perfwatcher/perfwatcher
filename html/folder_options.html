@@ -17,9 +17,11 @@
     	var json_data = null;
     
     	$.getJSON('action.php?tpl=folder_options&action=get_config_list', function(data) {
-    		var current_src = "default";
+    		var current_src = "Inherit from parent";
+			var current_src_computed = "unknown";
+			var current_src_computed_inherited = 0;
     		json_data = data;
-    		json_data.unshift("default");
+    		json_data.unshift(current_src);
     		$.each(json_data, function (n, value) {
     				var option = document.createElement('option');
     				if(value.length > 50) {
@@ -34,12 +36,21 @@
     		if (json_item_datas['datas'] && json_item_datas['datas']['CdSrc'] ) {
     			current_src = json_item_datas['datas']['CdSrc'];
     		}
+    		if (json_item_datas['config'] && json_item_datas['config']['CdSrc'] && json_item_datas['config']['CdSrc']['source']) {
+    			current_src_computed = json_item_datas['config']['CdSrc']['source'];
+    			current_src_computed_inherited = json_item_datas['config']['CdSrc']['inherited'];
+    		}
     
     		$(select_cdsrc+' option').each(function () {
     				if ($(this).val() == current_src) {
     					$(this).attr('selected', 'selected');
     				}
     		});
+			if(current_src_computed_inherited) {
+					$('#options_current_cdsrc').html(current_src_computed + ' (inherited)');
+			} else {
+					$('#options_current_cdsrc').html(current_src_computed);
+			}
     
     		$(select_cdsrc).multiselect({ noneSelectedText: 'Select Source', multiple : false, selectedList: 1 }).multiselectfilter();
     
@@ -87,6 +98,9 @@ Server sorting : <input type="radio" name="sort" value="0" /> Manual
 <input type="radio" name="sort" value="1" /> Alphanumeric
 </div>
 <div id='options_collectd_source'>
-Collectd source : <select multiple="multiple" part="cdsrc"></select><br />
+<table border='0'>
+<tr><td>Current Collectd source :</td><td><span id='options_current_cdsrc'>loading...</span></td></tr>
+<tr><td>Select new Collectd source :</td><td><select multiple="multiple" part="cdsrc"></select></td></tr>
+</table>
 </div>
 <button class="save">Save</button>

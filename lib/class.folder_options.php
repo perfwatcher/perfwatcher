@@ -72,8 +72,8 @@ class folder_options {
     function save_cdsrc ($cdsrc) {
         global $jstree, $id, $collectd_source_default;
         $datas = $jstree->get_datas($this->datas['id']);
-        if($cdsrc == "default") {
-            $datas['CdSrc'] = $collectd_source_default;
+        if($cdsrc == "Inherit from parent") {
+            unset($datas['CdSrc']);
         } else {
             $datas['CdSrc'] = $cdsrc;
         }

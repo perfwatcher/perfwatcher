@@ -46,12 +46,16 @@ switch ($res['type']) {
         break;
 }
 
-$collectd_source = $jstree->get_node_collectd_source($id);
-
-/* TODO/remote_sources */
-/* remove the hard-coded source */
-$plugins = get_list_of_rrds("localhost", $host);
 $datas = $jstree->get_datas($res['id']);
+if(isset($datas['CdSrc'])) {
+    $collectd_source = $datas['CdSrc'];
+    $collectd_source_is_inherited = 0;
+} else {
+    $collectd_source = $jstree->get_node_collectd_source($id);
+    $collectd_source_is_inherited = 1;
+}
+
+$plugins = get_list_of_rrds($collectd_source, $host);
 
 if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) > 0) {
     foreach($datas['tabs'] as $key => $val) {
@@ -61,7 +65,7 @@ if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) >
     }
 }
 
-echo json_encode(
+$rv = json_encode(
         array(
             'host' => $host,
             'plugins' => $plugins,
@@ -69,7 +73,11 @@ echo json_encode(
             'datas' => $datas,
             'config' => array(
                 'widgets' => get_widget($res),
-                'CdSrc' => $collectd_source
+                'CdSrc' => array(
+                    'source' => $collectd_source,
+                    'inherited' => $collectd_source_is_inherited
+                    )
                 )
             ));
+echo $rv;
 ?>

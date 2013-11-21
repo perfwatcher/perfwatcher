@@ -27,21 +27,25 @@ require "lib/class._database.php";
 require "lib/class.tree.php";
 require_once("MDB2.php");
 
+function pw_error_log($msg, $file="unset", $line="unset", $fct="unset") {
+    error_log(date("Y/m/d h:i:s")." ($file:$line:$fct) $msg\n", 3, "logs/perfwatcher.log");
+}
+
 function get_arg($key, $default_value, $check_if_is_numeric, $die_error_message, $file="unset", $line="unset") {
     if(isset($_GET[$key])) {
         if($check_if_is_numeric && (! is_numeric($_GET[$key]))) {
-            if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+            if($die_error_message) { pw_error_log("$die_error_message", $file,$line); exit(1); }
             return($default_value); # return default if no die message.
         }
         return($_GET[$key]);
     } elseif(isset($_POST[$key])) {
         if($check_if_is_numeric && (! is_numeric($_POST[$key]))) {
-            if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+            if($die_error_message) { pw_error_log("$die_error_message", $file,$line); exit(1); }
             return($default_value); # return default if no die message.
         }
         return($_POST[$key]);
     }
-    if($die_error_message) { error_log("$die_error_message ($file,$line)\n"); exit(1); }
+    if($die_error_message) { pw_error_log("$die_error_message", $file,$line); exit(1); }
     return($default_value); # return default if no die message.
 
 }
@@ -85,12 +89,19 @@ function jsonrpc_query($source = null, $json_encoded_request) {
         $ra = array(null, null, null);
         if($result = curl_exec($ch)) {
             if ($result  != '' && $result = json_decode($result, true)) {
-                if(!isset($result['result'])) file_put_contents("php://stderr", "Bug !!!\n\$json_encoded_request='$json_encoded_request'\n\$result=".print_r($result,1)."\nToo bad !\n");
-                $ra = array($result['result'], $collectd_source_alias, null);
-                break;
+                if(isset($result['result'])) {
+                    $ra = array($result['result'], $collectd_source_alias, null);
+                    curl_close($ch);
+                    break;
+                } else {
+                    pw_error_log("Failed to query the following request to ".$collectd_source_data{"jsonrpc"}." (source $collectd_source_alias)", __FILE__, __LINE__, __FUNCTION__);
+                    pw_error_log("\$json_encoded_request='$json_encoded_request'", __FILE__, __LINE__, __FUNCTION__);
+                    pw_error_log("\$result=".json_encode($result), __FILE__, __LINE__, __FUNCTION__);
+                }
             }
         } else {
-            exit_jsonrpc_error(curl_error($ch));
+            pw_error_log("Failed to query the following request to ".$collectd_source_data{"jsonrpc"}." (source $collectd_source_alias). Error was '".curl_error($ch)."'", __FILE__, __LINE__, __FUNCTION__);
+            pw_error_log("$json_encoded_request='$json_encoded_request'",__FILE__, __LINE__, __FUNCTION__);
         }
         curl_close($ch);
     }

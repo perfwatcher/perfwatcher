@@ -32,6 +32,9 @@ function select_node_with_data(datas) {
 	$('#items').html('<div id="itemtab"></div>');
 	$('#itemtab').html(ich.information_tab({ }));
 	$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697 });
+    if(datas.length <= 0) {
+        return;
+    }
 	var tabid = 1;
 	json_item_datas = datas;
 	var id;
@@ -177,6 +180,7 @@ function plugin_view (tabid, plugin) {
 			$.each(type_instance, function (type_instance, none) { 
 				$('<img class="graph" id="graph_'+graphid+'"/><br/>').appendTo('div[tabid="'+tabid+'"]');
 				$('#graph_'+graphid).pwgraph({
+                    CdSrc: json_item_datas['CdSrc'],
 					host: json_item_datas['host'],
 					plugin: plugin,
 					plugin_instance: plugin_instance,

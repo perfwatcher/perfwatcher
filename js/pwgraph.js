@@ -410,6 +410,7 @@ function display_timeline() {
 }
 
 function load_timeline_data() {
+//alert(JSON.stringify($.timeline.jsondata));
     $.ajax({
         async : true,
         type: 'POST',
