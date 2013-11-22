@@ -28,7 +28,14 @@ class load_meter {
     }
 
     function is_compatible() {
-        return true;
+		switch($this->datas['type']) {
+			case 'default':
+				return true;
+                break;
+			default:
+				return false;
+                break;
+		}
     }
 
     function get_info() {
