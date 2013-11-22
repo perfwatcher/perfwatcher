@@ -34,6 +34,7 @@
 					graphid++;
 					$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/><br/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
 					$('#graph_{{ tabid }}_'+graphid).pwgraph({
+						cdsrc: json_item_datas['config']['CdSrc']['source'],
 						host: json_item_datas['host'],
 						plugin: plugin,
 						plugin_instance: pi,

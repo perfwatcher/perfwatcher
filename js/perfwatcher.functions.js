@@ -180,7 +180,7 @@ function plugin_view (tabid, plugin) {
 			$.each(type_instance, function (type_instance, none) { 
 				$('<img class="graph" id="graph_'+graphid+'"/><br/>').appendTo('div[tabid="'+tabid+'"]');
 				$('#graph_'+graphid).pwgraph({
-                    CdSrc: json_item_datas['CdSrc'],
+					cdsrc: json_item_datas['config']['CdSrc']['source'],
 					host: json_item_datas['host'],
 					plugin: plugin,
 					plugin_instance: plugin_instance,

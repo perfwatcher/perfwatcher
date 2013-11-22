@@ -3,6 +3,13 @@
 //header("Content-type: application/json");
 $host = get_arg('host', 0, 0, "Error : No valid host found !!!", __FILE__, __LINE__);
 $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
+$collectd_source = get_arg('cdsrc', 0, 0, "", __FILE__, __LINE__);
+if(isset($collectd_source) && $collectd_source && isset($collectd_sources[$collectd_source])) {
+    $url_jsonrpc = $collectd_sources[$collectd_source]['jsonrpc'];
+} else {
+    pw_error_log("This line should not be executed. Please tell us...",  __FILE__, __LINE__);
+    $url_jsonrpc = $jsonrpc_server;
+}
 
 // ps-1335804082.gz
 $time = isset($_GET['time']) ? $_GET['time'] : time();
@@ -14,7 +21,7 @@ $json2 = json_encode(array("jsonrpc" => "2.0","method" => "topps_get_top","param
 
 putenv('http_proxy');
 putenv('https_proxy');
-$ch = curl_init($jsonrpc_topps_server);
+$ch = curl_init($url_jsonrpc);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_topps_httpproxy == null ? FALSE : TRUE);

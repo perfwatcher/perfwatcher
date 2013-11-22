@@ -153,6 +153,7 @@
 						graphid++;
 						$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
 						$('#graph_{{ tabid }}_'+graphid).pwgraph({
+							cdsrc: json_item_datas['config']['CdSrc']['source'],
 							host: json_item_datas['host'],
 							plugin: $(this).data()[0],
 							plugin_instance: $(this).data()[1],
@@ -167,6 +168,8 @@
 							graphid++;
 							$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
 							$('#graph_{{ tabid }}_'+graphid).pwgraph({
+								/* TODO/remote_sources : remove the hard-coded localhost */
+								cdsrc: "localhost",
 								host: host,
 								plugin: $(this).data()[0],
 								plugin_instance: $(this).data()[1],
@@ -184,6 +187,8 @@
 							graphid++;
 							$('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>').appendTo('div[tabid="{{ tabid }}"] div div[class="graphcontainer"]');
 							$('#graph_{{ tabid }}_'+graphid).pwgraph({
+								/* TODO/remote_sources : remove the hard-coded localhost */
+								cdsrc: "localhost",
 								host: folder,
 								althost: folder_title.replace(/\//g, '>'),
 								plugin: $(this).data()[0],

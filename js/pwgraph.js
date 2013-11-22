@@ -47,11 +47,11 @@
 			var diff = options['end'] - options['begin'];
 			var step = diff / (options['gridXend'] - options['gridXstart']);
 			var toptime = options['begin'] + Math.round(step * x);
-			showtop($(current_graph).data().host, toptime);
+			showtop(options['cdsrc'], $(current_graph).data().host, toptime);
 		break;
        	case 'timeline':
 			var options = $(current_graph).data();
-			showtimeline($(current_graph).data().host,options['begin'],options['end']);
+			showtimeline(options['cdsrc'], $(current_graph).data().host,options['begin'],options['end']);
 		break;
        	case 'save':
 			var url = $(current_graph).attr('src') + '&download';
@@ -82,10 +82,9 @@
     display : function( ) {
 	  var options = this.data();
 	  this.pwgraph('check_boundary');
-      // TODO/remote_sources : do not use hard-coded 'localhost' below but dynamic value.
       $(this).attr('src',
 		'graph.php'
-		+ '?collectd_source=' + encodeURIComponent('localhost')
+		+ '?collectd_source=' + encodeURIComponent(options['cdsrc'])
 		+ '&host=' + encodeURIComponent(options['host'])
 		+ (options['althost'] != null ? '&althost=' + encodeURIComponent(options['althost']) : '')
 		+ '&plugin=' + encodeURIComponent(options['plugin'])
@@ -358,6 +357,7 @@ function tm_to_ddmmyy_hhmmss (tm) {
 $.timeline = {};
 // $.timeline.jsondata : raw data from jsonrpc server
 // $.timeline.displaydata : formatted data for timeline.draw()
+// $.timeline.cdsrc : Collectd source for host
 // $.timeline.host : host name
 // $.timeline.tm_start : tm of the start of the timeline
 // $.timeline.tm_end : tm of the end of the timeline
@@ -410,11 +410,10 @@ function display_timeline() {
 }
 
 function load_timeline_data() {
-//alert(JSON.stringify($.timeline.jsondata));
     $.ajax({
         async : true,
         type: 'POST',
-        url: "action.php?tpl=jsonrpc",
+        url: "action.php?tpl=jsonrpc&cdsrc="+$.timeline.cdsrc,
         data: JSON.stringify({"jsonrpc": "2.0", "method": "topps_get_timeline", "params": {
             "hostname" : $.timeline.host,
             "start_tm" : $.timeline.tm_start,
@@ -447,7 +446,7 @@ function timeline_update_buttons() {
     $('#switch_ignore_resident').html(($.timeline.ignore_resident?"Show":"Hide") + " resident processes");
 }
 
-function showtimeline (host, tm_start, tm_end) {
+function showtimeline (cdsrc, host, tm_start, tm_end) {
     var timeline_width = 1000;
     var timeline_height = 600;
     $('<div id="modaldialogcontents"></div>')
@@ -477,6 +476,7 @@ function showtimeline (host, tm_start, tm_end) {
                 $.timeline.show_pid_uid_gid = true;
                 $.timeline.tm_start = tm_start;
                 $.timeline.tm_end = tm_end;
+                $.timeline.cdsrc = cdsrc;
                 $.timeline.host = host;
                 $.timeline.ignore_resident = true;
 
@@ -504,7 +504,7 @@ function showtimeline (host, tm_start, tm_end) {
 
 $.top = {};
 
-function showtop (host, toptime) {
+function showtop (cdsrc, host, toptime) {
     $.top.time = toptime;
     $('<div id="modaldialogcontents"></div>')
         .html(
@@ -528,21 +528,21 @@ function showtop (host, toptime) {
             },
             open: function(event, ui) {
                 $('#modaldialog').show();
-                load_top(host, $.top.time);
+                load_top(cdsrc, host, $.top.time);
           }
     });
 	$('#topprocess .prev').click(function() {
         $.top.time = $.top.time - 60;
-		load_top(host, $.top.time);
+		load_top(cdsrc, host, $.top.time);
 	});
 	$('#topprocess .next').click(function() {
         $.top.time = $.top.time + 60;
-		load_top(host, $.top.time);
+		load_top(cdsrc, host, $.top.time);
 	});
 }
 
-function load_top(host, toptime) {
-	var url = 'action.php?tpl=top&view_id='+view_id+'&host='+host+'&time='+toptime;
+function load_top(cdsrc, host, toptime) {
+	var url = 'action.php?tpl=top&view_id='+view_id+'&cdsrc='+cdsrc+'&host='+host+'&time='+toptime;
 	var source = { 
 		datatype: "json", 
 		datafields: [ 
