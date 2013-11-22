@@ -3,16 +3,18 @@ $post_request = file_get_contents('php://input');
 $collectd_source = get_arg('cdsrc', 0, 0, "", __FILE__, __LINE__);
 if(isset($collectd_source) && $collectd_source && isset($collectd_sources[$collectd_source])) {
     $url_jsonrpc = $collectd_sources[$collectd_source]['jsonrpc'];
+    $proxy_jsonrpc = isset($collectd_sources[$collectd_source]['proxy'])?$collectd_sources[$collectd_source]['proxy']:null;
 } else {
     pw_error_log("This line should not be executed. Please tell us...",  __FILE__, __LINE__);
-    $url_jsonrpc = $jsonrpc_server;
+    $url_jsonrpc = "http://127.0.0.1:8080/";
+    $proxy_jsonrpc = null;
 }
 putenv('http_proxy');
 putenv('https_proxy');
 $ch = curl_init($url_jsonrpc);
 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_topps_httpproxy == null ? FALSE : TRUE);
+curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $proxy_jsonrpc == null ? FALSE : TRUE);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $post_request);
 curl_setopt($ch, CURLOPT_HTTPHEADER, array(
             'Content-Type: application/json',

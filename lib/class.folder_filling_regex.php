@@ -48,12 +48,12 @@ class folder_filling_regex {
     }
 
     function test ($regex) {
-        global $rrds_path, $jstree;
+        global $jstree;
         return implode("\n", $this->get($regex));;
     }
 
     function get ($regex = null) {
-        global $rrds_path, $jstree;
+        global $jstree;
         if ($regex === null) {
             if (isset($this->datas['serverslist']) && isset($this->datas['serverslist']['servernameregex'])) {
                 $regex = $this->datas['serverslist']['servernameregex'];

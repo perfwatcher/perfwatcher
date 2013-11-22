@@ -46,32 +46,7 @@
  */
 $collectd_source_default = "localhost";
 $collectd_sources = array(
-    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/" ),
+    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/", 'proxy' => null ),
 );
-
-
-/**
- *
- *	JsonRPC server for RRD informations
- *	Default value http://127.0.0.1:8080/
- *
- */
-# $jsonrpc_server = 'http://127.0.0.1:8080/';
-
-/**
- *
- *	JsonRPC server for Top-ps informations
- *	Default value http://127.0.0.1:8080/
- *
- */
-# $jsonrpc_topps_server = 'http://127.0.0.1:8080/';
-
-/**
- *
- *	Top jsonRPC http proxy
- *	Default value null
- *
- */
-# $jsonrpc_topps_httpproxy = 'http://10.0.0.1:3128/';
 
 ?>

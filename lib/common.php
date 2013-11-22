@@ -74,10 +74,12 @@ function jsonrpc_query($source = null, $json_encoded_request) {
             next;
         }
         $jsonrpc_url = $collectd_source_data{"jsonrpc"};
+        $jsonrpc_httpproxy = isset($collectd_source_data{"proxy"})?$collectd_source_data{"proxy"}:null;
+
         $ch = curl_init($jsonrpc_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
+        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
 
         curl_setopt($ch, CURLOPT_POSTFIELDS, $json_encoded_request);
         curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -174,10 +176,12 @@ function get_list_of_hosts_having_rrds($collectd_source_forced, $include_aggrega
             next;
         }
         $jsonrpc_url = $collectd_source_data{"jsonrpc"};
+        $jsonrpc_httpproxy = isset($collectd_source_data{"proxy"})?$collectd_source_data{"proxy"}:null;
+
         $ch = curl_init($jsonrpc_url);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        //        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
+        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
 
         /* Create the request */
         $json = json_encode(array(
@@ -229,8 +233,6 @@ function get_list_of_rrds($collectd_source, $host) {
      */
     global $grouped_type, $blacklisted_type;
 
-    putenv('http_proxy');
-    putenv('https_proxy');
     /* Create the request */
     $json = json_encode(array(
                 "jsonrpc" => "2.0",
