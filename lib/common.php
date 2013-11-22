@@ -28,7 +28,7 @@ require "lib/class.tree.php";
 require_once("MDB2.php");
 
 function pw_error_log($msg, $file="unset", $line="unset", $fct="unset") {
-    error_log(date("Y/m/d h:i:s")." ($file:$line:$fct) $msg\n", 3, "logs/perfwatcher.log");
+    error_log(date("Y/m/d H:i:s")." ($file:$line:$fct) $msg\n", 3, "logs/perfwatcher.log");
 }
 
 function get_arg($key, $default_value, $check_if_is_numeric, $die_error_message, $file="unset", $line="unset") {

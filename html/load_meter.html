@@ -14,7 +14,7 @@ $(function () {
 		$.ajax({
 			async: true,
 			type: 'POST',
-			url: 'action.php?tpl=jsonrpc',
+			url: 'action.php?tpl=jsonrpc&cdsrc='+json_item_datas['config']['CdSrc']['source'],
 			data: JSON.stringify({"jsonrpc": "2.0", "method": "getval", "params": metrics, "id": 0}),
 			dataType: 'json',
 			cache: false, 

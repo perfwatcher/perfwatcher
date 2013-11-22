@@ -69,17 +69,17 @@ class _tree_struct {
         $this->db->free();
         return $ret;
     }
-    function _get_children($id, $recursive = false, $path = "", $separator = " -> ") {
+    function _get_children($id, $recursive = false, $path = "", $separator = " -> ", $collectd_source = "") {
         global $childrens_cache;
         if(is_array($childrens_cache) && isset($childrens_cache[$id.($recursive ? 'recursive' : 'notrecursive')])) {
             return $childrens_cache[$id];
         }
         $childrens = array();
         if($recursive) {
-            $childrens = $this->_get_children($id, false, $path, $separator);
+            $childrens = $this->_get_children($id, false, $path, $separator, $collectd_source);
             foreach($childrens as $cid => $cdata) {
                 if ( $cdata['type'] != 'default') {			
-                    foreach($this->_get_children($cdata['id'], true, $cdata['_path_'], $separator) as $cid2 => $cdata2) {
+                    foreach($this->_get_children($cdata['id'], true, $cdata['_path_'], $separator, $cdata['CdSrc']) as $cid2 => $cdata2) {
                         $childrens[$cdata2['type'] == 'default' ? $cdata2['title'] : 'aggregator_'.$cdata2['id']] = $cdata2;
                     }
                 }
@@ -88,7 +88,7 @@ class _tree_struct {
             $datas = $this->get_datas($id);
             if (isset($datas['sort']) && $datas['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
             $this->db->prepare(
-                    "SELECT ".implode(", ", $this->fields)." FROM ".$this->table
+                    "SELECT ".implode(", ", $this->fields).",datas FROM ".$this->table
                     ." WHERE ".$this->fields["view_id"]." = ?"
                     ." AND   ".$this->fields["parent_id"]." = ?"
                     ." ORDER BY ".$this->fields[$sort]." ASC",
@@ -98,6 +98,15 @@ class _tree_struct {
             while($this->db->nextr()) {
                 $tmp = $this->db->get_row("assoc");
                 $tmp["_path_"] = $path.$separator.$tmp['title'];
+                $cdsrc = "";
+                if(isset($tmp["datas"])) {
+                    $d = unserialize($tmp["datas"]);
+                    if(isset($d['CdSrc'])) {
+                        $cdsrc = $d['CdSrc'];
+                    }
+                    unset($tmp["datas"]);
+                }
+                $tmp['CdSrc'] = $cdsrc?$cdsrc:$collectd_source;
                 $childrens[$tmp['type'] == 'default' ? $tmp['title'] : 'aggregator_'.$tmp['id']] = $tmp;
             }
         }
@@ -339,25 +348,32 @@ class json_tree extends _tree_struct {
     }
 
     function get_children($data) {
+        global $collectd_source_default;
         $tmp = $this->_get_children((int)$data["id"]);
         if((int)$data["id"] === 1 && count($tmp) === 0) {
             return json_encode(
                     array(
                         "attr" => array(
                             "id" => "node_1",
-                            "rel" => "drive"
+                            "rel" => "drive",
+                            "CdSrc" => $collectd_source_default
                             ),
                         "data" => "INSERT A NEW ROOT AND RELOAD THE TREE",
                         "state" => ""
                         )
                     );
         }
+        $collectd_source = $this->get_node_collectd_source((int)$data["id"]);
         $result = array();
         //if((int)$data["id"] === 0) return json_encode($result);
         foreach($tmp as $k => $v) {
-            $tmp2 = $this->_get_children((int)$v["id"]);
+            $tmp2 = $this->_get_children((int)$v["id"], /* $recursive = */ false, /* $path = */ "", /* $separator = */ " -> ", $collectd_source);
             $result[] = array(
-                    "attr" => array("id" => "node_".$v['id'], "rel" => $v[$this->fields["type"]]),
+                    "attr" => array(
+                        "id" => "node_".$v['id'], 
+                        "rel" => $v[$this->fields["type"]],
+                        "CdSrc" => (isset($v['CdSrc']) && $v['CdSrc']) ? $v['CdSrc'] : $collectd_source
+                        ),
                     "data" => $v[$this->fields["title"]],
                     "state" => ($v[$this->fields["type"]] == "default" ? "" : ( count($tmp2) === 0 ? "" : "closed"))
                     );
@@ -367,7 +383,8 @@ class json_tree extends _tree_struct {
             $result[] = array(
                     "attr" => array(
                         "id" => "node_".$datas['id'],
-                        "rel" => $datas["type"]
+                        "rel" => $datas["type"],
+                        "CdSrc" => (isset($v['CdSrc']) && $v['CdSrc']) ? $v['CdSrc'] : $collectd_source
                         ),
                     "data" => $datas["title"], 
                     "state" => ""

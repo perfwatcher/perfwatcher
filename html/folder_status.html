@@ -25,10 +25,10 @@ var unknown = 0;
 $.ajax({
     async : true,
     type: 'POST',
-    url: "action.php?tpl=jsonrpc",
-	data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": json_item_datas['hosts']}, "id": 0}),
+    url: 'action.php?tpl=jsonrpc&cdsrc='+json_item_datas['config']['CdSrc']['source'],
+    data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": json_item_datas['hosts']}, "id": 0}),
     dataType : 'json',
-	error: function(XMLHttpRequest, textStatus, errorThrown) {
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
 		var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
 		notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
 	},

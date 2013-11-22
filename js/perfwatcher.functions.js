@@ -247,43 +247,49 @@ function auto_refresh_status() {
 }
 
 function refresh_status() {
+    var cdsrc_hosts = {};
     var hosts = new Array();
     $('li[id^="node_"]').each(function(index, element) {
-            if ($('#'+this.id).attr('rel') != 'drive' && $('#'+this.id).attr('rel') != 'folder') {
-				var host = $('#'+this.id+' a').html().substr(37);
-				$('#'+this.id).attr('host', host);
-                hosts.push(host);
-            }
+            cdsrc_hosts[ $('#'+this.id).attr('CdSrc') ] = 1;
         }
     );
-    $.ajax({
-        async : true,
-        type: 'POST',
-        url: "action.php?tpl=jsonrpc",
-		data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hosts}, "id": 0}),
-        dataType : 'json',
-        complete : function (r) {
-            if(r.status) {
-                var res = jQuery.parseJSON(r.responseText);
-				for(var host in res['result']) {
-					switch(res['result'][host]) {
-						case 'up':
-							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-green');
-						break;
-						case 'down':
-							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-red');
-						break;
-						case 'unknown':
-							$('li[id^="node_"][host="'+host+'"]').attr('rel', 'default-grey');
-						break;
-					}
-				}
-            }
-        },
-		error: function(XMLHttpRequest, textStatus, errorThrown) {
-			var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
-			notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
-		},
+    $.each(cdsrc_hosts, function(cdsrc, useless) {
+            $('li[id^="node_"][CdSrc="'+cdsrc+'"]').each(function(index, element) {
+                if ($('#'+this.id).attr('rel') != 'drive' && $('#'+this.id).attr('rel') != 'folder') {
+                    var host = $('#'+this.id+' a').html().substr(37);
+                    $('#'+this.id).attr('host', host);
+                    hosts.push(host);
+                }
+            });
+            $.ajax({
+                async : true,
+                type: 'POST',
+                url: "action.php?tpl=jsonrpc&cdsrc="+cdsrc,
+                data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hosts}, "id": 0}),
+                dataType : 'json',
+                complete : function (r) {
+                    if(r.status) {
+                        var res = jQuery.parseJSON(r.responseText);
+                        for(var host in res['result']) {
+                            switch(res['result'][host]) {
+                                case 'up':
+                                    $('li[id^="node_"][host="'+host+'"][CdSrc="'+cdsrc+'"]').attr('rel', 'default-green');
+                                    break;
+                                case 'down':
+                                    $('li[id^="node_"][host="'+host+'"][CdSrc="'+cdsrc+'"]').attr('rel', 'default-red');
+                                    break;
+                                case 'unknown':
+                                    $('li[id^="node_"][host="'+host+'"][CdSrc="'+cdsrc+'"]').attr('rel', 'default-grey');
+                                    break;
+                            }
+                        }
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                           var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+                           notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+                        },
+            });
     });
 }
 
