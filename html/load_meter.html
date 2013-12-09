@@ -8,6 +8,7 @@ $(function () {
 
 	function get_load(hosts) {
 		var metrics = new Array();
+// TODO json_item_datas['hosts']
 		$(hosts).each(function (key, val) {
 			metrics.push(val+'/load/load');
 		});

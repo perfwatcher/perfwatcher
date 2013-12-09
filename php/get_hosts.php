@@ -8,7 +8,7 @@ $res = $jstree->_get_node($id);
 $hosts = array();
 $data = $jstree->_get_children($id, true);
 foreach($data as $host) {
-    if ($host['type'] == 'default') { $hosts[] = $host['title']; }
+    if ($host['type'] == 'default') { $hosts[] = array('title' => $host['title'], 'CdSrc' => $host['CdSrc']); }
 }
 echo json_encode($hosts);
 

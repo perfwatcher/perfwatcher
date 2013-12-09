@@ -42,7 +42,7 @@ if (isset($_POST['action']) || isset($_GET['action'])) {
             $childrens = $jstree->_get_children($id, true, "", "/");
             foreach($childrens as $children) {
                 if ($children['type'] == 'default') {
-                    $hostlist[] = $children['title'];
+                    $hostlist[] = array($children['title'], $children['CdSrc']);
                 } else if(($children['type'] == 'folder') || ($children['type'] == 'drive')) {
                     $folderlist['aggregator_'.$children['id']] = substr($children['_path_'], 1);
                 }

@@ -54,6 +54,7 @@
     });
 	$('div[widget="folder_aggregator"] select[class=select_plugin]').hide();
 	$('div[widget="folder_aggregator"] input[type="button"][class="load"]').button().click(function () {
+// TODO json_item_datas['hosts']
 		$.ajax({
 			async: true,
 			type: 'POST',

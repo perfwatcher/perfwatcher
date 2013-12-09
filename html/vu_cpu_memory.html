@@ -5,6 +5,7 @@ var current_nbcpu = 0;
 var current_real_cpu = 0;
 var current_load = 0;
 $(function () {
+// TODO json_item_datas['hosts']
 	get_cpu_memory(json_item_datas['hosts']);
 	window.setInterval(function() { get_cpu_memory(json_item_datas['hosts']); }, 60000);
 
