@@ -78,7 +78,7 @@ for comp in $COMPRESSIONS ; do
         tbz|tgz|txz)
             if [ ! -f $name.tar ] ; then
                 echo "* Creating $name.tar"
-                tar cf $name.tar $name
+                tar cf $name.tar --owner=0 --group=0 $name
             fi
             if [ $comp = tbz ] ; then
                 echo "* Creating $name.tar.bz2"
