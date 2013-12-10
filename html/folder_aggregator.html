@@ -2,90 +2,90 @@
     <li><a href="#" plugin="{{ plugin }}" style="color:gray; text-decoration:underline;">delete</a> {{ plugin_name }} ({{ plugin_cf }}) </li>
 </script>
 <script type="text/javascript">
-	ich.grabTemplates();
-	function folder_aggregator_fill_pl() {
-		$('div[widget="folder_aggregator"] div[class="plugin_list"]').html('<ul></ul>');
-		if (json_item_datas['datas'] && json_item_datas['datas']['plugins']) {
-			for (plugin in json_item_datas['datas']['plugins']) {
-				var plugin_name = plugin.substring(0, plugin.length - 4)
-				var plugin_cf = plugin.substring(plugin.length - 3)
-				ich.folder_aggregator_pl({ plugin: plugin, plugin_name: plugin_name, plugin_cf: plugin_cf }).appendTo('div[widget="folder_aggregator"] div[class="plugin_list"] ul');
-			}
-		}
-		$('div[widget="folder_aggregator"] div.plugin_list ul a').click(function () {
-			$.ajax({
-				async : false,
-				type: 'POST',
-				url: "action.php?tpl=folder_aggregator",
-				data : { 
-					"action" : "del_plugin", 
-					"plugin" : $(this).attr('plugin'),
-					"view_id" : view_id,
-					"id" : json_item_datas['jstree']['id']
-				},
-				complete : function (r) {
-					if(!r.status) {
-						('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !');
-					} else { reload_datas(); folder_aggregator_fill_pl(); }
-				}
-			});
-		});
-	}
-	folder_aggregator_fill_pl();
-	$('div[widget="folder_aggregator"] input[type="button"][class="add"]').button().click(function () {
-	if($('div[widget="folder_aggregator"] select[class=select_plugin]').val() == null) {
-		notify_ko("Load plugin list and select one to add");
-	} else {
-		$.ajax({
-		    async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
-		    data : { 
-		        "action" : "add_plugin", 
-		        "plugin" : $('div[widget="folder_aggregator"] select[class=select_plugin]').val(),
-		        "cf" : $('input[type=radio][name=plugin_type]:checked').val(),
-					"view_id" : view_id,
-					"id" : json_item_datas['jstree']['id']
-		    },
-		    complete : function (r) {
-		        if(!r.status) { $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !'); }
-		        else { reload_datas(); folder_aggregator_fill_pl(); }
-		    }
-		});
-	}
+    ich.grabTemplates();
+    function folder_aggregator_fill_pl() {
+        $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('<ul></ul>');
+        if (json_item_datas['datas'] && json_item_datas['datas']['plugins']) {
+            for (plugin in json_item_datas['datas']['plugins']) {
+                var plugin_name = plugin.substring(0, plugin.length - 4)
+                var plugin_cf = plugin.substring(plugin.length - 3)
+                ich.folder_aggregator_pl({ plugin: plugin, plugin_name: plugin_name, plugin_cf: plugin_cf }).appendTo('div[widget="folder_aggregator"] div[class="plugin_list"] ul');
+            }
+        }
+        $('div[widget="folder_aggregator"] div.plugin_list ul a').click(function () {
+            $.ajax({
+                async : false,
+                type: 'POST',
+                url: "action.php?tpl=folder_aggregator",
+                data : { 
+                    "action" : "del_plugin", 
+                    "plugin" : $(this).attr('plugin'),
+                    "view_id" : view_id,
+                    "id" : json_item_datas['jstree']['id']
+                },
+                complete : function (r) {
+                    if(!r.status) {
+                        ('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !');
+                    } else { reload_datas(); folder_aggregator_fill_pl(); }
+                }
+            });
+        });
+    }
+    folder_aggregator_fill_pl();
+    $('div[widget="folder_aggregator"] input[type="button"][class="add"]').button().click(function () {
+        if($('div[widget="folder_aggregator"] select[class=select_plugin]').val() == null) {
+            notify_ko("Load plugin list and select one to add");
+        } else {
+            $.ajax({
+                async : false, type: 'POST', url: "action.php?tpl=folder_aggregator",
+                data : { 
+                    "action" : "add_plugin", 
+                    "plugin" : $('div[widget="folder_aggregator"] select[class=select_plugin]').val(),
+                    "cf" : $('input[type=radio][name=plugin_type]:checked').val(),
+                    "view_id" : view_id,
+                    "id" : json_item_datas['jstree']['id']
+                },
+                complete : function (r) {
+                    if(!r.status) { $('div[widget="folder_aggregator"] div[class="plugin_list"]').html('Error, can\'t retrieve data from server !'); }
+                    else { reload_datas(); folder_aggregator_fill_pl(); }
+                }
+            });
+        }
     });
-	$('div[widget="folder_aggregator"] select[class=select_plugin]').hide();
-	$('div[widget="folder_aggregator"] input[type="button"][class="load"]').button().click(function () {
+    $('div[widget="folder_aggregator"] select[class=select_plugin]').hide();
+    $('div[widget="folder_aggregator"] input[type="button"][class="load"]').button().click(function () {
 // TODO json_item_datas['hosts']
-		$.ajax({
-			async: true,
-			type: 'POST',
-			url: 'action.php?tpl=jsonrpc&cdsrc='+json_item_datas['config']['CdSrc']['source'],
-			data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_metric", "params": json_item_datas['hosts'], "id": 0}),
-			dataType: 'json',
-			cache: false, 
-			success: function(result, textStatus, XMLHttpRequest) {
-				var alreadytreated = new Array();
-				$(result['result']).each(function(i, metric) {
-					m = splitMetric(metric);
-					p = m[0]; pi = m[1]; t = m[2]; ti = m[3];
-					var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
-					if (grouped_type != -1) {
-						if (alreadytreated[p+pi+t]) {
-							return;
-						} else {
-							alreadytreated[p+pi+t] = true;
-						}
-					}
-					$('<option>'+p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '')+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin]');
-				});
-				$('div[widget="folder_aggregator"] select[class=select_plugin]').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter();
-			},
-			error: function(XMLHttpRequest, textStatus, errorThrown) {
-				var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
-				notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
-			},
-		});
-		$(this).hide();
-	});
+        $.ajax({
+            async: true,
+            type: 'POST',
+            url: 'action.php?tpl=jsonrpc&cdsrc='+json_item_datas['config']['CdSrc']['source'],
+            data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_metric", "params": json_item_datas['hosts'], "id": 0}),
+            dataType: 'json',
+            cache: false, 
+            success: function(result, textStatus, XMLHttpRequest) {
+                var alreadytreated = new Array();
+                $(result['result']).each(function(i, metric) {
+                    m = splitMetric(metric);
+                    p = m[0]; pi = m[1]; t = m[2]; ti = m[3];
+                    var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
+                    if (grouped_type != -1) {
+                        if (alreadytreated[p+pi+t]) {
+                            return;
+                        } else {
+                            alreadytreated[p+pi+t] = true;
+                        }
+                    }
+                    $('<option>'+p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '')+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin]');
+                });
+                $('div[widget="folder_aggregator"] select[class=select_plugin]').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter();
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+                notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+            },
+        });
+        $(this).hide();
+    });
 </script>
 <select class="select_plugin" multiple="multiple"></select><input type="button" class="load" value="Load plugin list" />
 <input type="radio" name="plugin_type" value="AVG" checked="true" /> AVG
