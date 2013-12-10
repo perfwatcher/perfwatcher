@@ -6,7 +6,8 @@ $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE
 $jstree = new json_tree($view_id);
 $res = $jstree->_get_node($id);
 $hosts = array();
-$data = $jstree->_get_children($id, true);
+$cdsrc = $jstree->get_node_collectd_source($id);
+$data = $jstree->_get_children($id, true, "", "", $cdsrc);
 foreach($data as $host) {
     if ($host['type'] == 'default') { $hosts[] = array('title' => $host['title'], 'CdSrc' => $host['CdSrc']); }
 }

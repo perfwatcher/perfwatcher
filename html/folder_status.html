@@ -1,11 +1,11 @@
 <script type="text/javascript">
 var status_chart_draw__timeout_handle = 0;
-var hosts_up = [];
-var hosts_down = [];
-var hosts_unknown = [];
-var up = [];
-var down = [];
-var unknown = [];
+var hosts_up = {};
+var hosts_down = {};
+var hosts_unknown = {};
+var up = {};
+var down = {};
+var unknown = {};
 function piesliceclicked( index )
 {
     var list = '';
@@ -28,7 +28,7 @@ function piesliceclicked( index )
 }
 
 $(function () {
-    var hostssrcs = [];
+    var hostssrcs = {};
     for (var host in json_item_datas['hosts']) {
         hostssrcs[json_item_datas['hosts'][host]['CdSrc']] = 1;
     }
@@ -37,8 +37,7 @@ $(function () {
     }
 
     function get_hosts_status(cdsrc) {
-// TODO json_item_datas['hosts']
-         var hostslist = [];
+        var hostslist = [];
         for (var host in json_item_datas['hosts']) {
             if(json_item_datas['hosts'][host]['CdSrc'] == cdsrc) {
                 hostslist.push(json_item_datas['hosts'][host]['title']);
