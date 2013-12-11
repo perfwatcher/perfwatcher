@@ -33,19 +33,6 @@ $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE
 $jstree = new json_tree($view_id);
 $res = $jstree->_get_node($id);
 
-switch ($res['type']) {
-    case 'default' :
-        $host = $res['title'];
-        break;
-    case 'folder' :
-    case 'drive' :
-        $host = 'aggregator_'.$res['id'];
-        break;
-    default:
-        die('Error : node not found !!!');
-        break;
-}
-
 $datas = $jstree->get_datas($res['id']);
 if(isset($datas['CdSrc'])) {
     $collectd_source = $datas['CdSrc'];
@@ -55,7 +42,29 @@ if(isset($datas['CdSrc'])) {
     $collectd_source_is_inherited = 1;
 }
 
-$plugins = get_list_of_rrds($collectd_source, $host);
+switch ($res['type']) {
+    case 'default' :
+        $host = $res['title'];
+        $plugins = get_list_of_rrds($collectd_source, $host);
+        $aggregators = array();
+        break;
+    case 'folder' :
+    case 'drive' :
+        $host = 'aggregator_'.$res['id'];
+        $plugins = array();
+        $aggregators = array();
+        foreach ($collectd_sources as $cdid => $cdsrc) {
+            $a = get_list_of_rrds($cdid, $host);
+            if(count($a) > 0) {
+                $aggregators[$cdid] = $a;
+            }
+        }
+        break;
+    default:
+        die('Error : node not found !!!');
+        break;
+}
+
 
 if (isset($datas['tabs']) && is_array($datas['tabs']) && count($datas['tabs']) > 0) {
     foreach($datas['tabs'] as $key => $val) {
@@ -69,6 +78,7 @@ $rv = json_encode(
         array(
             'host' => $host,
             'plugins' => $plugins,
+            'aggregators' => $aggregators,
             'jstree' => $res,
             'datas' => $datas,
             'config' => array(

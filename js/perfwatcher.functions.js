@@ -62,6 +62,17 @@ function select_node_with_data(datas) {
 	} else {
 			json_item_datas['hosts'] = [ json_item_datas['host'] ];
 	}
+	if (datas['aggregators']) {
+        agg = {};
+        $.each(datas['aggregators'], function(cdsrc, aggregator) {
+            $.each(aggregator, function(plugin, plugin_instance) {
+                    agg[plugin] = plugin_instance;
+                });
+            });
+        $.each(agg, function(plugin, plugin_instance) {
+            create_plugin_tab(plugin, plugin_instance, tabid++);
+            });
+	}
 	if (datas['plugins']) {
 		$.each(datas['plugins'], function(plugin, plugin_instance) {
 			create_plugin_tab(plugin, plugin_instance, tabid++);
@@ -175,6 +186,29 @@ function custom_view_folder_plugin_view(tabid, plugin) {
 }
 
 function plugin_view (tabid, plugin) {
+	$.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
+        $('<h2>Collectd "'+cdsrc+'"</h2>').appendTo('div[tabid="'+tabid+'"]');
+		$.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
+            if(current_plugin == plugin) {
+				$.each(current_plugin_instance, function (plugin_instance, type) {
+					$.each(type, function (type, type_instance) {
+						$.each(type_instance, function (type_instance, none) { 
+							$('<img class="graph" id="graph_'+graphid+'"/><br/>').appendTo('div[tabid="'+tabid+'"]');
+							$('#graph_'+graphid).pwgraph({
+								cdsrc: cdsrc,
+								host: json_item_datas['host'],
+								plugin: plugin,
+								plugin_instance: plugin_instance,
+								type: type,
+								type_instance: type_instance
+							}).pwgraph('display');
+							graphid++;
+						});
+					});
+				});
+            }
+		});
+	 });
 	$.each(json_item_datas['plugins'][plugin], function (plugin_instance, type) {
 		$.each(type, function (type, type_instance) {
 			$.each(type_instance, function (type_instance, none) { 
