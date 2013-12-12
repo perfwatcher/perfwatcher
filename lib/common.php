@@ -166,24 +166,11 @@ function get_list_of_hosts_having_rrds($collectd_source_forced, $include_aggrega
     if($collectd_source_forced) {
         $local_collectd_sources[] = $collectd_source_forced;
     } else {
-        $local_collectd_sources = $collectd_sources;
+        $local_collectd_sources = array_keys($collectd_sources);
     }
 
-    putenv('http_proxy');
-    putenv('https_proxy');
-    foreach ($local_collectd_sources as $collectd_source_alias => $collectd_source_data) {
-        if(! isset($collectd_source_data["jsonrpc"])) {
-            next;
-        }
-        $jsonrpc_url = $collectd_source_data{"jsonrpc"};
-        $jsonrpc_httpproxy = isset($collectd_source_data{"proxy"})?$collectd_source_data{"proxy"}:null;
+    foreach ($local_collectd_sources as $collectd_source) {
 
-        $ch = curl_init($jsonrpc_url);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, $jsonrpc_httpproxy == null ? FALSE : TRUE);
-
-        /* Create the request */
         $json = json_encode(array(
                     "jsonrpc" => "2.0",
                     "method" => "pw_get_dir_hosts",
@@ -191,35 +178,24 @@ function get_list_of_hosts_having_rrds($collectd_source_forced, $include_aggrega
                     "id" => 0)
                 );
 
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-                    'Content-Type: application/json',
-                    'Content-Length: ' . strlen($json))
-                );
+        $ra = jsonrpc_query($collectd_source, $json);
 
-        /* Send the request */
-        if($result = curl_exec($ch)) {
-            if ($result  != '' && $result = json_decode($result)) {
-                if (isset($result->result->nb)) {
-                    $source = $collectd_source_alias;
-                    $data = $result->result->values;
-                    if($data) {
-                        if($include_aggregators) {
-                            foreach ($data as $h) {
-                                $ret[$h][] = $source;
-                            }
-                        } else {
-                            foreach ($data as $h) {
-                                if(substr($h, 0, 11) != "aggregator_") $ret[$h][] = $source;
-                            }
-                        }
-                    }
+        if(!(isset($ra[0]) && isset($ra[1]))) { next; }
+        $r = $ra[0];
+        if (! isset($r['nb'])) { next; }
+
+        $data = $r['values'];
+        if($data) {
+            if($include_aggregators) {
+                foreach ($data as $h) {
+                    $ret[$h][] = $collectd_source;
+                }
+            } else {
+                foreach ($data as $h) {
+                    if(substr($h, 0, 11) != "aggregator_") $ret[$h][] = $collectd_source;
                 }
             }
-        } else {
-            exit_jsonrpc_error(curl_error($ch));
         }
-        curl_close($ch);
     }
     ksort($ret);
 
