@@ -1692,7 +1692,7 @@ function meta_graph_memory($collectd_source, $host, $plugin, $plugin_instance, $
     $opts['rrd_opts']      = array('-b', '1024', '-v', 'Bytes');
 
     $opts['colors'] = array(
-            // Linux - System memoery
+            // Linux - System memory
             'free'     => '00e000',
             'cached'   => '0000ff',
             'buffered' => 'ffb000',
@@ -1717,6 +1717,11 @@ function meta_graph_memory($collectd_source, $host, $plugin, $plugin_instance, $
             'code'          => '5A8727',
             'driver'        => '48E2D3',
             'working_set'   => 'F77F87',
+            // FreeBSD - System memory
+            'active'        => 'ff0000',
+            'cache'         => '0000ff',
+            'inactive'      => '00a0ff',
+            'wired'         => 'f0a000',
             );
 
     $type_instances = array_keys($opts['colors']);
