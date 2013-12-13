@@ -12,7 +12,8 @@ $res = $jstree->_get_node($id);
 $owidget = new folder_filling_regex($res);
 switch($_POST['action']) {
     case 'test':
-        echo nl2br($owidget->test($_POST['regex']));
+        echo $owidget->test($_POST['regex']);
+//        echo nl2br($owidget->test($_POST['regex']));
         break;
     case 'save':
         if ($owidget->save($_POST['regex'])) {

@@ -63,10 +63,7 @@ class folder_filling_regex {
             return array();
         }
         $cdsrc = $jstree->get_node_collectd_source($this->datas['id']);
-file_put_contents('php://stderr', "yo !!\n");
         $list = get_list_of_hosts_having_rrds($cdsrc, false);
-file_put_contents('php://stderr', "guh !?\n");
-file_put_contents('php://stderr', print_r($list, 1)."\n");
         $out = preg_grep("/${regex}/", array_keys($list));
         return $out;
     }

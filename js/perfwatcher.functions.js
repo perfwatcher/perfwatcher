@@ -91,7 +91,9 @@ function select_node_with_data(datas) {
 		current_tab = event.args.item;
 		load_tab(event.args.item);
 	});
+/* Portlets */
 	if(json_item_datas['config'] && json_item_datas['config']['widgets']) {
+/* Portlets configuration */
 	var panel = 0;
 	var i = 0;
 	$.each(json_item_datas['config']['widgets'], function (widget_name, widget_datas) {
@@ -99,17 +101,35 @@ function select_node_with_data(datas) {
 			widget_id : i,
 			widget : widget_name,
 			widget_title : widget_datas['title'],
-		})).appendTo('#infodockpanel'+panel);
-		$('#widget_content'+i).load(widget_datas['content_url']);
+		})).appendTo('#column'+panel);
+ 
+		$('#widget_content'+i+" div").load(widget_datas['content_url']);
 		if (panel++ > 0) { panel = 0; }
 		i++;
 	});
-	}
-	$('#infodock').jqxDocking({
-		theme: theme,
-		orientation: 'horizontal',
-		mode: 'docked'
+
+/* Portlets initialization */
+	$( ".column" ).sortable({
+		connectWith: ".column"
 	});
+
+	$( ".portlet" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+			.find( ".portlet-header" )
+			.addClass( "ui-widget-header ui-corner-all" )
+			.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+			.end()
+		.find( ".portlet-content" )
+			.end()
+		.find( ".portlet-content div" )
+			.removeClass()
+			.addClass("widget-contents")
+			.end();
+	$( ".portlet-header .ui-icon" ).click(function() {
+			$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+			$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
+	});
+
+	}
 }
 
 

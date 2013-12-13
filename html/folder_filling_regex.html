@@ -10,8 +10,9 @@
 				"id" : json_item_datas['jstree']['id']
 			},
             complete : function (r) {
-                if(!r.status) { ('div[widget="folder_filling_regex"] div.result').html('Error, can\'t retrieve data from server !'); }
-                else { $('div[widget="folder_filling_regex"] div.result').html(r.responseText); }
+                if(!r.status) { ('div[widget="folder_filling_regex"] div.result textarea.list').html('Error, can\'t retrieve data from server !'); }
+                else { $('div[widget="folder_filling_regex"] div.result textarea.list').html(r.responseText); }
+				$('div[widget="folder_filling_regex"] div.result textarea.list').attr('rows', 10);
             }
         });
     });
@@ -25,8 +26,9 @@
 				"id" : json_item_datas['jstree']['id']
 			},
             complete : function (r) {
-                if(!r.status) { ('div[widget="folder_filling_regex"] div.result').html('Error, can\'t retrieve data from server !'); }
-                else { $('div[widget="folder_filling_regex"] div.result').html(r.responseText); }
+                if(!r.status) { ('div[widget="folder_filling_regex"] div.result textarea.list').html('Error, can\'t retrieve data from server !'); }
+                else { $('div[widget="folder_filling_regex"] div.result textarea.list').html(r.responseText); }
+				$('div[widget="folder_filling_regex"] div.result textarea.list').attr('rows', 10);
             }
         });
     });
@@ -39,4 +41,6 @@ Regex : <input type="text" class="regex" size="25" value="" />
 <button class="save">Save</button>
 <br/>
 <br/>
-<div class="result"></div>
+<div class="result">
+<textarea class="list" rows="1" cols="50" disabled="disabled"></textarea>
+</div>
