@@ -4,6 +4,7 @@ require 'lib/class.folder_aggregator.php';
 
 $id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
 $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
+$collectd_source = get_arg('cdsrc', 0, 0, "", __FILE__, __LINE__);
 
 if (!isset($_POST['action'])) { die('No action submited !'); }
 
@@ -11,15 +12,25 @@ $jstree = new json_tree($view_id);
 $res = $jstree->_get_node($id);
 $owidget = new folder_aggregator($res);
 switch($_POST['action']) {
+    case 'get_collectd_sources':
+        $current_cdsrc = $jstree->get_node_collectd_source($id);
+        $children_cdsrc = array();
+        $children_cdsrc[$current_cdsrc] = 1;
+        $data = $jstree->_get_children($id, true, "", "", $current_cdsrc);
+        foreach($data as $host) {
+            if($host['CdSrc']) $children_cdsrc[$host['CdSrc']] = 1;
+        }
+        echo json_encode(array_keys($children_cdsrc));
+        break;
     case 'add_plugin':
-        $owidget->add_plugin($_POST['plugin'], $_POST['cf']);
+        $owidget->add_aggregator($collectd_source, $_POST['plugin'], $_POST['cf']);
         break;
     case 'del_plugin':
-        $owidget->del_plugin($_POST['plugin']);
+        $owidget->del_aggregator($collectd_source, $_POST['plugin']);
         break;
     case 'get_hosts':
         $hosts = array();
-        $data = $jstree->_get_children($id, true);
+        $data = $jstree->_get_children($id, true, "", "", $collectd_source);
         foreach($data as $host) {
             if ($host['type'] == 'default') { $hosts[] = $host['title']; }
         }

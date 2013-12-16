@@ -40,7 +40,7 @@ class folder_aggregator {
     }
 
     function get_info() {
-        global $folder_filling_plugins, $grouped_type;
+        global $grouped_type;
         return array(
                 'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
                 'content_url' => 'html/folder_aggregator.html',
@@ -48,20 +48,20 @@ class folder_aggregator {
                 );
     }
 
-    function add_plugin($plugin, $cf) {
+    function add_aggregator($cdsrc, $aggregator, $cf) {
         global $jstree;
         $datas = $jstree->get_datas($this->datas['id']);
-        if (!isset($datas['plugins'])) { $datas['plugins'] = array(); }
-        if (!isset($datas['plugins'][$plugin[0].'-'.$cf])) {
-            $datas['plugins'][$plugin[0].'-'.$cf] = true;
+        if (!isset($datas['aggregators'])) { $datas['aggregators'] = array(); }
+        if (!isset($datas['aggregators'][$aggregator[0].'-'.$cf])) {
+            $datas['aggregators'][$cdsrc."/".$aggregator[0].'-'.$cf] = array( 'CdSrc' => $cdsrc, 'plugin' => $aggregator[0].'-'.$cf );
             $jstree->set_datas($this->datas['id'], $datas);
         }
     }
 
-    function del_plugin($plugin) {
+    function del_aggregator($cdsrc, $aggregator) {
         global $jstree;
         $datas = $jstree->get_datas($this->datas['id']);
-        unset($datas['plugins'][$plugin]);
+        unset($datas['aggregators'][$cdsrc."/".$aggregator]);
         $jstree->set_datas($this->datas['id'], $datas);
     }
 }
