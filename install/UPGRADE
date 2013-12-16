@@ -1,7 +1,50 @@
 Upgrade from version >= 1.3 to version 2.0
 ------------------------------------------
 
-1/ MetaGraphDefs callbacks prototype
+Note : only step 2 is mandatory. However, it's better if you also follow step 1.
+Other steps are optional (for customized Perfwatchers)
+
+1/ Update your etc/config.php config file
+- - - - - - - - - - - - - - - - - - - - -
+
+The following lines are config defaults.
+
+######
+$collectd_source_default = "localhost";
+$collectd_sources = array(
+    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/" ),
+);
+######
+
+$collectd_source_default is the default Collectd source alias when no other source is found.
+$collectd_sources is an array where the keys are the Collectd sources aliases (here : localhost)
+and the values are arrays of configuration items (hostname and Collectd jsonrpc server).
+
+You may add or rename as many Collectd sources as you want. Example :
+
+######
+$collectd_source_default = "Prod1";
+$collectd_sources = array(
+    "Dev" => array( 'hostname' => "devhost", 'jsonrpc' => "http://devhost:8080/" ),
+    "Prod1" => array( 'hostname' => "prodhost1", 'jsonrpc' => "http://prodhost1:8080/" ),
+    "Prod2" => array( 'hostname' => "prodhost2", 'jsonrpc' => "http://prodhost2:8080/" ),
+);
+######
+
+
+2/ Database schema and contents updates
+- - - - - - - - - - - - - - - - - - - -
+
+Update the database schema with upgrade_to_2.0.php :
+$ install/upgrade_to_2.0.sql
+
+Note : you will be asked for a Collectd Source. Provide one of the sources
+you defined in etc/config.php. All the data that need it will be linked to that Collectd source.
+Of course, this can be overwritten interactively on the Perfwatcher User Interface.
+
+
+3/ MetaGraphDefs callbacks prototype
+- - - - - - - - - - - - - - - - - -
 
 Check your etc/definitions.local.php : MetaGraphDefs callbacks prototype changed.
 Before :
@@ -9,11 +52,14 @@ callback($host, $plugin, $plugin_instance, $type, $type_instances, $opts = array
 After :
 callback($collectd_source, $host, $plugin, $plugin_instance, $type, $type_instances, $opts = array())
 
+4/ html/custom plugin views
+- - - - - - - - - - - - - -
 
-2/ Database schema
+Custom views were updated to take the Collectd source into account.
+If you developped your own custom views, check the html/*plugin_view.html files and see how they
+were updated.
 
-Update the database schema with upgrade_to_2.0.sql :
-cat upgrade_to_2.0.sql | mysql <your options here>
+
 
 Upgrade from version >= 1.2 to version 1.3
 ------------------------------------------
