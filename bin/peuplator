@@ -44,11 +44,10 @@ foreach ($views as $view_id) {
 		$all_containers = $jstree->get_containers();
 		foreach ($all_containers as $container) {
 				if ($debug) { echo "Working on container ".$container['title']." (".$container['id'].")\n"; }
-				$datas = $jstree->get_datas($container['id']);
 				$serverlist = array();
 				foreach($peuplator_plugins as $plugin) {
 						if (!class_exists ($plugin)) { continue; }
-						$oplugin = new $plugin($datas);
+						$oplugin = new $plugin($container);
 						$serverlist = array_merge($serverlist, $oplugin->get());
 				}
 				foreach ($serverlist as $key => $val) {
