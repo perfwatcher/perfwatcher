@@ -18,5 +18,5 @@ CREATE TABLE tree (
   KEY id_2 (id,title)
 );
 
-INSERT INTO tree (id,view_id, parent_id,position,title,type) VALUES (2,1,1,0,'Default view', 'folder', 'container');
+INSERT INTO tree (id,view_id, parent_id,position,title,type, pwtype) VALUES (2,1,1,0,'Default view', 'folder', 'container');
 
