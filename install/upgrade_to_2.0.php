@@ -59,18 +59,19 @@ if ($db->connect()) {
 
 
 # Update the database schema
-    $sql = "ALTER TABLE tree ADD pwtype varchar(255) DEFAULT NULL AFTER type";
-    if ( ! $db->query($sql) ) { echo "Failed with this request :\n$sql\n"; exit; }
+    $sql_requests = array(
+            "ALTER TABLE tree ADD pwtype varchar(255) DEFAULT NULL AFTER type",
+            "UPDATE tree set pwtype = 'server' where type = 'default'",
+            "UPDATE tree set pwtype = 'container' where type <> 'default'",
+            "ALTER TABLE tree ADD INDEX pwtype (pwtype)",
+            "ALTER TABLE tree ADD agg_id bigint(20) unsigned DEFAULT NULL AFTER pwtype",
+            "ALTER TABLE tree ADD INDEX agg_id (agg_id)",
+            );
 
-    $sql = "UPDATE tree set pwtype = 'server' where type = 'default'";
-    if ( ! $db->query($sql) ) { echo "Failed with this request :\n$sql\n"; exit; }
 
-    $sql = "UPDATE tree set pwtype = 'container' where type <> 'default'";
-    if ( ! $db->query($sql) ) { echo "Failed with this request :\n$sql\n"; exit; }
-
-    $sql = "ALTER TABLE tree ADD INDEX pwtype (pwtype)";
-    if ( ! $db->query($sql) ) { echo "Failed with this request :\n$sql\n"; exit; }
-
+    foreach($sql_requests as $sql) {
+        if ( ! $db->query($sql) ) { echo "Failed with this request :\n$sql\n"; exit; }
+    }
 
     $db->prepare("SELECT * from tree where pwtype = 'container' AND datas <> 'a:0:{}' AND datas like '%plugin%'");
     $db->execute();
@@ -103,12 +104,13 @@ if ($db->connect()) {
         }
 # Update the aggregator datas
         $db->prepare(
-                "UPDATE tree SET datas = ? WHERE id = ?",
-                array('text', 'integer')
+                "UPDATE tree SET datas = ?, agg_id = ? WHERE id = ?",
+                array('text', 'integer' , 'integer')
                 );
 
         $db->execute(array(
                     serialize($a_datas),
+                    $a['id'],
                     $a['id']
                     ));
         $db->free();

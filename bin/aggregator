@@ -31,7 +31,7 @@ if ($db->connect()) {
 }
 
 
-$conf = '';
+$conf = array();
 sort($views);
 foreach ($views as $view_id) {
 		if ($debug) { print "============== Working on view $view_id ===============\n"; }
@@ -43,11 +43,15 @@ foreach ($views as $view_id) {
 				if ($debug) { echo "Working on container ".$container['title']." (".$container['id'].")\n"; }
 
 # Get infos for this container and leave if there is no aggregator
-				$container_host = 'aggregator_'.$container['id'];
 				$datas = $jstree->get_datas($container['id']);
-
-				$nodes = 0;
 				if (!isset($datas['aggregators']) || count($datas['aggregators']) == 0) { continue; } 
+# Get Aggregator id (or generate it)
+				if(isset($container['agg_id']) && $container['agg_id']) {
+						$agg_id = $container['agg_id'];
+				} else {
+						$agg_id = $jstree->generate_aggregator_id($container['id']);
+				}
+				$container_host = 'aggregator_'.$agg_id;
 
 # Get all children and sub-children with their Collectd source. Sort them by Collectd source.
 				$cdsrc = $jstree->get_node_collectd_source($container['id']);

@@ -235,7 +235,15 @@ class _tree_struct {
 }
 
 class json_tree extends _tree_struct { 
-    function __construct($view_id, $table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "pwtype" => "pwtype", "datas" => "datas")) {
+    function __construct($view_id, $table = "tree", $fields = array(), 
+            $add_fields = array(
+                "title" => "title", 
+                "type" => "type", 
+                "pwtype" => "pwtype", 
+                "agg_id" => "agg_id", 
+                "datas" => "datas"
+                )) {
+
         parent::__construct($view_id, $table, $fields);
         $this->fields = array_merge($this->fields, $add_fields);
         $this->add_fields = $add_fields;
@@ -336,6 +344,24 @@ class json_tree extends _tree_struct {
     function remove_node($data) {
         $id = parent::_remove((int)$data["id"]);
         return "{ \"status\" : 1 }";
+    }
+
+    function generate_aggregator_id($id) {
+# WARNING : this way of getting a unique id is not atomic.
+# You should not use this method somewhere else than bin/aggregator or things may break.
+        $this->db->query("SELECT agg_id FROM ".$this->table." WHERE agg_id < (5+(select count(distinct agg_id) from ".$this->table."))  order by agg_id asc");
+        $agg_id = 0;
+        while($this->db->nextr()) {
+            $a =  $this->db->get_row("assoc");
+            if($agg_id == 0) $agg_id = $a['agg_id'];
+            if($agg_id == $a['agg_id']) {
+                $agg_id++;
+            }
+            if($agg_id < $a['agg_id']) { break; }
+        }
+        $this->db->prepare("UPDATE ".$this->table." SET agg_id=? WHERE id = ?", array('integer', 'integer'));
+        $this->db->execute(array((int)$agg_id, (int)$id));
+        return $agg_id;
     }
 
     function get_name_from_node_id($arrayid) {

@@ -7,6 +7,7 @@ CREATE TABLE tree (
   title     varchar(255) DEFAULT NULL,
   type      varchar(255) DEFAULT NULL,
   pwtype    varchar(255) DEFAULT NULL,
+  agg_id    bigint(20) unsigned DEFAULT NULL AUTO_INCREMENT,
   datas     text NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY id (id,parent_id),
