@@ -259,7 +259,7 @@ function purge_data() {
 
 }
 
-function get_widget($datas) {
+function get_widget($res) {
     global $widgets;
     $json = array();
     foreach($widgets as $widget) {
@@ -267,7 +267,7 @@ function get_widget($datas) {
         if (class_exists ($widget)) { continue; }
         if (!include ("lib/class.$widget.php")) { continue; }
         if (!class_exists ($widget)) { continue; }
-        $owidget = new $widget($datas);
+        $owidget = new $widget($res);
         if (!$owidget->is_compatible()) { continue; }
         $json[$widget] = $owidget->get_info();
     }

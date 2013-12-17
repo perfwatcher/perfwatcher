@@ -21,15 +21,16 @@
  */
 
 class load_meter {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
+
     function is_compatible() {
-		switch($this->datas['type']) {
-			case 'default':
+		switch($this->item['pwtype']) {
+			case 'server':
 				return true;
                 break;
 			default:
@@ -39,7 +40,6 @@ class load_meter {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
                 'title' => "Load Average",
                 'content_url' => 'html/load_meter.html'

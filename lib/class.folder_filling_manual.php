@@ -21,16 +21,15 @@
  */
 
 class folder_filling_manual {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
     function is_compatible() {
-        switch($this->datas['type']) {
-            case 'folder':
-            case 'drive':
+        switch($this->item['pwtype']) {
+            case 'container':
                 return true;
                 break;
             default:
@@ -40,18 +39,18 @@ class folder_filling_manual {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
-                'title' => "Autofill this ".$this->datas['type']." using manual list",
+                'title' => "Autofill this container using manual list",
                 'content_url' => 'html/folder_filling_manual.html'
                 );
     }
 
     function get() {
         global $jstree;
-        if (isset($this->datas['serverslist']) &&  isset($this->datas['serverslist']['manuallist'])) {
+        $datas = $jstree->get_datas($this->item['id']);
+        if (isset($datas['serverslist']) &&  isset($datas['serverslist']['manuallist'])) {
             $r = array();
-            foreach (split("\n", $this->datas['serverslist']['manuallist']) as $l) {
+            foreach (split("\n", $datas['serverslist']['manuallist']) as $l) {
                 $r[] = trim($l);
             }
             return $r;
@@ -59,11 +58,11 @@ class folder_filling_manual {
     }
 
     function save ($list) {
-        global $jstree, $id;
-        $datas = $jstree->get_datas($this->datas['id']);
+        global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['manuallist'] = $list;
-        $jstree->set_datas($id, $datas);
+        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 }

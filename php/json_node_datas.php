@@ -42,14 +42,13 @@ if(isset($datas['CdSrc'])) {
     $collectd_source_is_inherited = 1;
 }
 
-switch ($res['type']) {
-    case 'default' :
+switch ($res['pwtype']) {
+    case 'server' :
         $host = $res['title'];
         $plugins = get_list_of_rrds($collectd_source, $host);
         $aggregators = array();
         break;
-    case 'folder' :
-    case 'drive' :
+    case 'container' :
         $host = 'aggregator_'.$res['id'];
         $plugins = array();
         $aggregators = array();

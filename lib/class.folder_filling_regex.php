@@ -21,16 +21,16 @@
  */
 
 class folder_filling_regex {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
+
     function is_compatible() {
-        switch($this->datas['type']) {
-            case 'folder':
-            case 'drive':
+        switch($this->item['pwtype']) {
+            case 'container':
                 return true;
                 break;
             default:
@@ -40,20 +40,20 @@ class folder_filling_regex {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
-                'title' => "Autofill this ".$this->datas['type']." using regex",
+                'title' => "Autofill this container using regex",
                 'content_url' => 'html/folder_filling_regex.html'
                 );
     }
 
     function test ($regex) {
         global $jstree;
-        return implode("\n", $this->get($regex));;
+        return implode("\n", $this->get($regex));
     }
 
     function get ($regex = null) {
         global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         if ($regex === null) {
             if (isset($this->datas['serverslist']) && isset($this->datas['serverslist']['servernameregex'])) {
                 $regex = $this->datas['serverslist']['servernameregex'];
@@ -62,18 +62,18 @@ class folder_filling_regex {
         if (! $regex) {
             return array();
         }
-        $cdsrc = $jstree->get_node_collectd_source($this->datas['id']);
+        $cdsrc = $jstree->get_node_collectd_source($this->object['id']);
         $list = get_list_of_hosts_having_rrds($cdsrc, false);
         $out = preg_grep("/${regex}/", array_keys($list));
         return $out;
     }
 
     function save ($regex) {
-        global $jstree, $id;
-        $datas = $jstree->get_datas($this->datas['id']);
+        global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['servernameregex'] = $regex;
-        $jstree->set_datas($id, $datas);
+        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 }

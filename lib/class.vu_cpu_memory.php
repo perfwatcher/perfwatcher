@@ -21,15 +21,15 @@
  */
 
 class vu_cpu_memory {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
     function is_compatible() {
-		switch($this->datas['type']) {
-			case 'default':
+		switch($this->item['pwtype']) {
+			case 'server':
 				return true;
                 break;
 			default:
@@ -39,7 +39,6 @@ class vu_cpu_memory {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
                 'title' => "CPU & Memory usage",
                 'content_url' => 'html/vu_cpu_memory.html'

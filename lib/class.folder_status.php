@@ -21,16 +21,16 @@
  */
 
 class folder_status {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
+
     function is_compatible() {
-        switch($this->datas['type']) {
-            case 'folder':
-            case 'drive':
+        switch($this->item['pwtype']) {
+            case 'container':
                 return true;
                 break;
             default:
@@ -40,9 +40,8 @@ class folder_status {
     }
 
     function get_info() {
-        global $folder_filling_plugins;
         return array(
-                'title' => ucfirst($this->datas['type'])." status",
+                'title' => "Container status",
                 'content_url' => 'html/folder_status.html'
                 );
     }

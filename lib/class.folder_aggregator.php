@@ -21,16 +21,15 @@
  */
 
 class folder_aggregator {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
     function is_compatible() {
-        switch($this->datas['type']) {
-            case 'folder':
-            case 'drive':
+        switch($this->item['pwtype']) {
+            case 'container':
                 return true;
                 break;
             default:
@@ -42,7 +41,7 @@ class folder_aggregator {
     function get_info() {
         global $grouped_type;
         return array(
-                'title' => "Aggregated metrics from servers under this ".$this->datas['type'],
+                'title' => "Aggregated metrics from servers under this container",
                 'content_url' => 'html/folder_aggregator.html',
                 'grouped_type' => $grouped_type
                 );
@@ -50,19 +49,19 @@ class folder_aggregator {
 
     function add_aggregator($cdsrc, $aggregator, $cf) {
         global $jstree;
-        $datas = $jstree->get_datas($this->datas['id']);
+        $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['aggregators'])) { $datas['aggregators'] = array(); }
         if (!isset($datas['aggregators'][$aggregator[0].'-'.$cf])) {
             $datas['aggregators'][$cdsrc."/".$aggregator[0].'-'.$cf] = array( 'CdSrc' => $cdsrc, 'plugin' => $aggregator[0].'-'.$cf );
-            $jstree->set_datas($this->datas['id'], $datas);
+            $jstree->set_datas($this->item['id'], $datas);
         }
     }
 
     function del_aggregator($cdsrc, $aggregator) {
         global $jstree;
-        $datas = $jstree->get_datas($this->datas['id']);
+        $datas = $jstree->get_datas($this->item['id']);
         unset($datas['aggregators'][$cdsrc."/".$aggregator]);
-        $jstree->set_datas($this->datas['id'], $datas);
+        $jstree->set_datas($this->item['id'], $datas);
     }
 }
 

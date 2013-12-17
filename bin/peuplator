@@ -57,7 +57,7 @@ foreach ($views as $view_id) {
 						$childrens = $jstree->_get_children($container['id']);
 						$childrenslist = array();
 						foreach($childrens as $children) {
-								if ($children['type'] != 'default') { continue; }
+								if ($children['pwtype'] != 'server') { continue; }
 								if (!in_array($children['title'], $serverlist)) {
 										if ($debug) { echo "Removing child '".$children['title']."' (".$children['id'].") from '".$container['title']."' (".$container['id'].")"."\n"; }
 										$jstree->_remove($children['id']);

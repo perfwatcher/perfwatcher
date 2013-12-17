@@ -21,16 +21,15 @@
  */
 
 class folder_options {
-    private $datas = array();
+    private $item = array();
 
-    function __construct($datas) {
-        $this->datas =& $datas;
+    function __construct($item) {
+        $this->item =& $item;
     }
 
     function is_compatible() {
-        switch($this->datas['type']) {
-            case 'folder':
-            case 'drive':
+        switch($this->item['pwtype']) {
+            case 'container':
                 return true;
                 break;
             default:
@@ -40,27 +39,35 @@ class folder_options {
     }
 
     function get_info() {
+        $obt = "";
+        switch($this->item['pwtype']) {
+            case 'container': $obt = "container"; break;
+            case 'server': $obt = "server"; break;
+            case 'selection': $obt = "selection"; break;
+            default: $obt = "??? (bug ?)";
+        }
+
         return array(
-                'title' => $this->datas['type']." options",
+                'title' => "$obt options",
                 'content_url' => 'html/folder_options.html'
                 );
     }
 
     /* Note: this function may be useless. To be checked. */
     function save ($list) {
-        global $jstree, $id;
-        $datas = $jstree->get_datas($this->datas['id']);
+        global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
         $datas['serverslist']['manuallist'] = $list;
-        $jstree->set_datas($id, $datas);
+        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 
     function save_sort ($sort) {
-        global $jstree, $id;
-        $datas = $jstree->get_datas($this->datas['id']);
+        global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         $datas['sort'] = $sort;
-        $jstree->set_datas($id, $datas);
+        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 
@@ -70,14 +77,14 @@ class folder_options {
     }
 
     function save_cdsrc ($cdsrc) {
-        global $jstree, $id, $collectd_source_default;
-        $datas = $jstree->get_datas($this->datas['id']);
+        global $jstree;
+        $datas = $jstree->get_datas($this->item['id']);
         if($cdsrc == "Inherit from parent") {
             unset($datas['CdSrc']);
         } else {
             $datas['CdSrc'] = $cdsrc;
         }
-        $jstree->set_datas($id, $datas);
+        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 }
