@@ -149,15 +149,21 @@ $(function () {
 			"submenu"           	: {
 			    "createserver" 	: {
 				"separator_before"	: false,
-				"separator_after"	: true,
+				"separator_after"	: false,
 				"label"			: "Server",
-				"action"		: function (obj) { this.create(obj); }
+				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "default", "pwtype" : "server" } }); }
+			    },
+			    "createselection" 	: {
+				"separator_before"	: false,
+				"separator_after"	: true,
+				"label"			: "Selection",
+				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "default", "pwtype" : "selection" } }); }
 			    },
 			    "createfolder" 	: {
 				"separator_before"	: false,
 				"separator_after"	: true,
 				"label"			: "Folder",
-				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "folder" } }); }
+				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } }); }
 			    }
 			}
 		    }
@@ -173,6 +179,7 @@ $(function () {
 		    "id" : data.rslt.parent.attr("id").replace("node_",""), 
 		    "position" : data.rslt.position,
 		    "title" : data.rslt.name,
+		    "pwtype" : data.rslt.obj.attr("pwtype"),
 		    "type" : data.rslt.obj.attr("rel")
 		}, 
 		function (r) {
