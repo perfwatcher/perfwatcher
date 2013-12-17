@@ -5,6 +5,19 @@ chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 
 require "lib/common.php";
 
+$debug=false;
+
+if (isset($argv[1])) {
+    foreach($argv as $key => $val) {
+        if ($key == 0) { continue; }
+        switch($val) {
+            case '-v':
+                $debug=true;
+            break;
+        }
+    }
+}
+
 $db = new _database($db_config);
 if ($db->connect()) {
 		$result_connect = 1;
@@ -19,60 +32,84 @@ if ($db->connect()) {
 
 
 $conf = '';
+sort($views);
 foreach ($views as $view_id) {
+		if ($debug) { print "============== Working on view $view_id ===============\n"; }
 		$jstree = new json_tree($view_id);
+# Get all containers for this view
 		$containers = $jstree->get_containers();
+		sort ($containers);
 		foreach ($containers as $container) {
+				if ($debug) { echo "Working on container ".$container['title']." (".$container['id'].")\n"; }
 
+# Get infos for this container and leave if there is no aggregator
 				$container_host = 'aggregator_'.$container['id'];
 				$datas = $jstree->get_datas($container['id']);
 
 				$nodes = 0;
-				if (!isset($datas['plugins']) || count($datas['plugins']) == 0) { continue; } 
+				if (!isset($datas['aggregators']) || count($datas['aggregators']) == 0) { continue; } 
 
-				$childrens = $jstree->_get_children($container['id'], true);
+# Get all children and sub-children with their Collectd source. Sort them by Collectd source.
+				$cdsrc = $jstree->get_node_collectd_source($container['id']);
+				$childrens = $jstree->_get_children($container['id'], true, "", "", $cdsrc);
 				foreach($childrens as $idc => $children) {
-						if ($children['type'] != 'default') { unset($childrens[$idc]); }
-				}
-				if (count($childrens) == 0) { continue; }
-				$alreadydoes = array();
-				foreach ($datas['plugins'] as $pluginandcalc => $nothing) {
-						if (isset($alreadydoes[$pluginandcalc])) { continue; }
-						$pluginstr = substr($pluginandcalc, 0, -4);
-						$calc = substr($pluginandcalc, -3);
-						list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
-						$conf .= "	<aggregator>
-								resultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n";
-						$conf .= "		operation \"$calc\"\n";
-						if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
-						if (isset($datas['plugins'][$pluginstr.'-'.$testcalc])) {
-								$conf .= "		operation \"$testcalc\"\n";
-								$alreadydoes[$pluginstr.'-'.$testcalc] = true;
+						if ($children['pwtype'] == 'server') { 
+							$children_with_cdsrc[$children['CdSrc']][$idc] = $children;
 						}
-						$conf .= "		<valuelist manual>\n";
-						foreach($childrens as $children) {
-								if ($children['type'] != 'default') { continue; }
+				}
+				if (count($children_with_cdsrc) == 0) { continue; }
+# Parse all aggregators
+				$alreadydoes = array();
+				ksort($datas['aggregators']);
+				foreach ($datas['aggregators'] as $aggregator => $aggdata) {
+						if (isset($alreadydoes[$aggregator])) { continue; }
+						$aggregator_cdsrc = $aggdata['CdSrc'];
+						if (!isset($children_with_cdsrc[$aggregator_cdsrc])) { continue; }
+						$aggregator_prefix = substr($aggregator, 0, -4);
+						$pluginstr = substr($aggdata['plugin'], 0, -4);
+						$calc = substr($aggdata['plugin'], -3);
+						list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
+
+
+						if(!isset($conf[$aggregator_cdsrc])) { $conf[$aggregator_cdsrc] = ""; }
+						$conf[$aggregator_cdsrc] .= "\t<aggregator>\n"
+								.  "\t\tresultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n"
+								.  "\t\toperation \"$calc\"\n";
+
+						if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
+						if (isset($datas['aggregators'][$aggregator_prefix.'-'.$testcalc])) {
+								$conf[$aggregator_cdsrc] .= "\t\toperation \"$testcalc\"\n";
+								$alreadydoes[$aggregator_prefix.'-'.$testcalc] = true;
+						}
+						$conf[$aggregator_cdsrc] .= "\t\t<valuelist manual>\n";
+
+						ksort($children_with_cdsrc[$aggregator_cdsrc]);
+						foreach($children_with_cdsrc[$aggregator_cdsrc] as $idc => $children) {
+								if ($children['pwtype'] != 'server') { continue; }
 								if (in_array($type, $grouped_type)) {
-										$conf .= "			alltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+										$conf[$aggregator_cdsrc] .= "\t\t\talltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
 								} else {
-										$conf .= "			type	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+										$conf[$aggregator_cdsrc] .= "\t\t\ttype	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
 								}
 						}
-						$conf .= "		</valuelist>\n";
-						$conf .= "	</aggregator>\n";
+
+						$conf[$aggregator_cdsrc] .= "\t\t</valuelist>\n";
+						$conf[$aggregator_cdsrc] .= "\t</aggregator>\n";
 				}
 		}
 }
 
-$localconf = file_exists('etc/aggregator.local.conf') ? file_get_contents('etc/aggregator.local.conf') : '';
-$oldconf = file_exists('etc/aggregator.conf') ? file_get_contents('etc/aggregator.conf') : '';
-if($localconf) {
-	$conf .= $localconf;
-}
-if ($oldconf != $conf) {
-	file_put_contents('etc/aggregator.conf.tmp', $conf);
-	rename('etc/aggregator.conf.tmp', 'etc/aggregator.conf');
-	echo "etc/aggregator.conf updated\n";
+foreach($conf as $cdsrc => $conftxt) {
+		$localconf = file_exists('etc/aggregator-$cdsrc.local.conf') ? file_get_contents('etc/aggregator-$cdsrc.local.conf') : '';
+		$oldconf = file_exists("etc/aggregator-$cdsrc.conf") ? file_get_contents("etc/aggregator-$cdsrc.conf") : '';
+		if($localconf) {
+				$conftxt .= $localconf;
+		}
+		if ($oldconf != $conftxt) {
+				file_put_contents('etc/aggregator.conf.tmp', $conftxt);
+				rename("etc/aggregator.conf.tmp", "etc/aggregator-$cdsrc.conf");
+				echo "etc/aggregator-$cdsrc.conf updated\n";
+		}
 }
 
 ?>

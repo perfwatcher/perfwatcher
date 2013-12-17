@@ -235,7 +235,7 @@ class _tree_struct {
 }
 
 class json_tree extends _tree_struct { 
-    function __construct($view_id, $table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "datas" => "datas")) {
+    function __construct($view_id, $table = "tree", $fields = array(), $add_fields = array("title" => "title", "type" => "type", "pwtype" => "pwtype", "datas" => "datas")) {
         parent::__construct($view_id, $table, $fields);
         $this->fields = array_merge($this->fields, $add_fields);
         $this->add_fields = $add_fields;
