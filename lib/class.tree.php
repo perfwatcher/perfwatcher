@@ -253,7 +253,7 @@ class json_tree extends _tree_struct {
         $id = parent::_create((int)$data[$this->fields["id"]], (int)$data[$this->fields["position"]]);
         if($id) {
             $data["id"] = $id;
-            $this->set_data($data);
+            $this->set_item($data);
             return  "{ \"status\" : 1, \"id\" : ".(int)$id." }";
         }
         return "{ \"status\" : 0 }";
@@ -262,8 +262,8 @@ class json_tree extends _tree_struct {
     function add_node($parent_id, $title) {
         $id = parent::_create((int)$parent_id, (int) $this->max_pos($parent_id));
         if($id) {
-            $data = array('id' => $id, 'title' => $title, 'type' => 'default');
-            $this->set_data($data);
+            $data = array('id' => $id, 'title' => $title, 'type' => 'default', 'pwtype' => 'server');
+            $this->set_item($data);
             return  true;
         }
         return false;
@@ -272,8 +272,8 @@ class json_tree extends _tree_struct {
     function add_folder($parent_id, $title) {
         $id = parent::_create((int)$parent_id, (int) $this->max_pos($parent_id));
         if($id) {
-            $data = array('id' => $id, 'title' => $title, 'type' => 'folder');
-            $this->set_data($data);
+            $data = array('id' => $id, 'title' => $title, 'type' => 'folder', 'pwtype' => 'container');
+            $this->set_item($data);
             return  true;
         }
         return false;
@@ -287,7 +287,7 @@ class json_tree extends _tree_struct {
         return $res['position'];
     }
 
-    function set_data($data) {
+    function set_item($data) {
         if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
         $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
         foreach($this->add_fields as $k => $v) {
@@ -308,7 +308,7 @@ class json_tree extends _tree_struct {
         $this->db->execute($set_value);
         return "{ \"status\" : 1 }";
     }
-    function rename_node($data) { return $this->set_data($data); }
+    function rename_node($data) { return $this->set_item($data); }
 
     function move_node($data) { 
         $id = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"], (int)$data["copy"]);
