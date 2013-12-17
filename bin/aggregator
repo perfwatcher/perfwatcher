@@ -100,15 +100,15 @@ foreach ($views as $view_id) {
 }
 
 foreach($conf as $cdsrc => $conftxt) {
-		$localconf = file_exists('etc/aggregator-$cdsrc.local.conf') ? file_get_contents('etc/aggregator-$cdsrc.local.conf') : '';
-		$oldconf = file_exists("etc/aggregator-$cdsrc.conf") ? file_get_contents("etc/aggregator-$cdsrc.conf") : '';
+		$localconf = file_exists("etc/aggregator-$cdsrc.local.conf") ? file_get_contents("etc/aggregator-$cdsrc.local.conf") : '';
+		$oldconf = file_exists("$aggregator_config_dir/aggregator-$cdsrc.conf") ? file_get_contents("$aggregator_config_dir/aggregator-$cdsrc.conf") : '';
 		if($localconf) {
 				$conftxt .= $localconf;
 		}
 		if ($oldconf != $conftxt) {
-				file_put_contents('etc/aggregator.conf.tmp', $conftxt);
-				rename("etc/aggregator.conf.tmp", "etc/aggregator-$cdsrc.conf");
-				echo "etc/aggregator-$cdsrc.conf updated\n";
+				file_put_contents("$aggregator_config_dir/aggregator.conf.tmp", $conftxt);
+				rename("$aggregator_config_dir/aggregator.conf.tmp", "$aggregator_config_dir/aggregator-$cdsrc.conf");
+				echo "$aggregator_config_dir/aggregator-$cdsrc.conf updated\n";
 		}
 }
 

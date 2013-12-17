@@ -49,4 +49,13 @@ $collectd_sources = array(
     "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/", 'proxy' => null ),
 );
 
+/**
+ *
+ *	Path for config files for aggregators
+ *	Note : if Collectd is running on remote servers, you are in charge of copying
+ *  the config files to the Collectd servers (see basic_aggregator configuration)
+ *
+ */
+$aggregator_config_dir = "/var/www/html/perfwatcher/private";
+
 ?>

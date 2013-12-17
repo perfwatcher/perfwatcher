@@ -45,6 +45,11 @@ $collectd_sources = array(
     "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/", 'proxy' => null ),
 );
 
+$aggregator_config_dir = "etc";
+
+/* NO MORE DEFAULT CONFIG BEYOND THIS POINT */
+
 if (file_exists("etc/config.php")) { include("etc/config.php"); } else { die('no etc/config.php please create it with at least : <br />&lt;?php<br/><br />?&gt;'); }
+
 
 ?>
