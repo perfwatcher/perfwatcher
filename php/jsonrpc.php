@@ -9,6 +9,9 @@ if(isset($collectd_source) && $collectd_source) {
         pw_error_log("Some node in your tree as Collectd Source set as '$collectd_source' but there is no such Source in your configuration. "
                 ."Using default '$collectd_source_default' source instead. "
                 ."Check your database (try [SELECT * FROM tree WHERE datas LIKE '%$collectd_source%';]) and your configuration file",  __FILE__, __LINE__);
+        pw_error_log("\$post_request='$post_request'",  __FILE__, __LINE__);
+        pw_error_log("\$_GET='".print_r($_GET, 1)."'",  __FILE__, __LINE__);
+        pw_error_log("\$_POST='".print_r($_GET, 1)."'",  __FILE__, __LINE__);
         $url_jsonrpc = $collectd_sources[$collectd_source_default]['jsonrpc'];
         $proxy_jsonrpc = isset($collectd_sources[$collectd_source_default]['proxy'])?$collectd_sources[$collectd_source_default]['proxy']:null;
     }
