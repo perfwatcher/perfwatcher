@@ -42,7 +42,8 @@ $(function () {
             if(json_item_datas['hosts'][host]['CdSrc'] == cdsrc) {
                 hostslist.push(json_item_datas['hosts'][host]['title']);
             }
-        if(hostslist.length > 0) {}
+        }
+        if(hostslist.length > 0) {
             $.ajax({
                 async : true,
                 type: 'POST',
@@ -92,68 +93,68 @@ $(function () {
                     }
                 }
             });
-         }
+        }
+    }
     
-        function status_chart_draw() {
-            var nb_up = 0;
-            var nb_down = 0;
-            var nb_unknown = 0;
-            for (var src in up) { 
-                nb_up = nb_up + up[src];
-                nb_down = nb_down + down[src];
-                nb_unknown = nb_unknown + unknown[src];
-            }
+    function status_chart_draw() {
+        var nb_up = 0;
+        var nb_down = 0;
+        var nb_unknown = 0;
+        for (var src in up) { 
+            nb_up = nb_up + up[src];
+            nb_down = nb_down + down[src];
+            nb_unknown = nb_unknown + unknown[src];
+        }
     
-            Highcharts.setOptions({
-                colors: ['#77CC6D', '#FF5973', '#838282']
-            });
-            var chart = new Highcharts.Chart({
-                chart: {
-                    renderTo: 'status_chart',
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: true,
-                    height: 190
-                },
-                title: {
-                    text: ' '
-                },
-                tooltip: {
-                    pointFormat: '{series.name}: <b>{point.y}</b>',
-                    percentageDecimals: 1,
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            color: '#000000',
-                            connectorColor: '#000000',
-                            formatter: function() {
-                                return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
-                            },
-                        distance: 25
+        Highcharts.setOptions({
+            colors: ['#77CC6D', '#FF5973', '#838282']
+        });
+        var chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'status_chart',
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: true,
+                height: 190
+            },
+            title: {
+                text: ' '
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.y}</b>',
+                percentageDecimals: 1,
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        formatter: function() {
+                            return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
                         },
-                        events: {
-                            click: function (e) {
-                                piesliceclicked(e['point']['config'][0]);
-                            }
+                    distance: 25
+                    },
+                    events: {
+                        click: function (e) {
+                            piesliceclicked(e['point']['config'][0]);
                         }
                     }
-                },
-                series: [{
-                    type: 'pie',
-                    name: 'Server(s)',
-                    data: [
-                        ['UP',        nb_up],
-                        ['DOWN',      nb_down],
-                        ['UNKNOWN',   nb_unknown]
-                    ]
-                }]
-            });
-        }
-    });
-}
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Server(s)',
+                data: [
+                    ['UP',        nb_up],
+                    ['DOWN',      nb_down],
+                    ['UNKNOWN',   nb_unknown]
+                ]
+            }]
+        });
+    }
+});
 </script>
 <center><div id="status_chart" style="height:180px; "></div></center>
