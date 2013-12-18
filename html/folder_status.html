@@ -42,117 +42,118 @@ $(function () {
             if(json_item_datas['hosts'][host]['CdSrc'] == cdsrc) {
                 hostslist.push(json_item_datas['hosts'][host]['title']);
             }
-        }
-        $.ajax({
-            async : true,
-            type: 'POST',
-            url: 'action.php?tpl=jsonrpc&cdsrc='+cdsrc,
-            data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hostslist}, "id": 0}),
-            dataType : 'json',
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
-                notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
-            },
-            complete : function (r) {
-                if(r.status) {
-                    var res = jQuery.parseJSON(r.responseText);
-                    up[cdsrc] = 0;
-                    down[cdsrc] = 0;
-                    unknown[cdsrc] = 0;
-                    hosts_up[cdsrc] = '';
-                    hosts_down[cdsrc] = '';
-                    hosts_unknown[cdsrc] = '';
-                    if(res['result']) {
-                        for(var host in res['result']) {
-                            switch(res['result'][host]) {
-                                case 'up':
-                                    up[cdsrc]++;
-                                    hosts_up[cdsrc] = hosts_up[cdsrc] + cdsrc + "/" + host + "\n";
-                                    break;
-                                case 'down':
-                                    down[cdsrc]++;
-                                    hosts_down[cdsrc] = hosts_down[cdsrc] + cdsrc + "/" + host + "\n";
-                                    break;
-                                case 'unknown':
-                                    unknown[cdsrc]++;
-                                    hosts_unknown[cdsrc] = hosts_unknown[cdsrc] + cdsrc + "/" + host + "\n";
-                                    break;
+        if(hostslist.length > 0) {}
+            $.ajax({
+                async : true,
+                type: 'POST',
+                url: 'action.php?tpl=jsonrpc&cdsrc='+cdsrc,
+                data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_status", "params": { "timeout": 240, "server": hostslist}, "id": 0}),
+                dataType : 'json',
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+                    notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+                },
+                complete : function (r) {
+                    if(r.status) {
+                        var res = jQuery.parseJSON(r.responseText);
+                        up[cdsrc] = 0;
+                        down[cdsrc] = 0;
+                        unknown[cdsrc] = 0;
+                        hosts_up[cdsrc] = '';
+                        hosts_down[cdsrc] = '';
+                        hosts_unknown[cdsrc] = '';
+                        if(res['result']) {
+                            for(var host in res['result']) {
+                                switch(res['result'][host]) {
+                                    case 'up':
+                                        up[cdsrc]++;
+                                        hosts_up[cdsrc] = hosts_up[cdsrc] + cdsrc + "/" + host + "\n";
+                                        break;
+                                    case 'down':
+                                        down[cdsrc]++;
+                                        hosts_down[cdsrc] = hosts_down[cdsrc] + cdsrc + "/" + host + "\n";
+                                        break;
+                                    case 'unknown':
+                                        unknown[cdsrc]++;
+                                        hosts_unknown[cdsrc] = hosts_unknown[cdsrc] + cdsrc + "/" + host + "\n";
+                                        break;
+                                }
+                            }
+                        } else {
+                            for(var host in hostslist) {
+                                unknown[cdsrc]++;
+                                hosts_unknown[cdsrc] = hosts_unknown[cdsrc] + cdsrc + "/" + hostslist[host] + "\n";
                             }
                         }
-                    } else {
-                        for(var host in hostslist) {
-                            unknown[cdsrc]++;
-                            hosts_unknown[cdsrc] = hosts_unknown[cdsrc] + cdsrc + "/" + hostslist[host] + "\n";
+                        if(status_chart_draw__timeout_handle) {
+                            window.clearTimeout(status_chart_draw__timeout_handle);
                         }
+                        status_chart_draw__timeout_handle = window.setTimeout(function () { status_chart_draw() }, 500);
                     }
-                    if(status_chart_draw__timeout_handle) {
-                        window.clearTimeout(status_chart_draw__timeout_handle);
-                    }
-                    status_chart_draw__timeout_handle = window.setTimeout(function () { status_chart_draw() }, 500);
                 }
+            });
+         }
+    
+        function status_chart_draw() {
+            var nb_up = 0;
+            var nb_down = 0;
+            var nb_unknown = 0;
+            for (var src in up) { 
+                nb_up = nb_up + up[src];
+                nb_down = nb_down + down[src];
+                nb_unknown = nb_unknown + unknown[src];
             }
-        });
-     }
-
-    function status_chart_draw() {
-        var nb_up = 0;
-        var nb_down = 0;
-        var nb_unknown = 0;
-        for (var src in up) { 
-            nb_up = nb_up + up[src];
-            nb_down = nb_down + down[src];
-            nb_unknown = nb_unknown + unknown[src];
-        }
-
-        Highcharts.setOptions({
-            colors: ['#77CC6D', '#FF5973', '#838282']
-        });
-        var chart = new Highcharts.Chart({
-            chart: {
-                renderTo: 'status_chart',
-                plotBackgroundColor: null,
-                plotBorderWidth: null,
-                plotShadow: true,
-                height: 190
-            },
-            title: {
-                text: ' '
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.y}</b>',
-                percentageDecimals: 1,
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        color: '#000000',
-                        connectorColor: '#000000',
-                        formatter: function() {
-                            return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
+    
+            Highcharts.setOptions({
+                colors: ['#77CC6D', '#FF5973', '#838282']
+            });
+            var chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'status_chart',
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: true,
+                    height: 190
+                },
+                title: {
+                    text: ' '
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y}</b>',
+                    percentageDecimals: 1,
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ Math.round(this.percentage * 100, 2) / 100 +' %';
+                            },
+                        distance: 25
                         },
-                    distance: 25
-                    },
-                    events: {
-                        click: function (e) {
-                            piesliceclicked(e['point']['config'][0]);
+                        events: {
+                            click: function (e) {
+                                piesliceclicked(e['point']['config'][0]);
+                            }
                         }
                     }
-                }
-            },
-            series: [{
-                type: 'pie',
-                name: 'Server(s)',
-                data: [
-                    ['UP',        nb_up],
-                    ['DOWN',      nb_down],
-                    ['UNKNOWN',   nb_unknown]
-                ]
-            }]
-        });
-    }
-});
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Server(s)',
+                    data: [
+                        ['UP',        nb_up],
+                        ['DOWN',      nb_down],
+                        ['UNKNOWN',   nb_unknown]
+                    ]
+                }]
+            });
+        }
+    });
+}
 </script>
 <center><div id="status_chart" style="height:180px; "></div></center>

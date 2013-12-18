@@ -1,13 +1,26 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 $post_request = file_get_contents('php://input');
 $collectd_source = get_arg('cdsrc', 0, 0, "", __FILE__, __LINE__);
-if(isset($collectd_source) && $collectd_source && isset($collectd_sources[$collectd_source])) {
-    $url_jsonrpc = $collectd_sources[$collectd_source]['jsonrpc'];
-    $proxy_jsonrpc = isset($collectd_sources[$collectd_source]['proxy'])?$collectd_sources[$collectd_source]['proxy']:null;
+if(isset($collectd_source) && $collectd_source) {
+    if(isset($collectd_sources[$collectd_source])) {
+        $url_jsonrpc = $collectd_sources[$collectd_source]['jsonrpc'];
+        $proxy_jsonrpc = isset($collectd_sources[$collectd_source]['proxy'])?$collectd_sources[$collectd_source]['proxy']:null;
+    } else {
+        pw_error_log("Some node in your tree as Collectd Source set as '$collectd_source' but there is no such Source in your configuration. "
+                ."Using default '$collectd_source_default' source instead. "
+                ."Check your database (try [SELECT * FROM tree WHERE datas LIKE '%$collectd_source%';]) and your configuration file",  __FILE__, __LINE__);
+        $url_jsonrpc = $collectd_sources[$collectd_source_default]['jsonrpc'];
+        $proxy_jsonrpc = isset($collectd_sources[$collectd_source_default]['proxy'])?$collectd_sources[$collectd_source_default]['proxy']:null;
+    }
 } else {
-    pw_error_log("This line should not be executed. Please tell us...",  __FILE__, __LINE__);
-    $url_jsonrpc = "http://127.0.0.1:8080/";
-    $proxy_jsonrpc = null;
+    pw_error_log("This was called with no/empty \$collectd_source. More information is following.",  __FILE__, __LINE__);
+    pw_error_log("\$collectd_source='".(isset($collectd_source)?$collectd_source:"unset")."'",  __FILE__, __LINE__);
+    pw_error_log("\$post_request='$post_request'",  __FILE__, __LINE__);
+    pw_error_log("\$_GET='".print_r($_GET, 1)."'",  __FILE__, __LINE__);
+    pw_error_log("\$_POST='".print_r($_GET, 1)."'",  __FILE__, __LINE__);
+    pw_error_log("Please tell us about this problem.",  __FILE__, __LINE__);
+    $url_jsonrpc = $collectd_sources[$collectd_source_default]['jsonrpc'];
+    $proxy_jsonrpc = isset($collectd_sources[$collectd_source_default]['proxy'])?$collectd_sources[$collectd_source_default]['proxy']:null;
 }
 putenv('http_proxy');
 putenv('https_proxy');
