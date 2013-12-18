@@ -59,6 +59,11 @@ switch ($res['pwtype']) {
             }
         }
         break;
+    case 'selection' :
+        $host = $res['title'];
+        $plugins = array();
+        $aggregators = array();
+        break;
     default:
         die('Error : node not found !!!');
         break;

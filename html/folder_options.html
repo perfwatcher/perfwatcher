@@ -3,7 +3,7 @@
     $('#options_collectd_source').hide();
 
 	// Sort options
-	if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+	if(json_item_datas['jstree']['pwtype'] == 'container') {
     	if (json_item_datas['datas'] && json_item_datas['datas']['sort'] && json_item_datas['datas']['sort'] == 1) {
     		$('#options_server_sorting input[name=sort][value="1"]').attr('checked', 'checked');
     	} else {
@@ -12,7 +12,7 @@
 		$('#options_server_sorting').show();
 	}
 	// Collectd source
-	if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+	if(json_item_datas['jstree']['pwtype'] == 'container') {
     	var select_cdsrc = 'select[part="cdsrc"]';
     	var json_data = null;
     
@@ -62,7 +62,7 @@
     $('div[widget="folder_options"] button').button();
     $('div[widget="folder_options"] button.save').click(function () {
 	// Sort options
-	    if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+	    if(json_item_datas['jstree']['pwtype'] == 'container') {
             $.ajax({
                 async : false, type: 'POST', url: "action.php?tpl=folder_options",
                 data : { "action" : "save_sort", "sort" : $('#options_server_sorting input[name=sort]:checked').val(),
@@ -74,7 +74,7 @@
             });
 		}
 	// Collectd source
-	    if((json_item_datas['jstree']['type'] == 'drive') || (json_item_datas['jstree']['type'] == 'folder')) {
+	    if(json_item_datas['jstree']['pwtype'] == 'container') {
     		var src = [];
     		$(select_cdsrc+' option:selected').each(function() { src.push($(this).val()); });
             $.ajax({

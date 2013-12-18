@@ -180,10 +180,10 @@ $(document).ready(function() {
 				$('#tree').jstree("cut");
 			break;
 			case 'menu_new_server':
-				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "default" } });
+				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "default", "pwtype" : "server" } });
 			break;
 			case 'menu_new_container':
-				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder" } });
+				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } });
 			break;
 			case 'menu_display_toggle_tree':
 				if (treecollapsed) {

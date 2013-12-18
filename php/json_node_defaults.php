@@ -63,7 +63,7 @@ if("" == $collectd_source) {
                 'jstree' => array('title' => $host),
                 'datas' => array(),
                 'config' => array(
-                    'widgets' => get_widget(array( 'type' => 'default' ) ),
+                    'widgets' => get_widget(array( 'pwtype' => 'server' ) ),
                     'CdSrc' => $collectd_source
                     )
                 ));

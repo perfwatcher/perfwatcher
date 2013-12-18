@@ -288,20 +288,6 @@ function split_pluginstr($pluginstr) {
     return array($plugin, $plugin_instance, $type, $type_instance);
 }
 
-function get_nodes_count($host_id)
-{
-    global $jstree, $childrens_cache;
-    $nodes = 0;
-    $childrens = $jstree->_get_children($host_id, true);
-    foreach($childrens as $children) {
-        if ($children['type'] != 'default') {
-            continue;
-        }
-        $nodes++;
-    }
-    return $nodes;
-}
-
 function create_new_view($title) {
     global $db_config;
     $view_id = -1;
@@ -309,7 +295,7 @@ function create_new_view($title) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
-        $db->prepare("INSERT INTO tree (view_id, parent_id, position, type, title) SELECT MAX(view_id)+1, 1, 0, 'folder', ? FROM tree", array('text'));
+        $db->prepare("INSERT INTO tree (view_id, parent_id, position, pwtype, title) SELECT MAX(view_id)+1, 1, 0, 'container', ? FROM tree", array('text'));
         $db->execute($title);
         $id = $db->insert_id('tree', 'id');
         $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));

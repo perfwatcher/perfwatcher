@@ -63,6 +63,7 @@ if ($db->connect()) {
             "ALTER TABLE tree ADD pwtype varchar(255) DEFAULT NULL AFTER type",
             "UPDATE tree set pwtype = 'server' where type = 'default'",
             "UPDATE tree set pwtype = 'container' where type <> 'default'",
+            "UPDATE tree set type = 'folder' where type = 'drive'",
             "ALTER TABLE tree ADD INDEX pwtype (pwtype)",
             "ALTER TABLE tree ADD agg_id bigint(20) unsigned DEFAULT NULL AFTER pwtype",
             "ALTER TABLE tree ADD INDEX agg_id (agg_id)",

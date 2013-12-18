@@ -104,17 +104,24 @@ $(function () {
 		    },
 		    "default-red" : { "valid_children" : "none", "icon" : { "image" : "img/file-red.png" } },
 		    "default-green" : { "valid_children" : "none", "icon" : { "image" : "img/file-green.png" } },
+		    "selection" : {
+				// I want this type to have no children (so only leaf nodes)
+				// In my case - those are selections
+				"valid_children" : "none",
+				// If we specify an icon for the default type it WILL OVERRIDE the theme icons
+				"icon" : { "image" : "img/selection.png" }
+		    },
 		    // The `folder` type
 		    "folder" : {
 				// can have files and other folders inside of it, but NOT `drive` nodes
-				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
+				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder", "selection" ],
 				"icon" : { "image" : "img/folder.png" }
 		    },
 		    // The `drive` nodes 
 		    "drive" : {
 				// can have files and folders inside, but NOT other `drive` nodes
-				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder" ],
-				"icon" : { "image" : "img/folder.png" },
+				"valid_children" : [ "default", "default-red", "default-grey", "default-green", "folder", "selection" ],
+				"icon" : { "image" : "img/root.png" },
 				// those options prevent the functions with the same name to be used on the `drive` type nodes
 				// internally the `before` event is used
 				"start_drag" : false,
@@ -157,7 +164,7 @@ $(function () {
 				"separator_before"	: false,
 				"separator_after"	: true,
 				"label"			: "Selection",
-				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "default", "pwtype" : "selection" } }); }
+				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "selection", "pwtype" : "selection" } }); }
 			    },
 			    "createfolder" 	: {
 				"separator_before"	: false,
@@ -179,8 +186,7 @@ $(function () {
 		    "id" : data.rslt.parent.attr("id").replace("node_",""), 
 		    "position" : data.rslt.position,
 		    "title" : data.rslt.name,
-		    "pwtype" : data.rslt.obj.attr("pwtype"),
-		    "type" : data.rslt.obj.attr("rel")
+		    "pwtype" : data.rslt.obj.attr("pwtype")
 		}, 
 		function (r) {
 		    if(r.status) {

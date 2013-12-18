@@ -79,7 +79,7 @@ $out="";
 $dbtest = new _database($db_config);
 if ($dbtest->connect()) {
 		$result_connect = 1;
-		$dbtest->prepare("SELECT id FROM tree WHERE type='drive'");
+		$dbtest->prepare("SELECT id FROM tree WHERE pwtype='container'");
 		$dbtest->execute();
 		if($dbtest->nextr()) {
 				$result_connect = 1;
@@ -93,7 +93,7 @@ if ($dbtest->connect()) {
 echo "<li>Database connection : ".($result_connect ? printok($ok) : printko ($ko))."</li>";
 
 $ok = "Found a root drive in the tree";
-$ko = "Could not find the root of the tree (type drive) in '".$db_config{'database'}.".tree'. You may check the install/* scripts.";
+$ko = "Could not find the root of the tree (pwtype container) in '".$db_config{'database'}.".tree'. You may check the install/* scripts.";
 echo "<li>Database contents : ".($result_tree ? printok($ok) : printko ($ko))."</li>";
 
 ?>

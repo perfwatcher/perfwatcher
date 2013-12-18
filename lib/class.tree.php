@@ -78,9 +78,9 @@ class _tree_struct {
         if($recursive) {
             $childrens = $this->_get_children($id, false, $path, $separator, $collectd_source);
             foreach($childrens as $cid => $cdata) {
-                if ( $cdata['type'] != 'default') {			
+                if ( $cdata['pwtype'] == 'container') {			
                     foreach($this->_get_children($cdata['id'], true, $cdata['_path_'], $separator, $cdata['CdSrc']) as $cid2 => $cdata2) {
-                        $childrens[$cdata2['type'] == 'default' ? $cdata2['title'] : 'aggregator_'.$cdata2['id']] = $cdata2;
+                        $childrens[$cdata2['pwtype'] != 'container' ? $cdata2['title'] : 'aggregator_'.$cdata2['id']] = $cdata2;
                     }
                 }
             }
@@ -107,36 +107,11 @@ class _tree_struct {
                     unset($tmp["datas"]);
                 }
                 $tmp['CdSrc'] = $cdsrc?$cdsrc:$collectd_source;
-                $childrens[$tmp['type'] == 'default' ? $tmp['title'] : 'aggregator_'.$tmp['id']] = $tmp;
+                $childrens[$tmp['pwtype'] != 'container' ? $tmp['title'] : 'aggregator_'.$tmp['id']] = $tmp;
             }
         }
         $childrens_cache[$id] = $childrens;
         return $childrens;
-    }
-
-    function get_children_count($id) {
-        $nbhosts = 0;
-        $nbcontainer = 0;
-        $childrens = $this->_get_children($id, true);
-        foreach($childrens as $cid => $cdata) {
-            if ($cdata['type'] == 'default') {
-                $nbhosts++;
-            } else {
-                $nbcontainer++;
-            }
-        }
-        return array($nbhosts, $nbcontainer);
-    }
-
-    function get_nodechildren_id($id) {
-        $nodes = array();
-        $childrens = $this->_get_children($id, true);
-        foreach($childrens as $cid => $cdata) {
-            if ($cdata['type'] == 'default') {
-                $nodes[] = $cdata['id'];
-            }
-        }
-        return $nodes;
     }
 
     function set_datas($id, $data) {
@@ -168,14 +143,14 @@ class _tree_struct {
 
     function get_containers() {
         $containers = array();
-        $this->db->prepare("SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE (type = 'folder' or type = 'drive') and view_id = ?", array('integer'));
+        $this->db->prepare("SELECT ".implode(", ", $this->fields)." FROM ".$this->table." WHERE pwtype = 'container' and view_id = ?", array('integer'));
         $this->db->execute(array((int)$this->view_id));
         while($this->db->nextr()) $containers[$this->db->f($this->fields["id"])] = $this->db->get_row("assoc");
         return $containers;
     }
 
     function _create($parent, $position) {
-        $this->db->prepare("INSERT into ".$this->table." (view_id, parent_id, position, type) VALUES (?, ?, ?, 'default')", array('integer', 'integer', 'integer'));
+        $this->db->prepare("INSERT into ".$this->table." (view_id, parent_id, position) VALUES (?, ?, ?)", array('integer', 'integer', 'integer'));
         $this->db->execute(array((int)$this->view_id, (int)$parent, (int)$position) );
         return $this->db->insert_id($this->table, 'id');
     }
@@ -238,7 +213,6 @@ class json_tree extends _tree_struct {
     function __construct($view_id, $table = "tree", $fields = array(), 
             $add_fields = array(
                 "title" => "title", 
-                "type" => "type", 
                 "pwtype" => "pwtype", 
                 "agg_id" => "agg_id", 
                 "datas" => "datas"
@@ -253,7 +227,7 @@ class json_tree extends _tree_struct {
         $id = parent::_create((int)$data[$this->fields["id"]], (int)$data[$this->fields["position"]]);
         if($id) {
             $data["id"] = $id;
-            $this->set_item($data);
+            $this->set_node($data);
             return  "{ \"status\" : 1, \"id\" : ".(int)$id." }";
         }
         return "{ \"status\" : 0 }";
@@ -262,8 +236,18 @@ class json_tree extends _tree_struct {
     function add_node($parent_id, $title) {
         $id = parent::_create((int)$parent_id, (int) $this->max_pos($parent_id));
         if($id) {
-            $data = array('id' => $id, 'title' => $title, 'type' => 'default', 'pwtype' => 'server');
-            $this->set_item($data);
+            $data = array('id' => $id, 'title' => $title, 'pwtype' => 'server');
+            $this->set_node($data);
+            return  true;
+        }
+        return false;
+    }
+
+    function add_selection($parent_id, $title) {
+        $id = parent::_create((int)$parent_id, (int) $this->max_pos($parent_id));
+        if($id) {
+            $data = array('id' => $id, 'title' => $title, 'pwtype' => 'selection');
+            $this->set_node($data);
             return  true;
         }
         return false;
@@ -272,8 +256,8 @@ class json_tree extends _tree_struct {
     function add_folder($parent_id, $title) {
         $id = parent::_create((int)$parent_id, (int) $this->max_pos($parent_id));
         if($id) {
-            $data = array('id' => $id, 'title' => $title, 'type' => 'folder', 'pwtype' => 'container');
-            $this->set_item($data);
+            $data = array('id' => $id, 'title' => $title, 'pwtype' => 'container');
+            $this->set_node($data);
             return  true;
         }
         return false;
@@ -287,7 +271,7 @@ class json_tree extends _tree_struct {
         return $res['position'];
     }
 
-    function set_item($data) {
+    function set_node($data) {
         if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
         $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
         foreach($this->add_fields as $k => $v) {
@@ -308,7 +292,7 @@ class json_tree extends _tree_struct {
         $this->db->execute($set_value);
         return "{ \"status\" : 1 }";
     }
-    function rename_node($data) { return $this->set_item($data); }
+    function rename_node($data) { return $this->set_node($data); }
 
     function move_node($data) { 
         $id = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"], (int)$data["copy"]);
@@ -373,6 +357,19 @@ class json_tree extends _tree_struct {
         return $results;
     }
 
+    function get_jstree_type($item) {
+        $type = "default";
+        switch($item[$this->fields["pwtype"]]) {
+            case "server" : $type = "default"; break;
+            case "selection" : $type = "selection"; break;
+            case "container" : $type = "folder"; break;
+        }
+        if(($item[$this->fields["pwtype"]] == "container") && ($item[$this->fields["parent_id"]] == 1)) {
+            $type = "drive";
+        }
+        return($type);
+    }
+
     function get_children($data) {
         global $collectd_source_default;
         $tmp = $this->_get_children((int)$data["id"]);
@@ -382,6 +379,7 @@ class json_tree extends _tree_struct {
                         "attr" => array(
                             "id" => "node_1",
                             "rel" => "drive",
+                            "pwtype" => "container",
                             "CdSrc" => $collectd_source_default
                             ),
                         "data" => "INSERT A NEW ROOT AND RELOAD THE TREE",
@@ -394,25 +392,31 @@ class json_tree extends _tree_struct {
         //if((int)$data["id"] === 0) return json_encode($result);
         foreach($tmp as $k => $v) {
             $tmp2 = $this->_get_children((int)$v["id"], /* $recursive = */ false, /* $path = */ "", /* $separator = */ " -> ", $collectd_source);
+# compute type of item in jstree
+            $type = $this->get_jstree_type($v);
+# compute state of item in jstree
+            $state = "";
+            if(($v[$this->fields["pwtype"]] == "container") && (count($tmp2) !== 0)) { $state = "closed"; }
             $result[] = array(
                     "attr" => array(
                         "id" => "node_".$v['id'], 
-                        "rel" => $v[$this->fields["type"]],
+                        "rel" => $type,
                         "CdSrc" => (isset($v['CdSrc']) && $v['CdSrc']) ? $v['CdSrc'] : $collectd_source
                         ),
                     "data" => $v[$this->fields["title"]],
-                    "state" => ($v[$this->fields["type"]] == "default" ? "" : ( count($tmp2) === 0 ? "" : "closed"))
+                    "state" => $state,
                     );
         }
         if (count($result) == 0) {
-            $datas = $this->_get_node($data["id"]);
+            $item = $this->_get_node($data["id"]);
+            $type = $this->get_jstree_type($item);
             $result[] = array(
                     "attr" => array(
-                        "id" => "node_".$datas['id'],
-                        "rel" => $datas["type"],
-                        "CdSrc" => (isset($v['CdSrc']) && $v['CdSrc']) ? $v['CdSrc'] : $collectd_source
+                        "id" => "node_".$item['id'],
+                        "rel" => $type,
+                        "CdSrc" => (isset($v['CdSrc']) && $v['CdSrc']) ? $v['CdSrc'] : $collectd_source,
                         ),
-                    "data" => $datas["title"], 
+                    "data" => $item["title"], 
                     "state" => ""
                     );
         }

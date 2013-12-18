@@ -32,7 +32,7 @@ switch($_POST['action']) {
         $hosts = array();
         $data = $jstree->_get_children($id, true, "", "", $collectd_source);
         foreach($data as $host) {
-            if ($host['type'] == 'default') { $hosts[] = $host['title']; }
+            if ($host['pwtype'] == 'server') { $hosts[] = $host['title']; }
         }
         echo json_encode($hosts);
         break;

@@ -9,7 +9,7 @@ $hosts = array();
 $cdsrc = $jstree->get_node_collectd_source($id);
 $data = $jstree->_get_children($id, true, "", "", $cdsrc);
 foreach($data as $host) {
-    if ($host['type'] == 'default') { $hosts[] = array('title' => $host['title'], 'CdSrc' => $host['CdSrc']); }
+    if ($host['pwtype'] == 'server') { $hosts[] = array('title' => $host['title'], 'CdSrc' => $host['CdSrc']); }
 }
 echo json_encode($hosts);
 

@@ -85,7 +85,7 @@ function select_node_with_data(datas) {
 	}
 	$('#itemtab').jqxTabs('select', 0);
 	if(id) {
-		hide_menu_for(datas['jstree']['type']);
+		hide_menu_for(datas['jstree']['pwtype']);
 	}
 	$('#itemtab').bind('tabclick', function (event) {
 		current_tab = event.args.item;
@@ -171,7 +171,13 @@ function create_plugin_tab(plugin, plugin_instance, tabid) {
 }
 
 function create_custom_tab(tabref, tabid) {
-	$('#itemtab').jqxTabs('addAt', tabid, json_item_datas['datas']['tabs'][tabref]['tab_title'], '<div plugin="custom_view_'+json_item_datas['jstree']['type']+'" custom_tab_id="'+tabref+'" tabid="'+tabid+'"></div>');
+    var pluginattr = "custom_view_default";
+    switch(json_item_datas['jstree']['pwtype']) {
+        case "container": pluginattr = "custom_view_folder"; break;
+        case "selection": pluginattr = "custom_view_selection"; break;
+        case "server": pluginattr = "custom_view_default"; break;
+    }
+	$('#itemtab').jqxTabs('addAt', tabid, json_item_datas['datas']['tabs'][tabref]['tab_title'], '<div plugin="'+pluginattr+'" custom_tab_id="'+tabref+'" tabid="'+tabid+'"></div>');
 }
 
 function load_tab(tabid) {
@@ -267,10 +273,10 @@ function hide_menu_for(node_type) {
 	$('li[id="menu_refresh_node"]').show();
 	$('li[id="menu_about_box"]').show();
 	switch (node_type) {
-		case 'default':
+		case 'server':
+		case 'selection':
 		break;
-		case 'folder':
-		case 'drive':
+		case 'container':
 			$('li[id="menu_new_server"]').show();
 			$('li[id="menu_new_container"]').show();
 			$('li[id="menu_new_aggregator"]').show();
@@ -309,7 +315,7 @@ function refresh_status() {
     );
     $.each(cdsrc_hosts, function(cdsrc, useless) {
             $('li[id^="node_"][CdSrc="'+cdsrc+'"]').each(function(index, element) {
-                if ($('#'+this.id).attr('rel') != 'drive' && $('#'+this.id).attr('rel') != 'folder') {
+                if ($('#'+this.id).attr('rel') == 'default') {
                     var host = $('#'+this.id+' a').html().substr(37);
                     $('#'+this.id).attr('host', host);
                     hosts.push(host);
