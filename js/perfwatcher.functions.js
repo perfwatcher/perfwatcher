@@ -204,6 +204,13 @@ function custom_view_default_plugin_view(tabid, plugin) {
 	$(custom_view_default).appendTo('div[tabid="'+tabid+'"]');
 }
 
+function custom_view_selection_plugin_view(tabid, plugin) {
+	custom_view_selection = ich.custom_view_selection({
+		tabid: tabid
+	});
+	$(custom_view_selection).appendTo('div[tabid="'+tabid+'"]');
+}
+
 function custom_view_folder_plugin_view(tabid, plugin) {
 	custom_view_folder = ich.custom_view_folder({
 		tabid: tabid

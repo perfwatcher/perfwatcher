@@ -1,0 +1,65 @@
+<div>
+	<script type="text/javascript">
+	$(function () {
+		function save_markup() {
+			alert("TODO : save");
+		}
+		function load_markup() {
+			alert("TODO : load");
+		}
+		function switch_to_show() {
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').hide();
+			$('.selection_edit[tabid="{{ tabid }}"]').hide();
+			$('.selection_show[tabid="{{ tabid }}"]').show();
+
+			var converter = new Showdown.converter({ extensions: ['rrdgraph'] });
+			var markup = $('.selection_edit[tabid="{{ tabid }}"] textarea').val();
+			var html = converter.makeHtml(markup);
+			$('.selection_show[tabid="{{ tabid }}"]').html(html);
+		}
+
+		function switch_to_edit() {
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').show();
+			$('.selection_edit[tabid="{{ tabid }}"]').show();
+			$('.selection_show[tabid="{{ tabid }}"]').hide();
+		}
+
+		load_markup();
+		switch_to_show();
+
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').click(function() {
+			switch_to_edit();
+		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').click(function() {
+			load_markup();
+			switch_to_show();
+		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').click(function() {
+			save_markup();
+		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').click(function() {
+			save_markup();
+			switch_to_show();
+		});
+		
+	});
+	</script>
+    <div class="selection_command" tabid="{{ tabid }}">
+      <input type="button" class="selection_btn_edit"  value="edit"></input>
+      <input type="button" class="selection_btn_save"  value="save"></input>
+      <input type="button" class="selection_btn_cancel" value="cancel"></input>
+      <input type="button" class="selection_btn_show"  value="save and show"></input>
+    </div>
+	<div class="selection_edit" tabid="{{ tabid }}">
+      <textarea></textarea>
+	</div>
+	<div class="selection_show" tabid="{{ tabid }}">
+	</div>
+	    
+</div>
