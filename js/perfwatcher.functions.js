@@ -1,3 +1,17 @@
+function get_grouped_types() {
+    var gp;
+	$.ajax({
+		async : false, type: 'GET', url: 'action.php',
+		data : { 'action': 'get_grouped_type', 'tpl': 'json_actions', '_': (new Date()).getTime(), 'id': 0 },
+		complete : function (r) {
+			if(r.status) {
+				gp = jQuery.parseJSON(r.responseText);
+			}
+		}
+	});
+    return(gp);
+}
+
 function get_tab_id_from_name(name) {
 	var tabid = 1;
 	var result = 0;

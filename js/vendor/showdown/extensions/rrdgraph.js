@@ -36,15 +36,15 @@
 				if(p == '') return(wholeMatch);
 				if(t == '') return(wholeMatch);
 
-				src = '{ '
-				+'"cdsrc": "'+cdsrc+'",'
-				+'"host": "'+host+'",'
-				+'"plugin": "'+p+'",'
-				+'"plugin_instance": "'+pi+'",'
-				+'"type": "'+t+'",'
-				+'"type_instance": "'+ti+'"'
-				+'}';
-				return('<img alt="'+encodeURIComponent(src)+'"></img>');
+				src = JSON.stringify({ 
+						"cdsrc": cdsrc,
+						"host": host,
+						"plugin": p,
+						"plugininstance": pi,
+						"type": t,
+						"typeinstance": ti
+				});
+				return('<span class="rrdgraph_to_render">'+encodeURIComponent(src)+'</span>');
 		});
 		return text+"<p>rrdgraph enabled</p>" ;
 	};

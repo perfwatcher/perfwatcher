@@ -1,12 +1,125 @@
 <div>
 	<script type="text/javascript">
 	$(function () {
+		var	grouped_types = get_grouped_types();
 		function save_markup() {
 			alert("TODO : save");
 		}
 		function load_markup() {
 			alert("TODO : load");
 		}
+		function retreive_graphs_list(graph_vars) {
+			var all_hosts = [];
+			var all_graphs = [];
+			if(graph_vars['host'].match(/[\*,\+\[\]\$]/)) {
+				var regex = new RegExp(graph_vars['host']);
+    			$.ajax({
+    				async: false,
+    				type: 'POST',
+    				url: 'action.php?tpl=jsonrpc&cdsrc='+graph_vars['cdsrc'],
+    				data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_dir_hosts", "params": "", "id": 0}),
+    				dataType: 'json',
+    				cache: false, 
+    				success: function(result, textStatus, XMLHttpRequest) {
+						if(result['result'] && result['result']['values']) {
+							$(result['result']['values']).each(function(i, host) {
+									if(regex.test(host)) {
+										all_hosts.push(host);
+									}
+								});
+						}
+    				},
+    				error: function(XMLHttpRequest, textStatus, errorThrown) {
+    					var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+    					notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+    				},
+    			});
+			} else {
+				all_hosts.push(graph_vars['host']);
+			} 
+			if(all_hosts.length > 0) {
+				var rp;
+				var rpi;
+				var rt;
+				var rti;
+				if(graph_vars['plugin']				&& graph_vars['plugin'].match(/[\*,\+\[\]\$]/))			{ rp = new RegExp(graph_vars['plugin']); }
+				if(graph_vars['plugininstance']	&& graph_vars['plugininstance'].match(/[\*,\+\[\]\$]/))	{ rpi = new RegExp(graph_vars['plugininstance']); }
+				if(graph_vars['type']				&& graph_vars['type'].match(/[\*,\+\[\]\$]/))				{ rp = new RegExp(graph_vars['type']); }
+				if(graph_vars['typeinstance']		&& graph_vars['typeinstance'].match(/[\*,\+\[\]\$]/))	{ rpi = new RegExp(graph_vars['typeinstance']); }
+				$(all_hosts).each(function(i, host) {
+					if((typeof rp === "undefined")
+							&& (typeof rpi === "undefined")
+							&& (typeof rt === "undefined")
+							&& (typeof rti === "undefined")
+					  ) {
+						var check_grouped_type = jQuery.inArray(graph_vars['type'], grouped_types);
+						all_graphs.push({
+							"cdsrc": graph_vars['cdsrc'],
+							"host": host,
+							"plugin": graph_vars['plugin'],
+							"plugin_instance": graph_vars['plugininstance']?graph_vars['plugininstance']:"",
+							"type": graph_vars['type'],
+							"type_instance": (check_grouped_type == -1)?(graph_vars['typeinstance']?graph_vars['typeinstance']:""):""
+							});
+					} else {
+		    			$.ajax({
+		    				async: false,
+		    				type: 'POST',
+		    				url: 'action.php?tpl=jsonrpc&cdsrc='+graph_vars['cdsrc'],
+		    				data: JSON.stringify({"jsonrpc": "2.0", "method": "pw_get_dir_all_rrds_for_host", "params": { "hostname" : host }, "id": 0}),
+		    				dataType: 'json',
+		    				cache: false, 
+		    				success: function(result, textStatus, XMLHttpRequest) {
+								if(result['result'] && result['result']['values']) {
+									$.each(result['result']['values'], function(p, p_c) {
+											if(((typeof rp !== "undefined") && rp.test(p)) || (graph_vars['plugin'] && (graph_vars['plugin'] === p))) {
+												$.each(p_c, function(pi, pi_c) {
+													if(((typeof rpi !== "undefined") && rpi.test(pi)) || (graph_vars['plugininstance'] && (graph_vars['plugininstance'] === pi)) || (!graph_vars['plugininstance'] && !pi)) {
+														$.each(pi_c, function(t, t_c) {
+															var check_grouped_type = jQuery.inArray(t, grouped_types);
+															if (check_grouped_type == -1) {
+																if(((typeof rt !== "undefined") && rt.test(t)) || (graph_vars['type'] && (graph_vars['type'] === t))) {
+																	$.each(t_c, function(ti, ti_c) {
+																		if(((typeof rti !== "undefined") && rti.test(ti)) || (graph_vars['typeinstance'] && (graph_vars['typeinstance'] === ti)) || (!graph_vars['typeinstance'] && !ti)) {
+																			all_graphs.push({
+																				"cdsrc": graph_vars['cdsrc'],
+																				"host": host,
+																				"plugin": p,
+																				"plugin_instance": (typeof pi === "undefined")?"":pi,
+																				"type": t,
+																				"type_instance": (typeof ti === "undefined")?"":ti
+																			});
+																		}
+																	});
+																}
+															} else {
+																all_graphs.push({
+																	"cdsrc": graph_vars['cdsrc'],
+																	"host": host,
+																	"plugin": p,
+																	"plugin_instance": (typeof pi === "undefined")?"":pi,
+																	"type": t,
+																	"type_instance": ""
+																});
+															}
+														});
+													}
+												});
+											}
+										});
+								}
+		    				},
+		    				error: function(XMLHttpRequest, textStatus, errorThrown) {
+		    					var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+		    					notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+		    				},
+		    			});
+					}
+				});
+			}
+			return(all_graphs);
+		}
+
 		function switch_to_show() {
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').hide();
@@ -19,24 +132,31 @@
 			var markup = $('.selection_edit[tabid="{{ tabid }}"] textarea').val();
 			var html = converter.makeHtml(markup);
 			$('.selection_show[tabid="{{ tabid }}"]').html(html);
-			$('.selection_show[tabid="{{ tabid }}"] img').each(function(i) {
-				var alt=decodeURIComponent($(this).attr('alt'));
+			var graphid=0;
+			$('.selection_show[tabid="{{ tabid }}"] span[class="rrdgraph_to_render"]').each(function(idx) {
+				var item_current = $(this);
+				var code=decodeURIComponent($(this).text());
 				var graph_vars = [];
-				$(this).attr("alt", "Loading...");
+				$(this).text("Loading...");
 				try {
-					graph_vars = $.parseJSON(alt);
+					graph_vars = $.parseJSON(code);
 				} catch(e) {
 					console.log(e);
-					console.log("json was :\n"+alt);
+					console.log("json was :\n"+code);
 				}
 
-				$(this).attr("id","graph_{{ tabid }}_"+i);
 				if(graph_vars['host']) {
-					$(this).pwgraph(graph_vars).pwgraph('display');
-				} else {
-					$(this).attr("src", "img/failed_rrdgraph_image.png");
+					var all_graphs = retreive_graphs_list(graph_vars);
+					$.each(all_graphs, function(i, g) {
+						var item_graph = $('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>');
+						item_graph.insertAfter(item_current);
+						item_graph.pwgraph(g).pwgraph('display');
+						item_current = item_graph;
+					});
+
+					graphid++;
 				}
-				$(this).removeAttr("alt");
+				$(this).remove();
 			});
 		}
 
@@ -80,7 +200,26 @@
       <input type="button" class="selection_btn_show"  value="save and show"></input>
     </div>
 	<div class="selection_edit" tabid="{{ tabid }}">
-      <textarea></textarea>
+	<textarea></textarea>
+	<h1>Info</h1>
+	<p>This area is markup language. See <a href="https://github.com/coreyti/showdown">https://github.com/coreyti/showdown</a></p>
+	<p>You can add graphs with this syntax :</p>
+	<blockquote>
+rrdgraph(Collectd_source, host, plugin, plugin_instance, type, type_instance)
+	</blockquote>
+	<p>
+		<code>Collectd_source</code> is mandatory. Fields <code>plugin_instance</code> and <code>type_instance</code> can be left empty. All fields except <code>Collectd_source</code> can be regular expressions to match more than one graph.
+	</p> 
+	<h1>Example</h1>
+<pre>
+# Title #
+## memory for host1 ##
+rrdgraph(localhost, host1, memory,, memory,)
+## load for host1 and 2 ##
+rrdgraph(localhost, host[12], load,, load,)
+## all cpu for host1 ##
+rrdgraph(localhost, host1, cpu, .*, cpu,)
+</pre>
 	</div>
 	<div class="selection_show" tabid="{{ tabid }}">
 	</div>

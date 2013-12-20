@@ -35,6 +35,10 @@ $action = isset($_GET['action']) ? $_GET['action'] : $_POST['action'];
 
 $action_need_jstree = 0;
 switch ($action) {
+    case 'get_grouped_type':
+        global $grouped_type;
+        echo json_encode($grouped_type);
+        break;
     case 'get_js':
         echo json_encode($extra_jsfile);
         break;
