@@ -16,29 +16,35 @@
 		}
 		return(str);
 	}
+	function rrdgraph_escape(str, dash) {
+		str = str.replace(/[\/"']/g, '_');
+		if(dash) str = str.replace(/-/g, '_');
+		return(str);
+	}
+
     filter = function(text) {
 		text = text.replace(/rrdgraph[ \t]*\(([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*)\)/gm, 
 				function(wholeMatch, cdsrc, host, p, pi, t, ti) {
-				cdsrc = trim_and_remove_quotes(cdsrc);
-				host = trim_and_remove_quotes(host);
-				p = trim_and_remove_quotes(p);
-				pi = trim_and_remove_quotes(pi);
-				t = trim_and_remove_quotes(t);
-				ti = trim_and_remove_quotes(ti);
+				cdsrc = rrdgraph_escape(trim_and_remove_quotes(cdsrc), false);
+				host = rrdgraph_escape(trim_and_remove_quotes(host), false);
+				p = rrdgraph_escape(trim_and_remove_quotes(p), true);
+				pi = rrdgraph_escape(trim_and_remove_quotes(pi), false);
+				t = rrdgraph_escape(trim_and_remove_quotes(t), true);
+				ti = rrdgraph_escape(trim_and_remove_quotes(ti), false);
 				if(cdsrc == '') return(wholeMatch);
 				if(host == '') return(wholeMatch);
 				if(p == '') return(wholeMatch);
 				if(t == '') return(wholeMatch);
 
-				return("(TODO) Soon we will graph this : <ul>"
-						+"<li>source = '"+cdsrc+"'</li>"
-						+"<li>host = '"+host+"'</li>"
-						+"<li>p = '"+p+"'</li>"
-						+"<li>pi = '"+pi+"'</li>"
-						+"<li>t = '"+t+"'</li>"
-						+"<li>ti = '"+ti+"'</li>"
-						+"</ul>"
-					  );
+				src = '{ '
+				+'"cdsrc": "'+cdsrc+'",'
+				+'"host": "'+host+'",'
+				+'"plugin": "'+p+'",'
+				+'"plugin_instance": "'+pi+'",'
+				+'"type": "'+t+'",'
+				+'"type_instance": "'+ti+'"'
+				+'}';
+				return('<img alt="'+encodeURIComponent(src)+'"></img>');
 		});
 		return text+"<p>rrdgraph enabled</p>" ;
 	};

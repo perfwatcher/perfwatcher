@@ -19,6 +19,25 @@
 			var markup = $('.selection_edit[tabid="{{ tabid }}"] textarea').val();
 			var html = converter.makeHtml(markup);
 			$('.selection_show[tabid="{{ tabid }}"]').html(html);
+			$('.selection_show[tabid="{{ tabid }}"] img').each(function(i) {
+				var alt=decodeURIComponent($(this).attr('alt'));
+				var graph_vars = [];
+				$(this).attr("alt", "Loading...");
+				try {
+					graph_vars = $.parseJSON(alt);
+				} catch(e) {
+					console.log(e);
+					console.log("json was :\n"+alt);
+				}
+
+				$(this).attr("id","graph_{{ tabid }}_"+i);
+				if(graph_vars['host']) {
+					$(this).pwgraph(graph_vars).pwgraph('display');
+				} else {
+					$(this).attr("src", "img/failed_rrdgraph_image.png");
+				}
+				$(this).removeAttr("alt");
+			});
 		}
 
 		function switch_to_edit() {
@@ -28,6 +47,10 @@
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').show();
 			$('.selection_edit[tabid="{{ tabid }}"]').show();
 			$('.selection_show[tabid="{{ tabid }}"]').hide();
+
+			$('#timebutton').hide();
+			$('#datetime').hide();
+			$('#timespan').hide();
 		}
 
 		load_markup();
