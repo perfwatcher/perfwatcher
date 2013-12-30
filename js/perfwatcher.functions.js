@@ -207,13 +207,6 @@ function load_tab(tabid) {
 	plugin_view(tabid, $('div[tabid="'+tabid+'"]').attr('plugin'));
 }
 
-function custom_view_default_plugin_view(tabid, plugin) {
-	custom_view_default = ich.custom_view_default({
-		tabid: tabid
-	});
-	$(custom_view_default).appendTo('div[tabid="'+tabid+'"]');
-}
-
 function custom_view_selection_plugin_view(tabid, plugin) {
     var selection_id = $('div[tabid="'+tabid+'"]').attr('custom_tab_id');
 	custom_view_selection = ich.custom_view_selection({
@@ -221,13 +214,6 @@ function custom_view_selection_plugin_view(tabid, plugin) {
         selection_id: selection_id
 	});
 	$(custom_view_selection).appendTo('div[tabid="'+tabid+'"]');
-}
-
-function custom_view_folder_plugin_view(tabid, plugin) {
-	custom_view_folder = ich.custom_view_folder({
-		tabid: tabid
-	});
-	$(custom_view_folder).appendTo('div[tabid="'+tabid+'"]');
 }
 
 function plugin_view (tabid, plugin) {
