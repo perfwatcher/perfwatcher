@@ -25,6 +25,7 @@
 require "etc/config.default.php";
 require "lib/class._database.php";
 require "lib/class.tree.php";
+require "lib/class.selections.php";
 require_once("MDB2.php");
 
 function pw_error_log($msg, $file="unset", $line="unset", $fct="unset") {
@@ -69,9 +70,10 @@ function jsonrpc_query($source = null, $json_encoded_request) {
     } else {
         $sources = $collectd_sources;
     }
+    $ra = array(null, null, null);
     foreach ($sources as $collectd_source_alias => $collectd_source_data) {
         if(! isset($collectd_source_data["jsonrpc"])) {
-            next;
+            continue;
         }
         $jsonrpc_url = $collectd_source_data{"jsonrpc"};
         $jsonrpc_httpproxy = isset($collectd_source_data{"proxy"})?$collectd_source_data{"proxy"}:null;
@@ -88,7 +90,6 @@ function jsonrpc_query($source = null, $json_encoded_request) {
                 );
 
         /* Send the request */
-        $ra = array(null, null, null);
         if($result = curl_exec($ch)) {
             if ($result  != '' && $result = json_decode($result, true)) {
                 if(isset($result['result'])) {

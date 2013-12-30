@@ -15,27 +15,9 @@ function get_grouped_types() {
 function get_tab_id_from_name(name) {
 	var tabid = 1;
 	var result = 0;
-	if (json_item_datas['plugins']) {
-		$.each(json_item_datas['plugins'], function(plugin, plugin_instance) {
-			if ( plugin == name) {
-				result = tabid;
-				return(false);
-			}
-			tabid++;
-		});
-	}
-	if(result > 0) { return(result); }
-
-	if (json_item_datas['datas'] && json_item_datas['datas']['tabs']) {
-		$.each(json_item_datas['datas']['tabs'], function(tabref, tabcontent) {
-			if ( json_item_datas['datas']['tabs'][tabref]['tab_title'] == name ) {
-				result = tabid;
-				return(false);
-			}
-			tabid++;
-		});
-	}
-	return(result);
+    tabid = $('#items div[plugin="'+name+'"]').attr('tabid');
+    if(typeof tabid === 'undefined') return(0);
+	return(parseInt(tabid));
 }
 
 function select_node_with_data(datas) {
@@ -57,10 +39,10 @@ function select_node_with_data(datas) {
 	}
 	if(id) {
 		$.ajax({
-			async : false, type: 'POST', url: "action.php?tpl=get_hosts",
+			async : false, type: 'POST', url: "action.php?tpl=json_actions&action=get_hosts",
 			data : { 
 				"view_id" : view_id,
-				"id" : json_item_datas['jstree']['id']
+				"id" : id
 			},
 			complete : function (r) {
 				if(r.status) {
@@ -73,8 +55,26 @@ function select_node_with_data(datas) {
 			}
 		});
 		$('[tag="hostname"] b').html(datas['jstree']['title']);
+
+		$.ajax({
+			async : false, type: 'POST', url: "action.php?tpl=json_actions&action=get_tabs",
+			data : { 
+				"view_id" : view_id,
+				"id" : id
+			},
+			complete : function (r) {
+				if(r.status) {
+					tab_ids = jQuery.parseJSON(r.responseText);
+					if(tab_ids.length == 0) {
+						tab_ids = [];
+					}
+					json_item_datas['tab_ids'] = tab_ids;
+				}
+			}
+		});
 	} else {
 			json_item_datas['hosts'] = [ json_item_datas['host'] ];
+            json_item_datas['tab_ids'] = [];
 	}
 	if (datas['aggregators']) {
         agg = {};
@@ -92,11 +92,10 @@ function select_node_with_data(datas) {
 			create_plugin_tab(plugin, plugin_instance, tabid++);
 		});
 	}
-	if (datas['datas'] && datas['datas']['tabs']) {
-		$.each(datas['datas']['tabs'], function(tabref, tabcontent) {
-	    	create_custom_tab(tabref, tabid++);
-		});
-	}
+
+    $.each(json_item_datas['tab_ids'], function(tabref, tabcontent) {
+            create_custom_tab(tabref, tabid++, tabcontent);
+            });
 	$('#itemtab').jqxTabs('select', 0);
 	if(id) {
 		hide_menu_for(datas['jstree']['pwtype']);
@@ -184,14 +183,11 @@ function create_plugin_tab(plugin, plugin_instance, tabid) {
 	$('#itemtab').jqxTabs('addAt', tabid, plugin, '<div plugin="'+plugin+'" tabid="'+tabid+'"></div>');
 }
 
-function create_custom_tab(tabref, tabid) {
-    var pluginattr = "custom_view_default";
-    switch(json_item_datas['jstree']['pwtype']) {
-        case "container": pluginattr = "custom_view_folder"; break;
-        case "selection": pluginattr = "custom_view_selection"; break;
-        case "server": pluginattr = "custom_view_default"; break;
-    }
-	$('#itemtab').jqxTabs('addAt', tabid, json_item_datas['datas']['tabs'][tabref]['tab_title'], '<div plugin="'+pluginattr+'" custom_tab_id="'+tabref+'" tabid="'+tabid+'"></div>');
+function create_custom_tab(tabref, tabid, tabcontent) {
+	$('#itemtab').jqxTabs('addAt', tabid,
+            tabcontent['title'],
+            '<div plugin="custom_view_selection" custom_tab_id="'+tabcontent['id']+'" tabid="'+tabid+'"></div>'
+            );
 }
 
 function load_tab(tabid) {
@@ -219,8 +215,10 @@ function custom_view_default_plugin_view(tabid, plugin) {
 }
 
 function custom_view_selection_plugin_view(tabid, plugin) {
+    var selection_id = $('div[tabid="'+tabid+'"]').attr('custom_tab_id');
 	custom_view_selection = ich.custom_view_selection({
-		tabid: tabid
+		tabid: tabid,
+        selection_id: selection_id
 	});
 	$(custom_view_selection).appendTo('div[tabid="'+tabid+'"]');
 }
@@ -276,7 +274,6 @@ function plugin_view (tabid, plugin) {
 
 function hide_menu_for(node_type) {
 	$('li[id^="menu_"]').hide();
-	$('li[id="menu_new_tab"]').show();
 	$('li[id="menu_view_new"]').show();
 	$('li[id="menu_view_open"]').show();
 	$('li[id="menu_view_delete"]').show();
@@ -296,6 +293,7 @@ function hide_menu_for(node_type) {
 	switch (node_type) {
 		case 'server':
 		case 'selection':
+            $('li[id="menu_new_tab"]').show();
 		break;
 		case 'container':
 			$('li[id="menu_new_server"]').show();

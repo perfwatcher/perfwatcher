@@ -1,4 +1,5 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
+# TODO remove this file
 /**
  *
  * PHP version 5

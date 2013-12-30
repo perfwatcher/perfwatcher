@@ -23,6 +23,9 @@ if (isset($argv[1])) {
 $db = new _database($db_config);
 if ($db->connect()) {
 		$result_connect = 1;
+		$tm = time();
+		$db->prepare("DELETE FROM selections where deleteafter <> 0 AND deleteafter < ?", array('integer'));
+		$db->execute(array((int)$tm));
 		$db->prepare("SELECT distinct view_id FROM tree");
 		$db->execute();
 		while($db->nextr()) {

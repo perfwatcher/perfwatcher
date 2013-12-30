@@ -46,7 +46,7 @@
 				});
 				return('<span class="rrdgraph_to_render">'+encodeURIComponent(src)+'</span>');
 		});
-		return text+"<p>rrdgraph enabled</p>" ;
+		return text ;
 	};
 	return ([
 		{ type: 'lang', filter: filter }

@@ -157,7 +157,7 @@ $(document).ready(function() {
 					if($('div[tabid="'+current_tab+'"]').attr('custom_tab_id')) {
 						$.ajax({
 							async : false, type: "POST", url: "action.php?tpl=json_actions",
-							data : { "action" : "del_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_id" : $('div[tabid="'+current_tab+'"]').attr('custom_tab_id') },
+							data : { "action" : "del_tab", "selection_id" : $('div[tabid="'+current_tab+'"]').attr('custom_tab_id') },
 							complete : function (r) {
 								if(!r.status) {
 									notify_ko('Error, can\'t retrieve data from server !');

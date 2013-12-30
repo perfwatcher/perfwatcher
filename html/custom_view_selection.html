@@ -3,10 +3,41 @@
 	$(function () {
 		var	grouped_types = get_grouped_types();
 		function save_markup() {
-			alert("TODO : save");
+			var markup = $('.selection_edit[tabid="{{ tabid }}"] textarea').val();
+			$.ajax({
+			    async : false,
+				type: 'POST', 
+				url: "action.php?tpl=custom_view_selections",
+			    data : { "action" : "save_markup", "selection_id" : "{{ selection_id }}", "markup" : markup },
+    			dataType: 'json',
+    			cache: false, 
+				complete : function (r) {
+				    if(!r.status) {
+						notify_ko('Error, can\'t retrieve data from server !');
+					} else {
+						notify_ok("Selection saved");
+					}
+				}
+			});
 		}
 		function load_markup() {
-			alert("TODO : load");
+			$.ajax({
+			    async : false,
+				type: 'POST', 
+				url: "action.php?tpl=custom_view_selections",
+			    data : { "action" : "load_tab", "selection_id" : "{{ selection_id }}"  },
+    			dataType: 'json',
+    			cache: false, 
+    			success: function(result, textStatus, XMLHttpRequest) {
+					if(result['markup']) {
+						$('.selection_edit[tabid="{{ tabid }}"] textarea').val(result['markup']);
+					}
+    			},
+    			error: function(XMLHttpRequest, textStatus, errorThrown) {
+    				var error =  jQuery.parseJSON(XMLHttpRequest['responseText']);
+    				notify_ko('jsonrpc error : '+error['error']['message']+' (code : '+error['error']['code']+')');
+    			}
+			});
 		}
 		function retreive_graphs_list(graph_vars) {
 			var all_hosts = [];

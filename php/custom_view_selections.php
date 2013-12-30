@@ -1,5 +1,4 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
-# TODO remove this file
 /**
  *
  * PHP version 5
@@ -28,25 +27,40 @@ header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Pragma: no-cache");
 
-$id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
-$view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
+$action = isset($_GET['action']) ? $_GET['action'] : $_POST['action'];
 
-$jstree = new json_tree($view_id);
-$res = $jstree->_get_node($id);
-$datas = $jstree->get_datas($res['id']);
+$selection_id = get_arg('selection_id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
 
-if (isset($_POST['action'])) {
-    switch ($_POST['action']) {
-        case 'save_tab':
-            $datas['tabs'][$_POST['tab_id']]['selected_graph'] = $_POST['selected_graph'];
-            $datas['tabs'][$_POST['tab_id']]['selected_hosts'] = $_POST['selected_hosts'];
-            $jstree->set_datas($res['id'], $datas);
-            break;
-    }
+$action_need_jstree = 0;
+switch ($action) {
+    case 'load_tab':
+        echo json_encode(selection_get_data($selection_id));
+        break;
+    case 'save_markup':
+        $markup = get_arg('markup', "", 0, "Error : No valid markup found !!!", __FILE__, __LINE__);
+        selection_update_markup($selection_id, $markup);
+        echo json_encode(array());
+        break;
+    default:
+        $action_need_jstree = 1;
 }
 
-echo json_encode(
-        array(
-            'message' => "View succefully saved."
-            ));
+
+if($action_need_jstree) {
+    
+    $id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
+    $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
+    
+    $jstree = new json_tree($view_id);
+    $res = $jstree->_get_node($id);
+    $datas = $jstree->get_datas($res['id']);
+    
+#    if (isset($_POST['action'])) {
+#        switch ($_POST['action']) {
+#            case 'some_action':
+#                break;
+#        }
+#    }
+}
+
 ?>

@@ -126,17 +126,6 @@ class _tree_struct {
         $this->db->nextr();
         $datas = $this->db->get_row("assoc");
         if(!$ret = unserialize($datas["datas"])) { $this->db->free(); return array(); }
-        if(isset($ret['tabs']) && count($ret['tabs']) > 0) {
-            //migrate from Alpha
-            foreach($ret['tabs'] as $tabid => $tabdatas) {
-                if (isset($tabdatas['selected_graph']) && is_array($tabdatas['selected_graph'])) {
-                    foreach($tabdatas['selected_graph'] as $pluginid => $plugindatas) {
-                        if(is_array($plugindatas)) { continue; }
-                        $ret['tabs'][$tabid]['selected_graph'][$pluginid] = split('\|', $plugindatas,4);
-                    }
-                }
-            }
-        }
         $this->db->free();
         return $ret;
     }

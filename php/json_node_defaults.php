@@ -43,6 +43,7 @@ if (isset($_GET['CdSrc']) && $_GET['CdSrc']) {
 } else {
     $collectd_source_list = array_keys($collectd_sources);
 }
+$collectd_source_is_inherited = 0;
 
 $collectd_source = "";
 foreach ($collectd_source_list as $cs) {
@@ -60,11 +61,15 @@ if("" == $collectd_source) {
             array(
                 'host' => $host,
                 'plugins' => $plugins,
+                'aggregators' => array(),
                 'jstree' => array('title' => $host),
                 'datas' => array(),
                 'config' => array(
                     'widgets' => get_widget(array( 'pwtype' => 'server' ) ),
-                    'CdSrc' => $collectd_source
+                    'CdSrc' => array(
+                        'source' => $collectd_source,
+                        'inherited' => $collectd_source_is_inherited
+                        )
                     )
                 ));
 }

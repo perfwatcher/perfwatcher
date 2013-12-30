@@ -42,6 +42,24 @@ switch ($action) {
     case 'get_js':
         echo json_encode($extra_jsfile);
         break;
+    case 'get_tabs':
+        $id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
+        echo json_encode(selection_get_all_with_node_id($id));
+        break;
+    case 'add_tab':
+        $id = get_arg('id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
+        $deleteafter = 0;
+        if (isset($_POST['lifetime']) && $_POST['lifetime'] > 0) {
+            $deleteafter = time() + $_POST['lifetime'];
+        }
+        $selection_id = selection_create_new($_POST['tab_title'], $id, $deleteafter);
+        echo json_encode(array());
+        break;
+    case 'del_tab':
+        $selection_id = get_arg('selection_id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);
+        selection_delete($selection_id);
+        echo json_encode(array());
+        break;
     case 'new_view':
         $view_title = get_arg('view_title', "no name", 0, "", __FILE__, __LINE__);
         list($id, $view_id) = create_new_view($view_title);
@@ -69,25 +87,16 @@ if($action_need_jstree) {
 
     $jstree = new json_tree($view_id);
     $res = $jstree->_get_node($id);
-    $datas = $jstree->get_datas($res['id']);
 
     switch ($action) {
-        case 'add_tab':
-            if (!isset($datas['tabs'])) {
-                $datas['tabs'] = array();
+        case 'get_hosts': 
+            $cdsrc = $jstree->get_node_collectd_source($id);
+            $hosts = array();
+            $children = $jstree->_get_children($id, true, "", "", $cdsrc);
+            foreach($children as $host) {
+                if ($host['pwtype'] == 'server') { $hosts[] = array('title' => $host['title'], 'CdSrc' => $host['CdSrc']); }
             }
-            $id = md5(time().$_POST['tab_title']);
-            $datas['tabs'][$id] = array('tab_title' => $_POST['tab_title'], 'selected_graph' => '');
-            if (isset($_POST['lifetime']) && $_POST['lifetime'] > 0) {
-                $datas['tabs'][$id]['deleteafter'] = time() + $_POST['lifetime'];
-            }
-            $jstree->set_datas($res['id'], $datas);
-            echo json_encode(array());
-            break;
-        case 'del_tab':
-            unset($datas['tabs'][$_POST['tab_id']]);
-            $jstree->set_datas($res['id'], $datas);
-            echo json_encode(array());
+            echo json_encode($hosts);
             break;
         case 'search':
             echo $jstree->searchfield($_GET['term']);
