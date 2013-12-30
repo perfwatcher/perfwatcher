@@ -26,5 +26,12 @@ CREATE TABLE selections (
   KEY          (tree_id)
 );
 
+CREATE TABLE config (
+  confkey      varchar(255) NOT NULL,
+  value        text         NOT NULL,
+  PRIMARY KEY  (confkey)
+);
+
 INSERT INTO tree (id,view_id, parent_id,position,title, pwtype) VALUES (2,1,1,0,'Default view', 'container');
+INSERT INTO config (confkey, value) VALUES ('schema_version', '1.0');
 

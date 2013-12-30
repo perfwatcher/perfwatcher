@@ -74,24 +74,38 @@ if (isset($rrdtool) && file_exists($rrdtool) && in_array('--border', $rrdtool_op
 $ok = "Can connect to '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'.";
 $ko = "Could not connect to database '".$db_config{'database'}."' on '".$db_config{'servername'}."' with user '".$db_config{'username'}."'. You may check the install/* scripts.";
 $result_connect = 0;
+$result_schema_version = 0;
 $result_tree = 0;
 $out="";
 $dbtest = new _database($db_config);
 if ($dbtest->connect()) {
 		$result_connect = 1;
-		$dbtest->prepare("SELECT id FROM tree WHERE pwtype='container'");
+		$dbtest->prepare("SELECT value FROM config WHERE confkey='schema_version'");
 		$dbtest->execute();
 		if($dbtest->nextr()) {
 				$result_connect = 1;
 				$out = $dbtest->get_row('assoc');
-				$dbtest->destroy();
+				$dbtest->free();
 		}
-		if($out && (isset($out['title'])) && (isset($out['id'])) && ($out['id'] == 1)) {
-				$result_tree = 1;
+		if($out && (isset($out['value'])) && ($out['value'] == $database_schema_version)) {
+				$result_schema_version = 1;
+				$dbtest->prepare("SELECT id,title,parent_id FROM tree WHERE pwtype='container'");
+				$dbtest->execute();
+				if($dbtest->nextr()) {
+						$result_connect = 1;
+						$out = $dbtest->get_row('assoc');
+						$dbtest->destroy();
+				}
+				if($out && (isset($out['title'])) && (isset($out['parent_id'])) && ($out['parent_id'] == 1)) {
+						$result_tree = 1;
+				}
 		}
 }
 echo "<li>Database connection : ".($result_connect ? printok($ok) : printko ($ko))."</li>";
 
+$ok = "Database schema version is correct";
+$ko = "Database schema version is incorrect or missing in '".$db_config{'database'}.".config'. You may check the install/* scripts.";
+echo "<li>Database schema version : ".($result_schema_version ? printok($ok) : printko ($ko))."</li>";
 $ok = "Found a root drive in the tree";
 $ko = "Could not find the root of the tree (pwtype container) in '".$db_config{'database'}.".tree'. You may check the install/* scripts.";
 echo "<li>Database contents : ".($result_tree ? printok($ok) : printko ($ko))."</li>";

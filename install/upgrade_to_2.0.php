@@ -77,6 +77,12 @@ if ($db->connect()) {
                 ."data         text                NOT NULL,"
                 ."PRIMARY KEY (id)"
                 .");",
+            "CREATE TABLE config ("
+                ."confkey      varchar(255) NOT NULL,"
+                ."value        text         NOT NULL,"
+                ."PRIMARY KEY  (confkey)"
+                .");",
+            "INSERT INTO config (confkey, value) VALUES ('schema_version', '1.0')",
             );
 
 

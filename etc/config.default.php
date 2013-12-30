@@ -11,6 +11,7 @@ $db_config = array(
         "password"	=> "",
         "database"	=> "perfwatcher"
         );
+$database_schema_version = "1.0";
 
 $grouped_type = array('apache_bytes','apache_requests','apache_scoreboard','cache_entries','cache_ratio','cpu','cpug','cpufreq','df_complex','dns_opcode','conntrack','entropy','frequency','humidity','invocations','ipt_bytes','ipt_packets','irq','java_memory','memory','mysql_commands','mysql_handler','ping', 'ps_state', 'swap','table_size','tcp_connections','threads','users','wirkleistung','specs','swap_io', 'grid','nfs_procedure','panfs_procedure','panfs_procedure_time');
 
