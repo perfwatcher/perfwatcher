@@ -36,7 +36,7 @@ $collectd_sources = array(
 - - - - - - - - - - - - - - - - - - - -
 
 Update the database schema with upgrade_to_2.0.php :
-$ install/upgrade_to_2.0.sql
+$ install/upgrade_to_2.0.php
 
 Note : you will be asked for a Collectd Source. Provide one of the sources
 you defined in etc/config.php. All the data that need it will be linked to that Collectd source.

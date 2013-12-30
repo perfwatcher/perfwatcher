@@ -1,4 +1,18 @@
+2014-??-??, Version 2.0
 
+- New configuration table in db
+- New tabs system : using markup language
+- New node type : selections. Those are empty nodes where you can add tabs (with markup language)
+- No more local access to Collectd. Only using remote features (need jsonrpc plugin)
+- Possible use of multiple Collectd sources (need to configure 'cdsrc')
+- bin/aggregator.conf uses a configurable path to generate aggregator configuration files
+- Upgrade to jquery-ui-1.10.3
+- Using JQuery-UI portlets
+- Added FreeBSD colors for memory graphs (anonymous user request)
+- New icon for left tree root
+- Removed vu_cpu_meter and load_meter for folders
+- New syntax for direct host/tab access : #host_/source/host(/tab)
+- fixed memory definitions for SSC Serv
 - 'Processes' tab now has filters
 
 2013-08-29, Version 1.3
