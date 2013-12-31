@@ -619,4 +619,5 @@ function select_view (set_view) {
 	});
 //	set_view();
 }
+
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

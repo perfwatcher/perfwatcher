@@ -82,6 +82,12 @@
     display : function( ) {
 	  var options = this.data();
 	  this.pwgraph('check_boundary');
+      var clipboardtxt = "rrdgraph('"+options['cdsrc']
+                +"', '"+options['host']
+                +"', '"+options['plugin']
+                +"', '"+options['plugin_instance']
+                +"', '"+options['type']
+                +"', '"+options['type_instance']+"')";
       $(this).attr('src',
 		'graph.php'
 		+ '?collectd_source=' + encodeURIComponent(options['cdsrc'])
@@ -99,6 +105,13 @@
 		+ '&tinylegend=' + options['tinylegend']
 		+ '&t=' + (new Date()).getTime()
 	  );
+      $(this).addClass('ui-widget-content');
+      $(this).draggable({
+            cursorAt: { top:0, right:0 } ,
+            helper: function(event) {
+                        return $("<div class='ui-widget-header dropped'>"+clipboardtxt+"</div>");
+                    }
+            });
       return this;
     },
     check_boundary : function( ) { 

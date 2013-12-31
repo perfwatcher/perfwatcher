@@ -25,6 +25,7 @@ var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
 var contextMenu;
+var clipboard = new Array();
 function positionsubmenu(position, elements) {
 		var options = {
 			of: elements.target.element   
@@ -37,6 +38,11 @@ function positionsubmenu(position, elements) {
 				options.at = "right bottom";
 		}
 		elements.element.element.position(options);
+}
+function add_to_clipboard(event, ui) {
+    var txt = ui.helper.text();
+	clipboard.push(txt);
+	$("#clip_content").html(clipboard.length+" elements");
 }
 
 $(document).ready(function() {
@@ -69,8 +75,13 @@ $(document).ready(function() {
 	window.setTimeout(function () {
 		auto_refresh_status();
 	}, 10000);
-		
 
+	$('#clip').droppable({
+			activeClass: "ui-state-default",
+			hoverClass: "ui-state-hover",
+			tolerance: "pointer",
+			drop: function(event, ui) { add_to_clipboard(event, ui); }
+		});
 
 	$('#timebutton').html(ich.timebuttontpl({}));
 	$('#timebutton').hide();
@@ -89,6 +100,9 @@ $(document).ready(function() {
 		treecollapsed = true;
 	});
 	
+	$('#clip_content').click(function() {
+					alert("NOT FINISHED YET / TODO\n"+JSON.stringify(clipboard));
+	});
 	$('a[pwmenuid^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));
 		switch($(this).attr("pwmenuid")) {

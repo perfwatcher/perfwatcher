@@ -14,6 +14,8 @@
 - New syntax for direct host/tab access : #host_/source/host(/tab)
 - fixed memory definitions for SSC Serv
 - 'Processes' tab now has filters
+- New menu design
+- New clipboard feature to store graph definitions (for copy/paste to selections)
 
 2013-08-29, Version 1.3
 
