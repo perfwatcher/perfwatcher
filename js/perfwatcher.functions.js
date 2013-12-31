@@ -259,33 +259,33 @@ function plugin_view (tabid, plugin) {
 }
 
 function hide_menu_for(node_type) {
-	$('li[id^="menu_"]').hide();
-	$('li[id="menu_view_new"]').show();
-	$('li[id="menu_view_open"]').show();
-	$('li[id="menu_view_delete"]').show();
-	$('li[id="menu_rename_node"]').show();
-	$('li[id="menu_rename_tab"]').show();
-	$('li[id="menu_delete_tab"]').show();
-	$('li[id="menu_delete_node"]').show();
-	$('li[id="menu_copy"]').show();
-	$('li[id="menu_paste"]').show();
-	$('li[id="menu_cut"]').show();
-	$('li[id="menu_display_toggle_tree"]').show();
-	$('li[id="menu_display_in_new_window"]').show();
-	$('li[id="menu_refresh_tree"]').show();
-	$('li[id="menu_refresh_status"]').show();
-	$('li[id="menu_refresh_node"]').show();
-	$('li[id="menu_about_box"]').show();
+	$('a[pwmenuid^="menu_"]').parent().hide();
+	$('a[pwmenuid="menu_view_new"]').parent().show();
+	$('a[pwmenuid="menu_view_open"]').parent().show();
+	$('a[pwmenuid="menu_view_delete"]').parent().show();
+	$('a[pwmenuid="menu_rename_node"]').parent().show();
+	$('a[pwmenuid="menu_rename_tab"]').parent().show();
+	$('a[pwmenuid="menu_delete_tab"]').parent().show();
+	$('a[pwmenuid="menu_delete_node"]').parent().show();
+	$('a[pwmenuid="menu_copy"]').parent().show();
+	$('a[pwmenuid="menu_paste"]').parent().show();
+	$('a[pwmenuid="menu_cut"]').parent().show();
+	$('a[pwmenuid="menu_display_toggle_tree"]').parent().show();
+	$('a[pwmenuid="menu_display_in_new_window"]').parent().show();
+	$('a[pwmenuid="menu_refresh_tree"]').parent().show();
+	$('a[pwmenuid="menu_refresh_status"]').parent().show();
+	$('a[pwmenuid="menu_refresh_node"]').parent().show();
+	$('a[pwmenuid="menu_about_box"]').parent().show();
 	switch (node_type) {
 		case 'server':
 		case 'selection':
-            $('li[id="menu_new_tab"]').show();
+            $('a[pwmenuid="menu_new_tab"]').parent().show();
 		break;
 		case 'container':
-			$('li[id="menu_new_server"]').show();
-			$('li[id="menu_new_container"]').show();
-			$('li[id="menu_new_aggregator"]').show();
-			$('li[id="menu_configure"]').show();
+			$('a[pwmenuid="menu_new_server"]').parent().show();
+			$('a[pwmenuid="menu_new_container"]').parent().show();
+			$('a[pwmenuid="menu_new_aggregator"]').parent().show();
+			$('a[pwmenuid="menu_configure"]').parent().show();
 		break;
 	}
 }

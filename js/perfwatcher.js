@@ -25,6 +25,20 @@ var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
 var contextMenu;
+function positionsubmenu(position, elements) {
+		var options = {
+			of: elements.target.element   
+		};
+		if(elements.element.element.parent().parent().parent().attr('id') === "headerLeft") {
+				options.my = "center top";
+				options.at = "center bottom";
+		} else {
+				options.my = "left top";
+				options.at = "right bottom";
+		}
+		elements.element.element.position(options);
+}
+
 $(document).ready(function() {
 	$.ajax({
 		async : false, type: 'GET', url: 'action.php',
@@ -38,10 +52,14 @@ $(document).ready(function() {
 			}
 		}
 	});
-	$('#mainMenu').html(ich.mainMenutpl({}));
+	$('#headerLeft').html(ich.mainMenutpl({}));
+	$('#headerCenter').html(ich.headerCentertpl({}));
+	$('#headerRight').html(ich.headerRighttpl({}));
 	$(ich.contextmenutpl({})).appendTo('body');
 	theme = getTheme();
-	$('#mainMenu').jqxMenu({ theme: theme });
+	$('#headerLeft > ul').menu({ position: { using: positionsubmenu }});
+	$('#headerLeft > ul > li > a > span.ui-icon-carat-1-e').removeClass('ui-icon');
+	$('#headerLeft').show();
 	$('#mainSplitter').jqxSplitter({
 		panels: [{ size: '300px' }],
 		theme: theme,
@@ -71,9 +89,9 @@ $(document).ready(function() {
 		treecollapsed = true;
 	});
 	
-	$('li[id^="menu_"]').click(function () {
+	$('a[pwmenuid^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));
-		switch($(this).attr("id")) {
+		switch($(this).attr("pwmenuid")) {
 			case 'menu_view_new':
 				askfor({ title: 'New view name' }, function(title) {
 					$.ajax({

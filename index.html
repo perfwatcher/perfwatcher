@@ -11,6 +11,7 @@
         @import "css/jquery.multiselect.css";
         @import "css/jquery.multiselect.filter.css";
         @import "css/perfwatcher.css";
+        @import "css/pwmenubar.css";
 		@import "css/jquery.noty.css";
 		@import "css/noty_theme_default.css";
         </style>
@@ -59,6 +60,8 @@
 		<script id="confirmfor" src="html/confirmfor.html" type="text/html"></script>
 		<script id="askfor" src="html/askfor.html" type="text/html"></script>
 		<script id="mainMenutpl" src="html/mainMenu.html" type="text/html"></script>
+		<script id="headerCentertpl" src="html/headerCenter.html" type="text/html"></script>
+		<script id="headerRighttpl" src="html/headerRight.html" type="text/html"></script>
 		<script id="timebuttontpl" src="html/timebutton.html" type="text/html"></script>
 		<script id="widget" src="html/widget.html" type="text/html"></script>
 		<script id="contextmenutpl" src="html/contextmenu.html" type="text/html"></script>
@@ -70,7 +73,11 @@
 		</script>
     </head>
     <body>
-		<div id="mainMenu" style="visibility: hidden"></div>
+		<div id="mainMenu">
+			<div id="headerLeft"></div>
+			<div id="headerCenter"></div>
+			<div id="headerRight"></div>
+		</div>
 		<div id="modaldialog"></div>
 		<div id="modalwindow"><div id="modalwindowheader"><span></span></div><div style="overflow: hidden;" id="modalwindowcontent"></div></div>
 		<div id="datetime"></div>
@@ -78,9 +85,13 @@
 		<div id="timespan"></div>
 		<div id="contextmenu"></div>
 		<div id="mainSplitter">
-			<div id="tree"></div>
-			<div id="items">
-				<div id="itemtab"></div>
+			<div id="leftpane">
+				<div id="tree"></div>
+			</div>
+			<div id="rightpane">
+				<div id="items">
+					<div id="itemtab"></div>
+				</div>
 			</div>
 		</div>
 	</body>

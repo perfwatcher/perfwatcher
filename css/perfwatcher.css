@@ -7,7 +7,8 @@ table td { vertical-align:top; text-align:left; }
 body, td, th, pre, code, select, option, input, textarea { font-family:verdana,arial,sans-serif; font-size:10px; }
 #logo { height:16px; vertical-align:middle; margin-top:-2px; margin-bottom:-2px; margin-right:2px; }
 #mainSplitter { border: 0px solid #FFFFFF; height:auto; }
-#tree { background-color:#FFFFFF; overflow:auto; }
+#tree { background-color:#FFFFFF;  }
+#leftpane { background-color:#FFFFFF; overflow:auto; }
 #timebutton { position:absolute; }
 #datetime { position:absolute; text-align : center; }
 div.controls { position:relative; clear:both; margin-right:5px; }
