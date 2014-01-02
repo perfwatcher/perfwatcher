@@ -459,6 +459,7 @@ function confirmfor(optionsarg, func) {
 }
 
 function perfwatcher_about_box() {
+//	TODO : use ICanHaz here ?
     $('<div id="modaldialogcontents"></div>')
         .html('<p>About Perfwatcher...</p>')
         .dialog({
@@ -548,75 +549,93 @@ function splitMetric (metric) {
 }
 
 function select_view (set_view) {
-	$('#modalwindow').jqxWindow({ title: '<span id="toptitle">Select a view</span>', isModal: false, theme: theme, width: 537, height: 600 }).show();
-	$('#modalwindowcontent').html(
-		'<div>'+
-			'<span style="float: left; margin-top: 5px; margin-right: 4px;">View :</span>'+
-			'<input class="jqx-input" id="select_view_search" type="text" style="height: 23px; float: left; width: 223px;" />'+
-		'</div>'+
-		'<div style="clear: both;"></div>'+
-		'<div id="select_view_list" style="margin-top: 10px;"></div>'+
-		'<div style="clear: both;"></div>'+
-		'<div style="float: right;">'+
-			'<input type="button" value="No view selected" id="select_view_button_ok" />'+
-			'<input type="button" value="Cancel" id="select_view_button_cancel" />'+
-		'</div>'
-		);
-	var url = 'action.php?tpl=json_actions&action=list_views';
-	var source = { 
-		datatype: "json", 
-		datafields: [ 
-			{ name: 'view_id' }, 
-			{ name: 'title' }
-		], 
-		id: 'id', 
-		url: url,
-		data: {
-			maxrows: '10'
-		}
-	};
-	var dataAdapter = new $.jqx.dataAdapter(source, {
-		formatData: function(data) {
-			data.startswith = $("#select_view_search").val();
-			return data;
-		}
-	});
-	$('#select_view_list').jqxListBox({
-		width: 525,
-		height: 500,
-	    source: dataAdapter,
-		displayMember: 'title',
-		valueMember: 'view_id',
-	    theme: theme
-	});
-	var me = this;
-	me.view_id = 0;
-	$('#select_view_search').on('keyup', function(event) {
-		if(me.timer) clearTimeout(me.timer);
-		me.timer = setTimeout(function() {
-			dataAdapter.dataBind();
-		}, 300);
-	});
-	$('#select_view_list').on('select', function(event) {
-		var item = event.args.item;
-		if(item) {
-			me.view_id = item.value;
-			$('#select_view_button_ok').val('Load view "'+item.label+'"');
-		}
-	});
-	$('#select_view_button_ok').jqxButton({ theme: theme, width: '150', height: '25' });
-	$('#select_view_button_cancel').jqxButton({ theme: theme, width: '150', height: '25' });
-
-	$('#select_view_button_ok').on('click', function(event) {
-		$('#modalwindow').jqxWindow('closeWindow');
-		if(me.view_id > 0) {
-			view_id = me.view_id;
-			set_view();
-		}
-	});
-	$('#select_view_button_cancel').on('click', function(event) {
-		$('#modalwindow').jqxWindow('closeWindow');
-	});
+//	TODO : use ICanHaz here
+    $('<div id="modaldialogcontents"></div>')
+        .html(
+        		'<div>'+
+        			'<span style="float: left; margin-top: 5px; margin-right: 4px;">View :</span>'+
+        			'<input class="jqx-input" id="select_view_search" type="text" style="height: 23px; float: left; width: 223px;" />'+
+        		'</div>'+
+        		'<div style="clear: both;"></div>'+
+        		'<div id="select_view_list" style="margin-top: 10px;"></div>'+
+        		'<div style="clear: both;"></div>'+
+        		'<div style="float: right;">'+
+        			'<input type="button" value="No view selected" id="select_view_button_ok" />'+
+        			'<input type="button" value="Cancel" id="select_view_button_cancel" />'+
+        		'</div>'
+             )
+        .dialog({
+            autoOpen: true,
+            width: 537,
+            height: 600,
+            position: {my: 'center', at: 'center', of: '#items' },
+            appendTo: '#modaldialog',
+            title: 'Select a view',
+            close: function(event,ui) {
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                $(this).dialog('destroy').remove();
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+            	var url = 'action.php?tpl=json_actions&action=list_views';
+            	var source = { 
+            		datatype: "json", 
+            		datafields: [ 
+            			{ name: 'view_id' }, 
+            			{ name: 'title' }
+            		], 
+            		id: 'id', 
+            		url: url,
+            		data: {
+            			maxrows: '10'
+            		}
+            	};
+            	var dataAdapter = new $.jqx.dataAdapter(source, {
+            		formatData: function(data) {
+            			data.startswith = $("#select_view_search").val();
+            			return data;
+            		}
+            	});
+            	$('#select_view_list').jqxListBox({
+            		width: 525,
+            		height: 500,
+            	    source: dataAdapter,
+            		displayMember: 'title',
+            		valueMember: 'view_id',
+            	    theme: theme
+            	});
+            	var me = this;
+            	me.view_id = 0;
+            	$('#select_view_search').on('keyup', function(event) {
+            		if(me.timer) clearTimeout(me.timer);
+            		me.timer = setTimeout(function() {
+            			dataAdapter.dataBind();
+            		}, 300);
+            	});
+            	$('#select_view_list').on('select', function(event) {
+            		var item = event.args.item;
+            		if(item) {
+            			me.view_id = item.value;
+            			$('#select_view_button_ok').val('Load view "'+item.label+'"');
+            		}
+            	});
+            	$('#select_view_button_ok').jqxButton({ theme: theme, width: '150', height: '25' });
+            	$('#select_view_button_cancel').jqxButton({ theme: theme, width: '150', height: '25' });
+            
+            	$('#select_view_button_ok').on('click', function(event) {
+            		$('#modaldialogcontents').dialog('close');
+            		if(me.view_id > 0) {
+            			view_id = me.view_id;
+            			set_view();
+            		}
+            	});
+            	$('#select_view_button_cancel').on('click', function(event) {
+            		$('#modaldialogcontents').dialog('close');
+            	});
+            }
+        })
+        .show();
 //	set_view();
 }
 

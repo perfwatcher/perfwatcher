@@ -24,16 +24,18 @@
 	  $(this).single_double_click(methods.timespan, methods.reposition);
 	  $(this).bind('mousemove', methods.datetime);
       $(this).hover(function () {
-	  	if (current_graph != '#'+$(this).attr('id')) {
-			 $('#timespan').hide();
-		}
-	  	current_graph = '#'+$(this).attr('id');
-      	var timebuttontop = $(this).offset().top + $(this).height() - $('#timebutton').height();
-      	var timebuttonleft = $(this).offset().left + $(this).width() - $('#timebutton').width();
-      	$('#timebutton').clearQueue().show().animate({ top: timebuttontop, left: timebuttonleft }, { queue: true, duration: 100 });
-      	var datetimetop = $(this).offset().top + 20 ;
-      	var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
-      	$('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
+        if(pwgraph_hover_enabled) {
+            if (current_graph != '#'+$(this).attr('id')) {
+                $('#timespan').hide();
+            }
+            current_graph = '#'+$(this).attr('id');
+            var timebuttontop = $(this).offset().top + $(this).height() - $('#timebutton').height();
+            var timebuttonleft = $(this).offset().left + $(this).width() - $('#timebutton').width();
+            $('#timebutton').clearQueue().show().animate({ top: timebuttontop, left: timebuttonleft }, { queue: true, duration: 100 });
+            var datetimetop = $(this).offset().top + 20 ;
+            var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
+            $('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
+        }
       });
 	  $(this).contextMenu({ menu: 'graphmenu' }, function(action, el, pos) {
 		switch(action) {
@@ -81,7 +83,14 @@
 	},
     display : function( ) {
 	  var options = this.data();
-	  this.pwgraph('check_boundary');
+      options['rrdid'] = options['cdsrc']
+            +'/'+options['host']
+            +'/'+options['plugin']
+            +((options['plugin_instance'] == '_')?'':('-'+options['plugin_instance']))
+            +'/'+options['type']
+            +((options['type_instance'] == '_')?'':('-'+options['type_instance']));
+      this.data(options);
+      this.pwgraph('check_boundary');
       var clipboardtxt = "rrdgraph('"+options['cdsrc']
                 +"', '"+options['host']
                 +"', '"+options['plugin']
@@ -220,16 +229,42 @@
 	  return this;
 	},
 	custd : function() {
-	  $('#modalwindow').jqxWindow({ height: 287, width: 262, title: 'Select a date', isModal: true, theme: theme }).show();
-	  $('#modalwindowcontent').html('<div id="calendar"></div>');
-	  $('#calendar').jqxCalendar({ width: '250px', height: '250px', theme: theme });
-	  $('#calendar').bind('cellSelected', function () {
-		var newdate = $('#calendar').jqxCalendar('getSelectedDate');
-		$('#modalwindow').jqxWindow('closeWindow');
-		var begin = Math.round(newdate.getTime() / 1000);
-		var end = begin + 86400;
-		$(current_graph).pwgraph({ begin: begin, end: end }).pwgraph('display');
-	  });
+      var options = this.data();
+      pwgraph_hover_enabled = false;
+      $('<div id="modaldialogcontents"></div>')
+          .html('<div>'
+                    +'<h1>Current graph</h1>'
+                    +'<p>'+options['rrdid']+'</p>'
+                    +'<h1>Select the start date</h1>'
+                    +'</div>'
+                    +'<div id="calendar"></div>'
+               )
+          .dialog({
+              autoOpen: true,
+              appendTo: '#modaldialog',
+              position: {my: 'center', at: 'center', of: '#items' },
+              title: 'Select a date',
+              close: function(event,ui) {
+                  $('#modaldialog').hide();
+                  $('#modaldialogcontents').html("");
+                  pwgraph_hover_enabled = true;
+                  $(this).dialog('destroy').remove();
+              },
+              open: function(event, ui) {
+                  $('#modaldialog').show();
+	              $('#calendar').jqxCalendar({ width: '250px', height: '250px', theme: theme });
+            	  $('#calendar').bind('cellSelected', function () {
+            	    var options = $(current_graph).data();
+            		var newdate = $('#calendar').jqxCalendar('getSelectedDate');
+            		options['begin'] = Math.round(newdate.getTime() / 1000);
+            		options['end'] = options['begin'] + 86400;
+            		$('#modaldialogcontents').dialog('close');
+            	    $(current_graph).data(options);
+            	  	$(current_graph).pwgraph('display');
+            	  });
+              }
+          })
+          .show();
 	  return this;
 	},
 	reposition : function(event) {

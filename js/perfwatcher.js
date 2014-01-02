@@ -21,6 +21,7 @@
  **/ 
 var json_item_datas = new Array();
 var current_graph = null;
+var pwgraph_hover_enabled = true;
 var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
