@@ -2,7 +2,7 @@ function custom_plugin_view_generic_graph(graphinfo) {
     if(graphinfo['show_html_legend']) {
         $('<h1>Collectd source '+graphinfo['cdsrc']+' </h1>').appendTo('div[tabid="'+graphinfo['tabid']+'"] div div[class="graphcontainer"]');
     }
-    $('<img class="graph" id="graph_'+graphinfo['tabid']+'_'+graphinfo['graphid']+'"/><br/>').appendTo('div[tabid="'+graphinfo['tabid']+'"] div div[class="graphcontainer"]');
+    $('<img class="graph" id="graph_'+graphinfo['tabid']+'_'+graphinfo['graphid']+'" zone="tab"/><br/>').appendTo('div[tabid="'+graphinfo['tabid']+'"] div div[class="graphcontainer"]');
     $('#graph_'+graphinfo['tabid']+'_'+graphinfo['graphid']).pwgraph({
         cdsrc: graphinfo['cdsrc'],
         host: graphinfo['host'],

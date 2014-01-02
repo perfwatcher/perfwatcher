@@ -22,6 +22,7 @@
 var json_item_datas = new Array();
 var current_graph = null;
 var pwgraph_hover_enabled = true;
+var pwgraph_current_zone = 'tab';
 var current_tab = null;
 graphid = 0;
 var treecollapsed = false;
@@ -102,7 +103,92 @@ $(document).ready(function() {
 	});
 	
 	$('#clip_content').click(function() {
-					alert("NOT FINISHED YET / TODO\n"+JSON.stringify(clipboard));
+        if(clipboard.length == 0) {
+            notify_ko("Clipboard is empty");
+            return;
+        }
+        $('#timebutton').hide();
+        $('#timespan').hide();
+        $('#datetime').hide();
+        $('<div id="modalclipcontent"></div>')
+            .html('<div>'
+                +'<div id="modalcliplist"></div>'
+                )
+            .dialog({
+                autoOpen: true,
+                appendTo: '#clip',
+                width: '800px',
+                position: {my: 'right top', at: 'bottom left', of: '#clip' },
+                title: 'Clipboard contents',
+                close: function(event,ui) {
+// TODO : create buttons [SAVE|CANCEL] and move this code to the "SAVE" button.
+                    clipboard = [];
+                    $('#modalcliplist span.clipboard_string').each(function(i) {
+                        clipboard.push($(this).text());
+                    });
+                    if(clipboard.length) {
+                        $("#clip_content").html(clipboard.length+" elements");
+                    } else {
+                        $("#clip_content").html("Empty clip");
+                    }
+// End of the TODO section
+                    pwgraph_current_zone = "tab";
+                    $('#modalclipcontent').html("");
+                    $(this).dialog('destroy').remove();
+                },
+                open: function(event, ui) {
+                    pwgraph_current_zone = "clip";
+                    var grouped_types = get_grouped_types();
+                    $('#modalcliplist').append("<ul></ul>");
+                    $('#modalcliplist ul').sortable();
+                    $.each(clipboard, function(k,v) {
+                        var img = pwmarkdown_filter(v);
+                        $('#modalcliplist ul').append(
+                            "<li class='ui-state-default'>"
+                            +img
+                            +"<span class='clipboard_string' style='display: none'>"+v+"</span>"
+                            +"<button class='rm_from_clipboard'>Remove from clipboard</button>"
+                            +"</li>");
+                    });
+                    $('#modalcliplist span[class="rrdgraph_to_render"]').each(function(idx) {
+                        var item_current = $(this);
+                        var code=decodeURIComponent($(this).text());
+                        var graph_vars = [];
+                        $(this).text(code);
+                        try {
+                            graph_vars = $.parseJSON(code);
+                        } catch(e) {
+                            console.log(e);
+                            console.log("json was :\n"+code);
+                        }
+  
+                        var check_grouped_type = jQuery.inArray(graph_vars['type'], grouped_types);
+                        var g = {
+                            "cdsrc": graph_vars['cdsrc'],
+                            "host": graph_vars['host'],
+                            "plugin": graph_vars['plugin'],
+                            "plugin_instance": graph_vars['plugininstance']?graph_vars['plugininstance']:"",
+                            "type": graph_vars['type'],
+                            "type_instance": (check_grouped_type == -1)?(graph_vars['typeinstance']?graph_vars['typeinstance']:""):""
+                            };
+  
+                        var item_graph = $('<img class="graph" id="graph_'+graphid+'" zone="clip"/>');
+                        item_graph.insertAfter(item_current);
+                        item_graph.pwgraph(g).pwgraph('display');
+                        item_current = item_graph;
+  
+                        graphid++;
+                        $(this).hide();
+                    });
+                }
+            })
+            .show();
+        $('.rm_from_clipboard').click(function () {
+            $(this).parent().remove();
+            $('#timebutton').hide();
+            $('#timespan').hide();
+            $('#datetime').hide();
+        });
 	});
 	$('a[pwmenuid^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));
@@ -280,3 +366,4 @@ $(document).ready(function() {
 
 });
 
+// vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

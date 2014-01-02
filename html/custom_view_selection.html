@@ -179,13 +179,14 @@
 				if(graph_vars['host']) {
 					var all_graphs = retreive_graphs_list(graph_vars);
 					$.each(all_graphs, function(i, g) {
-						var item_graph = $('<img class="graph" id="graph_{{ tabid }}_'+graphid+'"/>');
+						var item_graph = $('<img class="graph" id="graph_{{ tabid }}_'+graphid+'" zone="tab"/>');
 						item_graph.insertAfter(item_current);
 						item_graph.pwgraph(g).pwgraph('display');
 						item_current = item_graph;
+
+						graphid++;
 					});
 
-					graphid++;
 				}
 				$(this).remove();
 			});

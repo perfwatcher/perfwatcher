@@ -28,13 +28,16 @@
             if (current_graph != '#'+$(this).attr('id')) {
                 $('#timespan').hide();
             }
-            current_graph = '#'+$(this).attr('id');
-            var timebuttontop = $(this).offset().top + $(this).height() - $('#timebutton').height();
-            var timebuttonleft = $(this).offset().left + $(this).width() - $('#timebutton').width();
-            $('#timebutton').clearQueue().show().animate({ top: timebuttontop, left: timebuttonleft }, { queue: true, duration: 100 });
-            var datetimetop = $(this).offset().top + 20 ;
-            var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
-            $('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
+            var zone = $(this).attr('zone');
+            if(pwgraph_current_zone == zone) {
+              current_graph = '#'+$(this).attr('id');
+              var timebuttontop = $(this).offset().top + $(this).height() - $('#timebutton').height();
+              var timebuttonleft = $(this).offset().left + $(this).width() - $('#timebutton').width();
+              $('#timebutton').clearQueue().show().animate({ top: timebuttontop, left: timebuttonleft }, { queue: true, duration: 100 });
+              var datetimetop = $(this).offset().top + 20 ;
+              var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
+              $('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
+          }
         }
       });
 	  $(this).contextMenu({ menu: 'graphmenu' }, function(action, el, pos) {
@@ -223,7 +226,8 @@
     },
 	setts : function() {
 	  var options = this.data();
-	  $('.graph').each(function (i) {
+      var zone = $(this).attr('zone');
+	  $('.graph[zone="'+zone+'"]').each(function (i) {
 	  	$(this).pwgraph('set_options', { begin: options['begin'], end: options['end'] }).pwgraph('display');
 	  });
 	  return this;
@@ -304,7 +308,7 @@
 		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
 		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
 		x -= 40;
-		if ($('#timespan').css('display') != 'none') {
+		if ($('#timespan').css('display') != 'tab') {
 			$('#timespan').hide();
 			return;
 		}

@@ -9,8 +9,8 @@ body, td, th, pre, code, select, option, input, textarea { font-family:verdana,a
 #mainSplitter { border: 0px solid #FFFFFF; height:auto; }
 #tree { background-color:#FFFFFF;  }
 #leftpane { background-color:#FFFFFF; overflow:auto; }
-#timebutton { position:absolute; }
-#datetime { position:absolute; text-align : center; }
+#timebutton { position:absolute; z-index: 800 }
+#datetime { position:absolute; text-align : center; z-index: 800 }
 div.controls { position:relative; clear:both; margin-right:5px; }
 #timebutton div.controls div { color: gray; background: white; text-decoration: none; text-align: center; font-size: small; cursor: pointer; border: 1px solid gray; width: 1em; height: 1em; padding: 1px; margin: 0px; }
 #timebutton div.controls div:hover { color: black; border-color: black; }
@@ -21,7 +21,7 @@ li[tag="message"] b { color: green; }
 .jqx-tabs-content-element-base { white-space:nowrap; height: 100%; }
 .ui-widget-content { background: white repeat-x scroll 100% 100% #FFFFFF; border: 1px solid #AAAAAA; color: #222222; }
 .widget { height: 220px; }
-#timespan { background-color:#AAAAAA; opacity:0.6; filter:alpha(opacity=60); position:absolute; }
+#timespan { background-color:#AAAAAA; opacity:0.6; filter:alpha(opacity=60); position:absolute; z-index: 800 }
 li { white-space: nowrap; }
 .contextMenu { width: 145px; }
 div.selection_edit > textarea { width: 650px; height: 400px; }

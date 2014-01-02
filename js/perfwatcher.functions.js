@@ -224,7 +224,7 @@ function plugin_view (tabid, plugin) {
 				$.each(current_plugin_instance, function (plugin_instance, type) {
 					$.each(type, function (type, type_instance) {
 						$.each(type_instance, function (type_instance, none) { 
-							$('<img class="graph" id="graph_'+graphid+'"/><br/>').appendTo('div[tabid="'+tabid+'"]');
+							$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[tabid="'+tabid+'"]');
 							$('#graph_'+graphid).pwgraph({
 								cdsrc: cdsrc,
 								host: json_item_datas['host'],
@@ -243,7 +243,7 @@ function plugin_view (tabid, plugin) {
 	$.each(json_item_datas['plugins'][plugin], function (plugin_instance, type) {
 		$.each(type, function (type, type_instance) {
 			$.each(type_instance, function (type_instance, none) { 
-				$('<img class="graph" id="graph_'+graphid+'"/><br/>').appendTo('div[tabid="'+tabid+'"]');
+				$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[tabid="'+tabid+'"]');
 				$('#graph_'+graphid).pwgraph({
 					cdsrc: json_item_datas['config']['CdSrc']['source'],
 					host: json_item_datas['host'],
