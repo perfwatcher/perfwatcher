@@ -252,16 +252,20 @@
               },
               open: function(event, ui) {
                   $('#modaldialog').show();
-	              $('#calendar').jqxCalendar({ width: '250px', height: '250px', theme: theme });
-            	  $('#calendar').bind('cellSelected', function () {
-            	    var options = $(current_graph).data();
-            		var newdate = $('#calendar').jqxCalendar('getSelectedDate');
-            		options['begin'] = Math.round(newdate.getTime() / 1000);
-            		options['end'] = options['begin'] + 86400;
-            		$('#modaldialogcontents').dialog('close');
-            	    $(current_graph).data(options);
-            	  	$(current_graph).pwgraph('display');
-            	  });
+                  $('#calendarresultdiv').hide();
+                  $('#calendar').datepicker({
+                      changeMonth: true,
+                      changeYear: true,
+                      dateFormat: "@",
+                      onSelect: function(d, inst) {
+                              var options = $(current_graph).data();
+                              options['begin'] = Math.round(d / 1000);
+                              options['end'] = options['begin'] + 86400;
+                              $('#modaldialogcontents').dialog('close');
+                              $(current_graph).data(options);
+                              $(current_graph).pwgraph('display');
+                          }
+                    });
               }
           })
           .show();
