@@ -80,10 +80,6 @@ $(document).ready(function() {
 	$('#timebutton').html(ich.timebuttontpl({}));
 	$('#timebutton').hide();
 	$('#timespan').hide();
-	$('#timespan').dblclick(function() {
-		$(current_graph).pwgraph('applytimespan').pwgraph('display');
-		$(this).hide();
-	});
 	$('#timebutton div div').click(function () {
 		var method = $(this).attr('class');
 		$(current_graph).pwgraph(method).pwgraph('display');
@@ -135,7 +131,6 @@ $(document).ready(function() {
                     pwgraph_current_zone = "clip";
                     var grouped_types = get_grouped_types();
                     $('#modalcliplist').append("<ul></ul>");
-                    $('#modalcliplist ul').sortable();
                     $.each(clipboard, function(k,v) {
                         var img = pwmarkdown_filter(v);
                         $('#modalcliplist ul').append(
@@ -175,6 +170,7 @@ $(document).ready(function() {
                         graphid++;
                         $(this).hide();
                     });
+                    $('#modalcliplist ul').sortable({ cancel: "img" });
                 }
             })
             .show();

@@ -7,6 +7,7 @@
 	logarithmic	: 0,
 	tinylegend	: 0,
 	width		: 697,
+	zoomXstart	: 0,
 	gridXstart	: 67,
 	gridXend	: 667,
 	gridYstart	: 35,
@@ -15,14 +16,18 @@
 
   var methods = {
     init : function( initoptions ) { 
+      var pos_beforeopen_x = 0;
+      var pos_beforeopen_y = 0;
 	  var myoptions = options;
 	  $.extend(myoptions, initoptions);
 	  myoptions['althost'] = null;
 	  this.data(myoptions);
 	  //$(this).bind('dblclick', methods.reposition);
 	  //$(this).bind('click', methods.timespan);
-	  $(this).single_double_click(methods.timespan, methods.reposition);
-	  $(this).bind('mousemove', methods.datetime);
+//	  $(this).single_double_click(methods.timespan, methods.reposition);
+	  $(this).bind('mousemove', methods.mousemove);
+	  $(this).bind('mousedown', methods.mousedown);
+	  $(this).bind('mouseup', methods.mouseup);
       $(this).hover(function () {
         if(pwgraph_hover_enabled) {
             if (current_graph != '#'+$(this).attr('id')) {
@@ -40,43 +45,53 @@
           }
         }
       });
-	  $(this).contextMenu({ menu: 'graphmenu' }, function(action, el, pos) {
-		switch(action) {
-        	case 'top':
-			var x = pos.docX - $(current_graph).position().left;
-			var y = pos.docY - $(current_graph).position().top;
-			var options = $(current_graph).data();
-			if (y < options['gridYstart'] || y > options['gridYend']) { break; }
-			if (x < options['gridXstart'] || x > options['gridXend']) { break; }
-			x -= options['gridXstart'];
-			var diff = options['end'] - options['begin'];
-			var step = diff / (options['gridXend'] - options['gridXstart']);
-			var toptime = options['begin'] + Math.round(step * x);
-			showtop(options['cdsrc'], $(current_graph).data().host, toptime);
-		break;
-       	case 'timeline':
-			var options = $(current_graph).data();
-			showtimeline(options['cdsrc'], $(current_graph).data().host,options['begin'],options['end']);
-		break;
-       	case 'save':
-			var url = $(current_graph).attr('src') + '&download';
-			document.location = url;
-		break;
-       	case 'export':
-			var url = $(current_graph).attr('src');
-			document.location = url.replace('graph.php', 'export.php');
-		break;
-		case 'tinylegend':
-		case 'zero':
-		case 'logarithmic':
-			$(current_graph).pwgraph(action).pwgraph('display');
-		break;
-		default:
-			alert(action + ' Available soon ...');
-		break;
-		}
-	  });
-	  return this;
+      $(document).contextmenu({
+        delegate: "img.graph",
+        menu: "#graphmenu",
+        beforeOpen: function(event, ui) {
+            pos_beforeopen_x = event.clientX - $(ui.target).position().left;
+            pos_beforeopen_y = event.clientY - $(ui.target).position().top;
+            },
+        select: function(event, ui) {
+            switch(ui.cmd) {
+                case 'top':
+//                    var x = event.clientX - $(ui.target).position().left;
+//                    var y = event.clientY - $(ui.target).position().top;
+                    var x = pos_beforeopen_x;
+                    var y = pos_beforeopen_y;
+                    var options = $(current_graph).data();
+                    if (y < options['gridYstart'] || y > options['gridYend']) { break; }
+                    if (x < options['gridXstart'] || x > options['gridXend']) { break; }
+                    x -= options['gridXstart'];
+                    var diff = options['end'] - options['begin'];
+                    var step = diff / (options['gridXend'] - options['gridXstart']);
+                    var toptime = options['begin'] + Math.round(step * x);
+                    showtop(options['cdsrc'], $(current_graph).data().host, toptime);
+                    break;
+                case 'timeline':
+                    var options = $(current_graph).data();
+                    showtimeline(options['cdsrc'], $(current_graph).data().host,options['begin'],options['end']);
+                    break;
+                case 'save':
+                    var url = $(current_graph).attr('src') + '&download';
+                    document.location = url;
+                    break;
+                case 'export':
+                    var url = $(current_graph).attr('src');
+                    document.location = url.replace('graph.php', 'export.php');
+                    break;
+                case 'tinylegend':
+                case 'zero':
+                case 'logarithmic':
+                    $(current_graph).pwgraph(ui.cmd).pwgraph('display');
+                    break;
+                default:
+                    alert(ui.cmd + ' is not a known action ...');
+                    break;
+            }
+        }
+      });
+      return this;
     },
 	set_options : function( initoptions) {
 		var myoptions = this.data();
@@ -118,6 +133,7 @@
 		+ '&t=' + (new Date()).getTime()
 	  );
       $(this).addClass('ui-widget-content');
+      $(this).on('dragstart', function() { return false; });
       return this;
     },
     check_boundary : function( ) { 
@@ -157,6 +173,7 @@
     clipadd : function() {
 	  var options = this.data();
       add_to_clipboard(options['clipboardtxt']);
+	  return this;
     },
     curh : function() { 
 	  var options = this.data();
@@ -273,106 +290,255 @@
           .show();
 	  return this;
 	},
-	reposition : function(event) {
-	    var options = $(this).data();
-		var x = event.clientX - $(event.target).position().left;
-		var y = event.clientY - $(event.target).position().top;
-		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
-		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
-		x -= options['gridXstart'];
-		x -= (options['gridXend'] - options['gridXstart']) / 2;
-		var diff = options['end'] - options['begin'];
-		var step = diff / (options['gridXend'] - options['gridXstart']);
-		options['begin'] += Math.round(step * x);
-		options['end'] += Math.round(step * x);
-	    $(this).data(options);
-		$(this).pwgraph('display');
+    mousedown : function(event) {
+        if(isRightClick(event)) return this;
+        if(pwgraph_hover_enabled) {
+            if (current_graph != '#'+$(this).attr('id')) {
+                $('#timespan').hide();
+            }
+            var zone = $(this).attr('zone');
+            if(pwgraph_current_zone == zone) {
+        		var options = $(this).data();
+        		var x = event.pageX - $(this).offset().left;
+        		var y = event.pageY - $(this).offset().top;
+        		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+        		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+        		x -= options['gridXstart'];
+                options['zoomXstart'] = x;
+                $(this).data(options);
+
+                if ($('#timespan').css('display') != 'none') {
+                    $('#timespan').hide();
+                    return;
+                }
+                $('#timespan').show();
+                $('#timespan').css({
+                    top: $(this).offset().top + options['gridYstart'] - 3, 
+                    left: $(this).offset().left + options['gridXstart'] + x,
+                    width: 1,
+                    height: options['gridYend'] - options['gridYstart'] + 1
+                });
+
+                $(this).bind('mouseout', methods.mouseout);
+                $(this).unbind('mousedown');
+                $('#timespan').bind('mousemove', function(event) { $(this).pwgraph('mousemove', event); } );
+                $('#timespan').bind('mouseup', function(event) { $(this).pwgraph('mouseup', event); } );
+
+        	}
+    	}
+
 	    return this;
-	},
-	applytimespan : function() {
-	    var options = $(this).data();
-		x = $('#timespan').position().left - $(this).position().left - options['gridXstart'];
-		var diff = options['end'] - options['begin'];
-		var step = diff / (options['gridXend'] - options['gridXstart']);
-		options['begin'] += Math.round(step * x);
-		options['end'] = options['begin'] + Math.round(step * $('#timespan').width());
-	    $(this).data(options);
-	  	return this;
-	},
-	timespan : function(event) {
-	    var options = $(this).data();
-		var x = event.clientX - $(event.target).position().left;
-		var y = event.clientY - $(event.target).position().top;
-		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
-		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
-		x -= 40;
-		if ($('#timespan').css('display') != 'tab') {
-			$('#timespan').hide();
-			return;
-		}
-		$('#timespan').show();
-		$('#timespan').animate({ 
-			top: $(event.target).position().top + options['gridYstart'] - 3, 
-			left: $(event.target).position().left + x,
-			width: 80,
-			height: options['gridYend'] - options['gridYstart'] + 1
-		}, { 
-			queue: false, duration: 200,
-			complete : function() {
-				if ($('#timespan').position().left < $(event.target).position().left + options['gridXstart']) {
-					$('#timespan').animate({ left: $(event.target).position().left + options['gridXstart'] } , { queue: true, duration: 300 });
-				}
-				if ($('#timespan').position().left + $('#timespan').width() > $(event.target).position().left + options['gridXend']) {
-					$('#timespan').animate({ left: $(event.target).position().left + options['gridXend'] - $('#timespan').width() } , { queue: true, duration: 300 });
-				}
-			}
-		});
-		$('#timespan').resizable({
-            autoHide:   true,
-            minHeight:  options['gridYend'] - options['gridYstart'],
-            maxHeight:  options['gridYend'] - options['gridYstart'],
-            maxWidth:   (options['gridXend'] - x ),
-            minWidth:   20,
-            stop: function(e2, ui) {
-                $('#timespan').clearQueue().draggable('option', 'containment', [
-                    $(event.currentTarget).offset().left + options['gridXstart'],
-                    $(event.currentTarget).offset().top + options['gridYstart'],
-                    $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
-                    $(event.currentTarget).offset().top + options['gridYstart']
-                ]
-                );
+    },
+    mouseup : function(event) {
+        $('#timespan').hide();
+        $(current_graph).unbind('mouseout');
+        $('#timespan').unbind('mousemove');
+        $('#timespan').unbind('mouseup');
+        $(current_graph).bind('mousedown', function(event) { $(current_graph).pwgraph('mousedown', event); });
+        if(pwgraph_hover_enabled) {
+            var zone = $(current_graph).attr('zone');
+            if(pwgraph_current_zone == zone) {
+        		var options = $(current_graph).data();
+        		var x = event.pageX - $(current_graph).offset().left;
+        		var y = event.pageY - $(current_graph).offset().top;
+        		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+        		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+        		x -= options['gridXstart'];
+                if((options['zoomXstart'] > 0) && (x != options['zoomXstart'])) {
+                    var diff = options['end'] - options['begin'];
+                    var step = diff / (options['gridXend'] - options['gridXstart']);
+                    var rl = options['begin'] + Math.round(step * options['zoomXstart']);
+                    var rw = Math.round(step * (x - options['zoomXstart']));
+                    if(x - options['zoomXstart'] < 0) { 
+                        rl = rl + rw;
+                        rw = -rw;
+                    }
+                    options['begin'] = rl;
+                    options['end'] = rl + rw;
+                    $(current_graph).data(options);
+                    $(current_graph).pwgraph('display');
+                }
+                options['zoomXstart'] = 0;
+                $(current_graph).data(options);
+        	}
+    	}
+	    return this;
+    },
+    mouseout : function(event) {
+        if(event.relatedTarget.getAttribute('id') == "timespan") return this;
+        if(pwgraph_hover_enabled) {
+            if (current_graph != '#'+$(this).attr('id')) {
+                $('#timespan').hide();
+                $(this).unbind('mouseout');
+                $('#timespan').unbind('mousemove');
             }
-		}).draggable({
-            axis: "x",
-            appendTo: event.currentTarget,
-            containment: [
-                $(event.currentTarget).offset().left + options['gridXstart'],
-                $(event.currentTarget).offset().top + options['gridYstart'],
-                $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
-                $(event.currentTarget).offset().top + options['gridYstart']
-            ],
-            stop: function() {
-                $('#timespan').clearQueue().resizable('option', 'maxWidth', 
-                $(event.currentTarget).offset().left 
-                + event.currentTarget.clientWidth 
-                - parseInt($('#timespan').css('left')) 
-                -29
-                );
-            }
-		});
-	},
+            var zone = $(this).attr('zone');
+            if(pwgraph_current_zone == zone) {
+        		var options = $(this).data();
+                options['zoomXstart'] = 0;
+                $(this).data(options);
+                $('#timespan').hide();
+                $(this).unbind('mouseout');
+                $('#timespan').unbind('mousemove');
+        	}
+    	}
+	    return this;
+    },
+//	TODO : remove this code
+//	reposition : function(event) {
+//	    var options = $(this).data();
+//		var x = event.clientX - $(event.target).position().left;
+//		var y = event.clientY - $(event.target).position().top;
+//		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+//		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+//		x -= options['gridXstart'];
+//		x -= (options['gridXend'] - options['gridXstart']) / 2;
+//		var diff = options['end'] - options['begin'];
+//		var step = diff / (options['gridXend'] - options['gridXstart']);
+//		options['begin'] += Math.round(step * x);
+//		options['end'] += Math.round(step * x);
+//	    $(this).data(options);
+//		$(this).pwgraph('display');
+//	    return this;
+//	},
+//	applytimespan : function() {
+//	    var options = $(this).data();
+//		x = $('#timespan').position().left - $(this).position().left - options['gridXstart'];
+//		var diff = options['end'] - options['begin'];
+//		var step = diff / (options['gridXend'] - options['gridXstart']);
+//		options['begin'] += Math.round(step * x);
+//		options['end'] = options['begin'] + Math.round(step * $('#timespan').width());
+//	    $(this).data(options);
+//	  	return this;
+//	},
+//	timespan : function(event) {
+//	    var options = $(this).data();
+//		var x = event.clientX - $(this).offset().left;
+//		var y = event.clientY - $(this).offset().top;
+//		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+//		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+//		x -= 40;
+//		if ($('#timespan').css('display') != 'none') {
+//			$('#timespan').hide();
+//			return;
+//		}
+//		$('#timespan').show();
+//		$('#timespan').animate({ 
+//			top: $(event.target).position().top + options['gridYstart'] - 3, 
+//			left: $(event.target).position().left + x,
+//			width: 80,
+//			height: options['gridYend'] - options['gridYstart'] + 1
+//		}, { 
+//			queue: false, duration: 200,
+//			complete : function() {
+//				if ($('#timespan').position().left < $(event.target).position().left + options['gridXstart']) {
+//					$('#timespan').animate({ left: $(event.target).position().left + options['gridXstart'] } , { queue: true, duration: 300 });
+//				}
+//				if ($('#timespan').position().left + $('#timespan').width() > $(event.target).position().left + options['gridXend']) {
+//					$('#timespan').animate({ left: $(event.target).position().left + options['gridXend'] - $('#timespan').width() } , { queue: true, duration: 300 });
+//				}
+//			}
+//		});
+//		$('#timespan').resizable({
+//            autoHide:   true,
+//            minHeight:  options['gridYend'] - options['gridYstart'],
+//            maxHeight:  options['gridYend'] - options['gridYstart'],
+//            maxWidth:   (options['gridXend'] - x ),
+//            minWidth:   20,
+//            stop: function(e2, ui) {
+//                $('#timespan').clearQueue().draggable('option', 'containment', [
+//                    $(event.currentTarget).offset().left + options['gridXstart'],
+//                    $(event.currentTarget).offset().top + options['gridYstart'],
+//                    $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
+//                    $(event.currentTarget).offset().top + options['gridYstart']
+//                ]
+//                );
+//            }
+//		}).draggable({
+//            axis: "x",
+//            appendTo: event.currentTarget,
+//            containment: [
+//                $(event.currentTarget).offset().left + options['gridXstart'],
+//                $(event.currentTarget).offset().top + options['gridYstart'],
+//                $(event.currentTarget).offset().left + options['gridXend'] - parseInt($('#timespan').css('width')),
+//                $(event.currentTarget).offset().top + options['gridYstart']
+//            ],
+//            stop: function() {
+//                $('#timespan').clearQueue().resizable('option', 'maxWidth', 
+//                $(event.currentTarget).offset().left 
+//                + event.currentTarget.clientWidth 
+//                - parseInt($('#timespan').css('left')) 
+//                -29
+//                );
+//            }
+//		});
+//	},
+    mousemove : function(event) {
+        if(event.target.getAttribute('id') == 'timespan') {
+        		var options = $(current_graph).data();
+        		var x = event.pageX - $(current_graph).offset().left;
+        		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+        		x -= options['gridXstart'];
+                $(current_graph).data(options);
+
+                // Set datetime
+        		var diff = options['end'] - options['begin'];
+        		var step = diff / (options['gridXend'] - options['gridXstart']);
+        		var curdate = new Date((options['begin'] + Math.round(step * x)) * 1000);
+        		$('#datetime').html(curdate.toString());
+
+                // selection
+                var dl = options['zoomXstart'] + $(current_graph).offset().left + options['gridXstart'];
+                var dw = x - options['zoomXstart'];
+                if(x - options['zoomXstart'] < 0) { 
+                    dl = dl + dw;
+                    dw = -dw;
+                }
+                $('#timespan').css({
+                    left: dl,
+                    width: dw,
+                });
+        } else {
+            $(this).pwgraph('datetime', event);
+        }
+    },
 	datetime : function(event) {
-		var options = $(this).data();
-		var x = event.pageX - $(event.target).position().left;
-		var y = event.pageY - $(event.target).position().top;
-		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
-		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
-		x -= options['gridXstart'];
-		//x -= (options['gridXend'] - options['gridXstart']);
-		var diff = options['end'] - options['begin'];
-		var step = diff / (options['gridXend'] - options['gridXstart']);
-		var curdate = new Date((options['begin'] + Math.round(step * x)) * 1000);
-		$('#datetime').html(curdate.toString());
+        if(pwgraph_hover_enabled) {
+            if (current_graph != '#'+$(this).attr('id')) {
+                $('#timespan').hide();
+                $(this).unbind('mouseout');
+                $('#timespan').unbind('mousemove');
+            }
+            var zone = $(this).attr('zone');
+            if(pwgraph_current_zone == zone) {
+        		var options = $(this).data();
+        		var x = event.pageX - $(this).offset().left;
+        		var y = event.pageY - $(this).offset().top;
+        		if (x < options['gridXstart'] || x > options['gridXend']) { return this; }
+        		if (y < options['gridYstart'] || y > options['gridYend']) { return this; }
+        		x -= options['gridXstart'];
+
+                // Set datetime
+        		var diff = options['end'] - options['begin'];
+        		var step = diff / (options['gridXend'] - options['gridXstart']);
+        		var curdate = new Date((options['begin'] + Math.round(step * x)) * 1000);
+        		$('#datetime').html(curdate.toString());
+
+                // selection
+                if(options['zoomXstart'] > 0) {
+                var dl = options['zoomXstart'] + $(this).offset().left + options['gridXstart'];
+                var dw = x - options['zoomXstart'];
+                if(x - options['zoomXstart'] < 0) { 
+                    dl = dl + dw;
+                    dw = -dw;
+                }
+                $('#timespan').css({
+                    left: dl,
+                    width: dw,
+                });
+                }
+        	}
+    	}
 	}
   };
 
@@ -394,6 +560,7 @@ function tm_to_ddmmyy_hhmmss (tm) {
     var y = my_date.getFullYear();
     var m = my_date.getMonth();
     var d = my_date.getDate();
+    m += 1;
     m = (m<10) ? '0'+m : m;
     d = (d<10) ? '0'+d : d;
 
@@ -523,8 +690,14 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
                 $.timeline = {};
+                pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
+                $('#timebutton').hide();
+                $('#timespan').hide();
+                $('#datetime').hide();
+                pwgraph_hover_enabled = false;
+
                 // Set timeline options
                 $.timeline = {};
                 $.timeline.show_pid_uid_gid = true;
@@ -579,8 +752,14 @@ function showtop (cdsrc, host, toptime) {
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
                 $('#table').remove();
+                pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
+                $('#timebutton').hide();
+                $('#timespan').hide();
+                $('#datetime').hide();
+                pwgraph_hover_enabled = false;
+
                 $('#modaldialog').show();
                 load_top(cdsrc, host, $.top.time);
           }
