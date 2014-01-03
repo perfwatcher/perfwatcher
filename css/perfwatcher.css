@@ -12,8 +12,10 @@ body, td, th, pre, code, select, option, input, textarea { font-family:verdana,a
 #timebutton { position:absolute; z-index: 800 }
 #datetime { position:absolute; text-align : center; z-index: 800 }
 div.controls { position:relative; clear:both; margin-right:5px; }
-#timebutton div.controls div { color: gray; background: white; text-decoration: none; text-align: center; font-size: small; cursor: pointer; border: 1px solid gray; width: 1em; height: 1em; padding: 1px; margin: 0px; }
+#timebutton div.controls div { color: gray; background: white; text-decoration: none; text-align: center; font-size: small; cursor: pointer; border: 1px solid gray; width: 1em; height: 1em; padding: 0 1px 3px 1px; margin: 0px; vertical-align: top;}
+#timebutton div.controls div.controlempty { color: white; background: white; cursor: auto; border: 1px solid white; }
 #timebutton div.controls div:hover { color: black; border-color: black; }
+#timebutton div.controls div.controlempty:hover { color: white; border-color: white; }
 #timebutton div.controls.preset div { float: left; margin:1px 1px 5px; }
 #timebutton div.controls.zoom div { float: left; margin:0px 1px; }
 img.graph { border-bottom: 1px solid #888888; }

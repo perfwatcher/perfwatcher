@@ -41,8 +41,7 @@ function positionsubmenu(position, elements) {
 		}
 		elements.element.element.position(options);
 }
-function add_to_clipboard(event, ui) {
-    var txt = ui.helper.text();
+function add_to_clipboard(txt) {
 	clipboard.push(txt);
 	$("#clip_content").html(clipboard.length+" elements");
 }
@@ -77,13 +76,6 @@ $(document).ready(function() {
 	window.setTimeout(function () {
 		auto_refresh_status();
 	}, 10000);
-
-	$('#clip').droppable({
-			activeClass: "ui-state-default",
-			hoverClass: "ui-state-hover",
-			tolerance: "pointer",
-			drop: function(event, ui) { add_to_clipboard(event, ui); }
-		});
 
 	$('#timebutton').html(ich.timebuttontpl({}));
 	$('#timebutton').hide();
@@ -135,6 +127,9 @@ $(document).ready(function() {
                     pwgraph_current_zone = "tab";
                     $('#modalclipcontent').html("");
                     $(this).dialog('destroy').remove();
+                    $('#timebutton').hide();
+                    $('#timespan').hide();
+                    $('#datetime').hide();
                 },
                 open: function(event, ui) {
                     pwgraph_current_zone = "clip";

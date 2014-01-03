@@ -92,14 +92,14 @@
             +((options['plugin_instance'] == '_')?'':('-'+options['plugin_instance']))
             +'/'+options['type']
             +((options['type_instance'] == '_')?'':('-'+options['type_instance']));
-      this.data(options);
-      this.pwgraph('check_boundary');
-      var clipboardtxt = "rrdgraph('"+options['cdsrc']
+      options['clipboardtxt'] = "rrdgraph('"+options['cdsrc']
                 +"', '"+options['host']
                 +"', '"+options['plugin']
                 +"', '"+options['plugin_instance']
                 +"', '"+options['type']
                 +"', '"+options['type_instance']+"')";
+      this.data(options);
+      this.pwgraph('check_boundary');
       $(this).attr('src',
 		'graph.php'
 		+ '?collectd_source=' + encodeURIComponent(options['cdsrc'])
@@ -118,12 +118,6 @@
 		+ '&t=' + (new Date()).getTime()
 	  );
       $(this).addClass('ui-widget-content');
-      $(this).draggable({
-            cursorAt: { top:0, right:0 } ,
-            helper: function(event) {
-                        return $("<div class='ui-widget-header dropped'>"+clipboardtxt+"</div>");
-                    }
-            });
       return this;
     },
     check_boundary : function( ) { 
@@ -159,6 +153,10 @@
     },
     zoomout : function() { 
       return this.pwgraph('time_change', { factor_begin: (-1.0 / 3.0), factor_end: (1.0 / 3.0)} );
+    },
+    clipadd : function() {
+	  var options = this.data();
+      add_to_clipboard(options['clipboardtxt']);
     },
     curh : function() { 
 	  var options = this.data();
