@@ -8,9 +8,9 @@
 function pwmarkdown_trim_and_remove_quotes(str) {
 	str = str.replace(/^[ \t]*|[ \t]*$/g, '');
 	if(
-			(str.startsWith("\"") && str.endsWith("\""))
+		((str.charAt(0) === "\"") && (str.charAt(str.length-1) === "\""))
 			||
-			(str.startsWith("'") && str.endsWith("'"))
+		((str.charAt(0) === "'") && (str.charAt(str.length-1) === "'"))
 	  ) { 
 	str = str.substring(1, str.length-1); 
 	}
