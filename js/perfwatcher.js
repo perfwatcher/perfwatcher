@@ -100,6 +100,9 @@ $(document).ready(function() {
         $('#datetime').hide();
         $('<div id="modalclipcontent"></div>')
             .html('<div>'
+                +'<div id="modalclipheader">'
+                +'<p>This is the contents of your clipboard. You cannot save it. But you can paste it to a selection/tab</p>'
+                +'</div>'
                 +'<div id="modalcliplist"></div>'
                 )
             .dialog({
@@ -135,9 +138,11 @@ $(document).ready(function() {
                         var img = pwmarkdown_filter(v);
                         $('#modalcliplist ul').append(
                             "<li class='ui-state-default'>"
+                            +"<div class='clipboard_item'>"
                             +img
                             +"<span class='clipboard_string' style='display: none'>"+v+"</span>"
                             +"<button class='rm_from_clipboard'>Remove from clipboard</button>"
+                            +"</div>"
                             +"</li>");
                     });
                     $('#modalcliplist span[class="rrdgraph_to_render"]').each(function(idx) {

@@ -27,3 +27,9 @@ li[tag="message"] b { color: green; }
 li { white-space: nowrap; }
 .contextMenu { width: 145px; }
 div.selection_edit > textarea { width: 650px; height: 400px; }
+#modalclipheader > p { text-align: center; border: 1px solid red; }
+#modalclipcontent ul { margin: 0; padding: 0; }
+#modalclipcontent ul li { margin: 2px; padding: 0; }
+#modalclipcontent ul li button { white-space: normal; width: 7em; }
+#modalclipcontent ul li img.graph { padding: 0; vertical-align: top; }
+
