@@ -45,7 +45,7 @@
           }
         }
       });
-      $(document).contextmenu({
+      $("#itemtab").contextmenu({
         delegate: "img.graph",
         menu: "#graphmenu",
         beforeOpen: function(event, ui) {
@@ -172,7 +172,7 @@
     },
     clipadd : function() {
 	  var options = this.data();
-      add_to_clipboard(options['clipboardtxt']);
+      clipboard_append(options['clipboardtxt']);
 	  return this;
     },
     curh : function() { 

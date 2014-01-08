@@ -65,12 +65,21 @@
   margin: 0;
   font-size: 12px;
   min-height: 24px;
-  padding: 2px 6px;
+  padding: 2px ;
 }
-#headerRight > ul li {
+#headerRight > ul > li {
   display: inline-block;
   float: left;
   margin: 0;
   padding: 2px 6px;
   width: auto;
+}
+#clip_content_text {
+  padding: 3px;
+  line-height: 1.5;
+  display: block;
+  min-height: 0;
+  text-decoration: none;
+  font-weight: normal;
+  cursor: pointer;
 }

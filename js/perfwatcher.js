@@ -33,17 +33,26 @@ function positionsubmenu(position, elements) {
 			of: elements.target.element   
 		};
 		if(elements.element.element.parent().parent().parent().attr('id') === "headerLeft") {
-				options.my = "center top";
-				options.at = "center bottom";
+				options.my = "left top";
+				options.at = "left bottom";
 		} else {
 				options.my = "left top";
-				options.at = "right bottom";
+				options.at = "right top";
 		}
 		elements.element.element.position(options);
 }
-function add_to_clipboard(txt) {
+
+function clipboard_update_title() {
+	$("#clip_content > span ").text("Clip : "+clipboard.length);
+}
+function clipboard_append(txt) {
 	clipboard.push(txt);
-	$("#clip_content").html(clipboard.length+" elements");
+	clipboard_update_title();
+}
+
+function clipboard_empty() {
+	clipboard = [];
+	clipboard_update_title();
 }
 
 $(document).ready(function() {
@@ -67,6 +76,27 @@ $(document).ready(function() {
 	$('#headerLeft > ul').menu({ position: { using: positionsubmenu }});
 	$('#headerLeft > ul > li > a > span.ui-icon-carat-1-e').removeClass('ui-icon');
 	$('#headerLeft').show();
+
+    $("#clip").contextmenu({
+        delegate: "#clip_content",
+        menu: "#clip_contextmenu",
+        position: function(event, ui) { return {my: "right top", at: "right bottom", of: "#clip"} },
+        select: function(event, ui) {
+            switch(ui.cmd) {
+                case 'clip_empty':
+                    clipboard_empty();
+                break;
+                default:
+                    alert(ui.cmd + ' is not a known submenu item ...');
+                break;
+            }
+        }
+    });
+    clipboard_update_title();
+    
+
+
+
 	$('#mainSplitter').jqxSplitter({
 		panels: [{ size: '300px' }],
 		theme: theme,
@@ -117,11 +147,7 @@ $(document).ready(function() {
                     $('#modalcliplist span.clipboard_string').each(function(i) {
                         clipboard.push($(this).text());
                     });
-                    if(clipboard.length) {
-                        $("#clip_content").html(clipboard.length+" elements");
-                    } else {
-                        $("#clip_content").html("Empty clip");
-                    }
+                    clipboard_update_title();
 // End of the TODO section
                     pwgraph_current_zone = "tab";
                     $('#modalclipcontent').html("");

@@ -32,4 +32,6 @@ div.selection_edit > textarea { width: 650px; height: 400px; }
 #modalclipcontent ul li { margin: 2px; padding: 0; }
 #modalclipcontent ul li button { white-space: normal; width: 7em; }
 #modalclipcontent ul li img.graph { padding: 0; vertical-align: top; }
-
+#mainMenu .ui-menu > .ui-menu-item li.ui-menu-item { min-width: 10em; }
+#mainMenu .ui-menu > .ui-menu-item li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
+#graphmenu li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
