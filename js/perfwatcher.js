@@ -244,21 +244,17 @@ $(document).ready(function() {
                     pwgraph_current_zone = "clip";
                     clipboard_prepare_dialog();
                     clipboard_refresh_view();
-// clipboard_prepare_click();
                 }
             })
             .show();
-// Move this to some clipboard_prepare_click() function
         $('#clipboard_rollback_btn').click(function () {
                 $('#modalcliplist').html('');
                 clipboard_prepare_dialog();
                 clipboard_refresh_view();
-// clipboard_prepare_click();
         });
         $('#clipboard_switch_markdown_btn').click(function () {
                 clipboard_switch_view();
         });
-// END OF Move this to some clipboard_prepare_click() function
 	});
 	$('a[pwmenuid^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));

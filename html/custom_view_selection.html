@@ -3,6 +3,25 @@
 	$(function () {
 		var	grouped_types = get_grouped_types();
 		var selection_is_saved = true;
+		function show_clipboard_contents() {
+			var cliptext = '';
+			$.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
+            $('<div id="selection_clipboard_contents"></div>')
+                .html('<pre>'+cliptext+'</pre>')
+                .dialog({
+                    autoOpen: true,
+                    appendTo: '.selection_command[tabid="{{ tabid }}"]',
+                    width: '800px',
+//                    position: {my: 'right top', at: 'bottom left', of: '#clip' },
+                    title: 'Clipboard contents',
+                    close: function(event,ui) {
+                        $(this).dialog('destroy').remove();
+                    },
+//                    open: function(event, ui) {
+//                    }
+                })
+                .show();
+		}
 		function update_saved_info(is_saved) {
 			selection_is_saved = is_saved;
 			if(is_saved) {
@@ -175,6 +194,7 @@
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').hide();
 			if(selection_is_saved) {
 					$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').hide();
 			} else {
@@ -223,9 +243,18 @@
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').hide();
 			$('.selection_edit[tabid="{{ tabid }}"]').show();
 			$('.selection_show[tabid="{{ tabid }}"]').hide();
+
+			if(clipboard.length) {
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').removeAttr('disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').removeAttr('disabled');
+			} else {
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').attr('disabled', 'disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').attr('disabled', 'disabled');
+			}
 
 			$('#timebutton').hide();
 			$('#datetime').hide();
@@ -256,6 +285,9 @@
 			$.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
 			$('.selection_edit[tabid="{{ tabid }}"] textarea').insertAtCaret(cliptext);
 		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').click(function() {
+			show_clipboard_contents();
+		});
 		
 	});
 	</script>
@@ -266,6 +298,7 @@
       <input type="button" class="selection_btn_reload" value="reload"></input>
       <input type="button" class="selection_btn_show"  value="show"></input>
       <input type="button" class="selection_btn_paste"  value="paste clipboard"></input>
+      <input type="button" class="selection_btn_showclip"  value="show clipboard"></input>
 	  <span class="selection_span_info">Warning, your selection is not saved</span>
     </div>
 	<div class="selection_edit" tabid="{{ tabid }}">
