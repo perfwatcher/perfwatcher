@@ -36,10 +36,10 @@ function pwmarkdown_filter(text) {
 			if(host == '') return(wholeMatch);
 			if(p == '') return(wholeMatch);
 			if(t == '') return(wholeMatch);
-			if(pi == '_') pi = '';
-			if(ti == '_') ti = '';
+			if(pi === '_') pi = '';
+			if(ti === '_') ti = '';
 
-			src = JSON.stringify({ 
+			var src = JSON.stringify({ 
 					"cdsrc": cdsrc,
 					"host": host,
 					"plugin": p,
@@ -47,7 +47,7 @@ function pwmarkdown_filter(text) {
 					"type": t,
 					"typeinstance": ti
 			});
-			return('<span class="rrdgraph_to_render">'+encodeURIComponent(src)+'</span>');
+			return('<span class="rrdgraph_to_render" rrdgraph="'+encodeURIComponent(src)+'"></span>');
 	});
 	return text ;
 }

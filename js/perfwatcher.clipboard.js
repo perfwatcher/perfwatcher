@@ -57,8 +57,9 @@ function clipboard_prepare_dialog() {
     });
     $('#modalcliplist span[class="rrdgraph_to_render"]').each(function(idx) {
         var item_current = $(this);
-        var code=decodeURIComponent($(this).text());
+        var code=decodeURIComponent($(this).attr('rrdgraph'));
         var graph_vars = [];
+        $(this).removeAttr('rrdgraph');
         $(this).text(code);
         try {
             graph_vars = $.parseJSON(code);
@@ -373,8 +374,9 @@ function switch_to_show(tabid) {
     var graphid=0;
     $('.selection_show[tabid="'+tabid+'"] span[class="rrdgraph_to_render"]').each(function(idx) {
         var item_current = $(this);
-        var code=decodeURIComponent($(this).text());
+        var code=decodeURIComponent($(this).attr('rrdgraph'));
         var graph_vars = [];
+        $(this).removeAttr('rrdgraph');
         $(this).text("Loading...");
         try {
             graph_vars = $.parseJSON(code);
