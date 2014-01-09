@@ -36,3 +36,4 @@ div.selection_edit > textarea { width: 650px; height: 400px; }
 #mainMenu .ui-menu > .ui-menu-item li.ui-menu-item { min-width: 10em; }
 #mainMenu .ui-menu > .ui-menu-item li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
 #graphmenu li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
+span.selection_span_info { text-align: center; border: 2px solid red; margin: 0; padding: 0 2em; height: 100%; }

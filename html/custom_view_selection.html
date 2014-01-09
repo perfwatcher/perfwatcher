@@ -2,6 +2,21 @@
 	<script type="text/javascript">
 	$(function () {
 		var	grouped_types = get_grouped_types();
+		var selection_is_saved = true;
+		function update_saved_info(is_saved) {
+			selection_is_saved = is_saved;
+			if(is_saved) {
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').attr('disabled', 'disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').attr('disabled', 'disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').attr('disabled', 'disabled');
+				$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').hide();
+				$('.selection_edit[tabid="{{ tabid }}"] textarea').one('input propertychange', function() { update_saved_info(false); });
+			} else {
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').removeAttr('disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').removeAttr('disabled');
+				$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').removeAttr('disabled');
+			}
+		}
 		function save_markup() {
 			var markup = $('.selection_edit[tabid="{{ tabid }}"] textarea').val();
 			$.ajax({
@@ -16,6 +31,7 @@
 						notify_ko('Error, can\'t retrieve data from server !');
 					} else {
 						notify_ok("Selection saved");
+						update_saved_info(true);
 					}
 				}
 			});
@@ -31,6 +47,7 @@
     			success: function(result, textStatus, XMLHttpRequest) {
 					if(result['markup']) {
 						$('.selection_edit[tabid="{{ tabid }}"] textarea').val(result['markup']);
+						update_saved_info(true);
 					}
     			},
     			error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -153,10 +170,16 @@
 
 		function switch_to_show() {
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').show();
-			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').hide();
+			if(selection_is_saved) {
+					$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').hide();
+			} else {
+					$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').show();
+			}
 			$('.selection_edit[tabid="{{ tabid }}"]').hide();
 			$('.selection_show[tabid="{{ tabid }}"]').show();
 
@@ -195,10 +218,12 @@
 
 		function switch_to_edit() {
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').hide();
-			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] span[class="selection_span_info"]').hide();
 			$('.selection_edit[tabid="{{ tabid }}"]').show();
 			$('.selection_show[tabid="{{ tabid }}"]').hide();
 
@@ -213,21 +238,22 @@
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').click(function() {
 			switch_to_edit();
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').click(function() {
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').click(function() {
 			load_markup();
-			switch_to_show();
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').click(function() {
 			save_markup();
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').click(function() {
+			switch_to_show();
+		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').click(function() {
 			save_markup();
 			switch_to_show();
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').click(function() {
 			var cliptext = '';
 			$.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
-			alert(cliptext);
 			$('.selection_edit[tabid="{{ tabid }}"] textarea').insertAtCaret(cliptext);
 		});
 		
@@ -236,9 +262,11 @@
     <div class="selection_command" tabid="{{ tabid }}">
       <input type="button" class="selection_btn_edit"  value="edit"></input>
       <input type="button" class="selection_btn_save"  value="save"></input>
-      <input type="button" class="selection_btn_cancel" value="cancel"></input>
-      <input type="button" class="selection_btn_show"  value="save and show"></input>
+      <input type="button" class="selection_btn_save_show"  value="save and show"></input>
+      <input type="button" class="selection_btn_reload" value="reload"></input>
+      <input type="button" class="selection_btn_show"  value="show"></input>
       <input type="button" class="selection_btn_paste"  value="paste clipboard"></input>
+	  <span class="selection_span_info">Warning, your selection is not saved</span>
     </div>
 	<div class="selection_edit" tabid="{{ tabid }}">
 	<textarea></textarea>
