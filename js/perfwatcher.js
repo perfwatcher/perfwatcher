@@ -100,6 +100,13 @@ function clipboard_prepare_dialog() {
         $(this).hide();
     });
     $('#modalcliplist ul').sortable({ cancel: "img" });
+
+    $('.rm_from_clipboard').click(function () {
+        $(this).parent().parent().remove();
+        $('#timebutton').hide();
+        $('#timespan').hide();
+        $('#datetime').hide();
+    });
 }
 
 function clipboard_refresh_view() {
@@ -208,7 +215,7 @@ $(document).ready(function() {
                 +'<div id="modalclipheader">'
                 +'<table><tr>'
                 +'<td><button id="clipboard_rollback_btn">Cancel changes</button></td>'
-                +'<td><button id="clipboard_switch_markdown_btn" pwrole="markdown"></button></td>'
+                +'<td><button id="clipboard_switch_markdown_btn" pwrole="graph"></button></td>'
                 +'<td><p>This is the contents of your clipboard. You cannot save it. But you can paste it to a selection/tab</p></td>'
                 +'</tr></table>'
                 +'</div>'
@@ -236,24 +243,22 @@ $(document).ready(function() {
                 open: function(event, ui) {
                     pwgraph_current_zone = "clip";
                     clipboard_prepare_dialog();
-                    clipboard_switch_view();
+                    clipboard_refresh_view();
+// clipboard_prepare_click();
                 }
             })
             .show();
+// Move this to some clipboard_prepare_click() function
         $('#clipboard_rollback_btn').click(function () {
                 $('#modalcliplist').html('');
                 clipboard_prepare_dialog();
                 clipboard_refresh_view();
+// clipboard_prepare_click();
         });
         $('#clipboard_switch_markdown_btn').click(function () {
                 clipboard_switch_view();
         });
-        $('.rm_from_clipboard').click(function () {
-            $(this).parent().parent().remove();
-            $('#timebutton').hide();
-            $('#timespan').hide();
-            $('#datetime').hide();
-        });
+// END OF Move this to some clipboard_prepare_click() function
 	});
 	$('a[pwmenuid^="menu_"]').click(function () {
 		//console.log($(this).attr("id"));
