@@ -156,6 +156,7 @@
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').hide();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').hide();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').hide();
 			$('.selection_edit[tabid="{{ tabid }}"]').hide();
 			$('.selection_show[tabid="{{ tabid }}"]').show();
 
@@ -197,6 +198,7 @@
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_cancel"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').show();
 			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').show();
+			$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').show();
 			$('.selection_edit[tabid="{{ tabid }}"]').show();
 			$('.selection_show[tabid="{{ tabid }}"]').hide();
 
@@ -222,6 +224,12 @@
 			save_markup();
 			switch_to_show();
 		});
+		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').click(function() {
+			var cliptext = '';
+			$.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
+			alert(cliptext);
+			$('.selection_edit[tabid="{{ tabid }}"] textarea').insertAtCaret(cliptext);
+		});
 		
 	});
 	</script>
@@ -230,6 +238,7 @@
       <input type="button" class="selection_btn_save"  value="save"></input>
       <input type="button" class="selection_btn_cancel" value="cancel"></input>
       <input type="button" class="selection_btn_show"  value="save and show"></input>
+      <input type="button" class="selection_btn_paste"  value="paste clipboard"></input>
     </div>
 	<div class="selection_edit" tabid="{{ tabid }}">
 	<textarea></textarea>
