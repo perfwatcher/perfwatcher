@@ -225,6 +225,7 @@ $(document).ready(function() {
                 autoOpen: true,
                 appendTo: '#clip',
                 width: '800px',
+                maxHeight: $(window).height() - 50,
                 position: {my: 'right top', at: 'bottom left', of: '#clip' },
                 title: 'Clipboard contents',
                 close: function(event,ui) {

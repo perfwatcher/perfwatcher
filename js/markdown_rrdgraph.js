@@ -36,6 +36,8 @@ function pwmarkdown_filter(text) {
 			if(host == '') return(wholeMatch);
 			if(p == '') return(wholeMatch);
 			if(t == '') return(wholeMatch);
+			if(pi == '_') pi = '';
+			if(ti == '_') ti = '';
 
 			src = JSON.stringify({ 
 					"cdsrc": cdsrc,

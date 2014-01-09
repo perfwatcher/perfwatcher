@@ -592,8 +592,8 @@ function select_view (set_view) {
         .dialog({
             autoOpen: true,
             width: 537,
-            height: 600,
-            position: {my: 'center', at: 'center', of: '#items' },
+            maxHeight: $(window).height() - 50,
+            position: {my: 'center top', at: 'center top', of: '#items' },
             appendTo: '#modaldialog',
             title: 'Select a view',
             close: function(event,ui) {

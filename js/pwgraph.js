@@ -110,9 +110,10 @@
       options['clipboardtxt'] = "rrdgraph('"+options['cdsrc']
                 +"', '"+options['host']
                 +"', '"+options['plugin']
-                +"', '"+options['plugin_instance']
+                +"', '"+((options['plugin_instance'] == '_')?'':options['plugin_instance'])
                 +"', '"+options['type']
-                +"', '"+options['type_instance']+"')";
+                +"', '"+((options['type_instance'] == '_')?'':options['type_instance'])
+                +"')";
       this.data(options);
       this.pwgraph('check_boundary');
       $(this).attr('src',
@@ -685,6 +686,8 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
             title: 'Timeline for '+host+' between '+tm_to_ddmmyy_hhmmss(tm_start)+' and '+tm_to_ddmmyy_hhmmss(tm_end),
             width: timeline_width,
             height: timeline_height,
+            maxHeight: $(window).height() - 50,
+            position: {my: 'center top', at: 'center top', of: '#items' },
             close: function(event,ui) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
@@ -747,6 +750,8 @@ function showtop (cdsrc, host, toptime) {
             title: 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(toptime),
             width: 545,
             height: 620,
+            maxHeight: $(window).height() - 50,
+            position: {my: 'center top', at: 'center top', of: '#items' },
             close: function(event,ui) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
