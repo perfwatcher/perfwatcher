@@ -21,6 +21,7 @@
  **/ 
 var json_item_datas = new Array();
 var current_graph = null;
+var current_selection = null;
 var pwgraph_hover_enabled = true;
 var pwgraph_current_zone = 'tab';
 var current_tab = null;

@@ -1,26 +1,27 @@
 <div>
 	<script type="text/javascript">
 	$(function () {
-		selection_is_saved = true;
+		var selection = $('.selection_command[tabid="{{ tabid }}"]').pwselection({tabid: "{{ tabid }}", selection_id : "{{ selection_id }}" });
 
-		load_markup("{{ tabid }}", "{{ selection_id }}");
-		switch_to_show("{{ tabid }}");
+		$(selection)
+			.pwselection('load_markup')
+			.pwselection('switch_to_show');
 
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').click(function() {
-			switch_to_edit("{{ tabid }}");
+			selection.pwselection('switch_to_edit');
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').click(function() {
-			load_markup("{{ tabid }}", "{{ selection_id }}");
+			selection.pwselection('load_markup');
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').click(function() {
-			save_markup("{{ tabid }}", "{{ selection_id }}");
+			selection.pwselection('save_markup');
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').click(function() {
-			switch_to_show("{{ tabid }}");
+			selection.pwselection('switch_to_show');
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').click(function() {
-			save_markup("{{ tabid }}", "{{ selection_id }}");
-			switch_to_show("{{ tabid }}");
+			selection.pwselection('save_markup');
+			selection.pwselection('switch_to_show');
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').click(function() {
 			var cliptext = '';
@@ -28,7 +29,7 @@
 			$('.selection_edit[tabid="{{ tabid }}"] textarea').insertAtCaret(cliptext);
 		});
 		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').click(function() {
-			show_clipboard_contents("{{ tabid }}");
+			selection.pwselection('show_clipboard_contents');
 		});
 		
 	});
