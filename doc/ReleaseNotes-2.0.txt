@@ -1,0 +1,95 @@
+Perfwatcher-2.0 Release notes
+=============================
+
+New architecture
+  New installation with local Collectd/RRD repository
+  New installation with remote Collectd/RRD repository
+  Upgrade an existing installation
+  Use 1 Perfwatcher for 2 or more Collectd/RRD repositories
+API changes
+  Plugins
+  definitions.php and definitions.local.php
+  Custom plugin views
+
+
+
+
+New architecture
+================
+
+With previous Perfwatcher, you had to install httpd/Perfwatcher on the same server as Collectd and the RRD files repository.
+Perfwatcher-2.0 removes this limitation with a new concept : Collectd sources. Perfwatcher will ask Collectd for the information it needs.
+
+Perfwatcher-2.0 also add the ability to connect to more than 1 Collectd source. This is useful if you have more than 1 Collectd and RRD files repository.
+Instead of having as many Perfwatcher as Collectd/RRD repositories, you can configure Perfwatcher to connect to all your Collectd/RRD repositories.
+
+New installation with local Collectd/RRD repository
+---------------------------------------------------
+
+Just install. Your source will be named as "localhost" (default).
+Do not forget to specify the aggregator.conf directory in etc/config.php.
+
+New installation with remote Collectd/RRD repository
+----------------------------------------------------
+
+Configure all your sources in etc/config.php.
+Specify the aggregator.conf directory in etc/config.php
+Periodically send the generated aggregator.conf files to their respective Collectd/RRD repository servers (the config is generated on the Perfwatcher server and it is used on the Collectd/RRD repository server).
+
+Upgrade an existing installation
+--------------------------------
+
+If you have more than 1 Perfwatcher/Collectd server, upgrade them separately.
+
+1/ in etc/config.php, define only one Collectd source. Give it a unique name if you have more than 1 Perfwatcher to upgrade. Avoid names like "localhost".
+2/ upgrade Perfwatcher (see install/UPGRADE file)
+3/ Check/update the aggregator.conf directory in etc/config.php.
+4/ Use Perfwatcher as before, with 1 Perfwatcher per Collectd/RRD repository.
+
+Now each servers should run Perfwatcher-2.0. You are not taking benefit of the 2 below mentionned features.
+
+Use 1 Perfwatcher for 2 or more Collectd/RRD repositories
+---------------------------------------------------------
+
+Pre-requisite :
+- Up to date running Collectd with jsonrpc enabled plugin (check the compatibility matrix)
+- When mixing 2 or more Perfwatchers, have distinct Collectd source names.
+
+First, define all the Collectd sources on that Perfwatcher. Check that you can see at least one server for each Collectd source.
+
+Then mix the trees (mix the databases contents). This operation is not possible with scripts yet. Here are some workarounds :
+- copy (by hand) the other trees
+- write your own script
+- wait for some next release with an export/import feature.
+
+Note : you will probably need to rename your aggregators. An aggregator is named as "aggregator_<id>" where <id> is the identifier of the container (the 'id' column in the database). Check the name of the new aggregator. Then in your RRD files repository, rename the old aggregator.
+
+
+API changes
+===========
+
+Plugins
+-------
+
+If you developped plugins for Perfwatcher, you need to check them.
+- The data structure of the "datas" database field changed (and is not documented yet... too bad)
+- Checking local resources is now a bad idea because of Collectd sources concept.
+- Using common functions to connect to Collectd servers need an additionnal argument : Collectd source
+
+definitions.php and definitions.local.php
+-----------------------------------------
+
+If you added some graph definitions in definitions.local.php, you need to check them.
+- Some code in definitions.php was factorized into functions that you should use in definitions.local.php too
+- Some functions used in definitions.php changed (name or api). If you used them, use the new ones.
+
+
+Custom plugin views
+-------------------
+
+If you developped custom plugin views (html/*plugin_view.html), you need to check them.
+- some code in html/*plugin_view.html was factorized into functions that you should use in your plugins.
+- check the html/*plugin_view.html files and see how they were updated.
+
+
+

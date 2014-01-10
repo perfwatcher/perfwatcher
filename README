@@ -5,7 +5,10 @@ http://perfwatcher.org
 About
 -----
 
-  perfwatcher is a frontend for collectd witch show you graph and
-  aggregate data over several host
+  Perfwatcher is a frontend for collectd witch show you graph and
+  aggregate data over several host.
 
+Release notes
+-------------
 
+  See the release notes in the doc/ subdirectory
