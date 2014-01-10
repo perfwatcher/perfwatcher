@@ -8,7 +8,11 @@ $(function () {
 
 	function get_load(hosts) {
 		var metrics = new Array();
-// TODO json_item_datas['hosts']
+//
+// NOTE : this used to be used to get the load for all the hosts of a container.
+// This feature was removed and now $(hosts) contains only one host name.
+// Future : either rewrite to display the load for a container, or remove the $.each().
+//
 		$(hosts).each(function (key, val) {
 			metrics.push(val+'/load/load');
 		});

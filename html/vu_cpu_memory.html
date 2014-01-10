@@ -5,7 +5,11 @@ var current_nbcpu = 0;
 var current_real_cpu = 0;
 var current_load = 0;
 $(function () {
-// TODO json_item_datas['hosts']
+//
+// NOTE : this used to be used to get the cpu/mem for all the hosts of a container.
+// This feature was removed and now json_item_datas['hosts'] contains only one host name.
+// Future : if you want to display for more than 1 host, check that it still works.
+//
 	get_cpu_memory(json_item_datas['hosts']);
 	window.setInterval(function() { get_cpu_memory(json_item_datas['hosts']); }, 60000);
 
