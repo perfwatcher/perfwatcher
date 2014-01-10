@@ -29,6 +29,10 @@
 		<li><strong>Q:</strong> Compilation fails on Solaris : I have an error <code>"/usr/include/sys/procfs.h", line 45: #error: "Cannot use procfs in the large file compilation environment"</code></li>
 		<li><strong>R:</strong> With Sunstudio, compile with option <code>-m64</code>. For example, at configure time, run <code>./configure CFLAGS='-m64'</code>.</li>
 	</ul>
+	<ul>
+		<li><strong>Q:</strong> Compilation fails : I have an error followed with <code>all warnings being treated as errors</code></li>
+		<li><strong>R:</strong> Collectd compiles with gcc flag <code>-Werror</code> to prevent ignoring any warning. You can report the problem is you suspect a bug. For Collectd, please report it to the Collectd team. For Collectd patches, plase report it to the Collectd-pw/Perfwatcher team. However, this does not help much for now. You can find a workaround here : <a href="https://github.com/perfwatcher/perfwatcher/issues/36#issuecomment-30918932">https://github.com/perfwatcher/perfwatcher/issues/36#issuecomment-30918932</a>. </li>
+	</ul>
 </p>
 
 <h4>Installation</h4>
