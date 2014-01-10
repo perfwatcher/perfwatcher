@@ -23,9 +23,24 @@ if (isset($argv[1])) {
 $db = new _database($db_config);
 if ($db->connect()) {
 		$result_connect = 1;
+# Clean the database
+#
+# Remove selection with deleteafter>tm
 		$tm = time();
 		$db->prepare("DELETE FROM selections where deleteafter <> 0 AND deleteafter < ?", array('integer'));
 		$db->execute(array((int)$tm));
+
+# Remove selections when there is no item in the tree with selection tree_id
+		$db->prepare("DELETE FROM selections WHERE tree_id NOT IN (SELECT id FROM tree)");
+		$db->execute();
+
+# Remove items in tree when they have no parent
+		$db->prepare("DELETE FROM tree WHERE parent_id NOT IN (SELECT id FROM (SELECT id FROM tree) x) AND parent_id <> 1");
+		$db->execute();
+
+# End of database cleaning
+#
+# Retreive view ids
 		$db->prepare("SELECT distinct view_id FROM tree");
 		$db->execute();
 		while($db->nextr()) {
