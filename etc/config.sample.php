@@ -16,7 +16,7 @@
 /** 
  *
  *	Custom widget. 
- *	Have a look at the wiki to sea how to create custom widget 
+ *	Have a look at the wiki to see how to create custom widget 
  *
  */
 # $widgets[] = 'custom_widget';
