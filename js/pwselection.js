@@ -1,5 +1,5 @@
 /**
- * Clipboard functions for Perfwatcher
+ * Selections helper functions for Perfwatcher
  *
  * Copyright (c) 2014 Yves METTIER
  *

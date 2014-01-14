@@ -1,4 +1,4 @@
- perfwatcher - Performance Monitoring
+Perfwatcher - Performance Monitoring
 ======================================
 http://perfwatcher.org
 
@@ -7,6 +7,13 @@ About
 
   Perfwatcher is a frontend for collectd witch show you graph and
   aggregate data over several host.
+
+Licence
+-------
+
+  Perfwatcher is a mix of software under several copying policies including MIT and GPLv2 licences).
+  Perfwatcher is released under GPLv2 licence.
+  Each file can be used with its own licence (check inside the files)
 
 Release notes
 -------------

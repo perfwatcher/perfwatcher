@@ -1,3 +1,12 @@
+/**
+ * pwmenu.css
+ * 
+ * Licensed under the MIT licenses:
+ * http://www.opensource.org/licenses/mit-license.php
+ *
+ * Copyright (c) 2014 Yves Mettier
+ * 
+ **/
 .ui-menu {
   z-index: 1000;
 }
