@@ -105,10 +105,6 @@
                     var url = $(current_graph).attr('src') + '&download';
                     document.location = url;
                     break;
-                case 'export':
-                    var url = $(current_graph).attr('src');
-                    document.location = url.replace('graph.php', 'export.php');
-                    break;
                 case 'tinylegend':
                 case 'zero':
                 case 'logarithmic':
