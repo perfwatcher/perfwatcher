@@ -33,6 +33,7 @@ $widgets[] = 'folder_aggregator';
 $widgets[] = 'folder_options';
 $widgets[] = 'folder_filling_regex';
 $widgets[] = 'folder_filling_manual';
+$widgets[] = 'selection_help';
 
 $peuplator_plugins = array();
 $peuplator_plugins[] = 'folder_filling_regex';
