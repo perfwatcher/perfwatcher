@@ -57,7 +57,7 @@ function select_node_with_data(datas) {
 	$('#itemtab').remove();
 	$('#items').html('<div id="itemtab"></div>');
 	$('#itemtab').html(ich.information_tab({ }));
-	$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697 });
+	$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697, keyboardNavigation: false });
     if(datas.length <= 0) {
         return;
     }

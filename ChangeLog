@@ -20,6 +20,7 @@
 - Peuplator can now clean the database (remove orphan items)
 - Removed "export" broken feature for graphs.
 - Disambiguation for licenses in some files
+- Removed keyboard navigation in tabs to prevent conflicts with edition in tabs
 
 2013-08-29, Version 1.3
 
