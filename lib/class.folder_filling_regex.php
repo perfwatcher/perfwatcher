@@ -69,7 +69,7 @@ class folder_filling_regex {
         if (! $regex) {
             return array();
         }
-        $cdsrc = $jstree->get_node_collectd_source($this->object['id']);
+        $cdsrc = $jstree->get_node_collectd_source($this->item['id']);
         $list = get_list_of_hosts_having_rrds($cdsrc, false);
         $out = preg_grep("/${regex}/", array_keys($list));
         return $out;
