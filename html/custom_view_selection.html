@@ -34,6 +34,22 @@
 		});
 		
 	});
+
+	$( "#selection_help_portlet .portlet" ).addClass( "ui-widget ui-widget-content ui-helper-clearfix ui-corner-all" )
+			.find( ".portlet-header" )
+			.addClass( "ui-widget-header ui-corner-all" )
+			.prepend( "<span class='ui-icon ui-icon-minusthick'></span>")
+			.end()
+		.find( ".portlet-content" )
+			.end()
+		.find( ".portlet-content div" )
+			.removeClass()
+			.addClass("widget-contents")
+			.end();
+	$( "#selection_help_portlet .portlet-header .ui-icon" ).click(function() {
+			$( this ).toggleClass( "ui-icon-minusthick" ).toggleClass( "ui-icon-plusthick" );
+			$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
+	});
 	</script>
     <div class="selection_command" tabid="{{ tabid }}">
       <input type="button" class="selection_btn_edit"  value="edit"></input>
@@ -46,17 +62,22 @@
 	  <span class="selection_span_info">Warning, your selection is not saved</span>
     </div>
 	<div class="selection_edit" tabid="{{ tabid }}">
-	<textarea></textarea>
-	<h1>Info</h1>
-	<p>This area is markup language. See <a href="https://github.com/coreyti/showdown">https://github.com/coreyti/showdown</a></p>
-	<p>You can add graphs with this syntax :</p>
-	<blockquote>
+      <textarea></textarea>
+      <div id="selection_help_portlet" class="column">
+        <div class="portlet">
+          <div class="portlet-header">Help / Markdown language</div>
+          <div class="portlet-content">
+            <div class="portlet-content-inside">
+    <h1>Info</h1>
+    <p>This area is markup language. See <a href="https://github.com/coreyti/showdown">https://github.com/coreyti/showdown</a></p>
+    <p>You can add graphs with this syntax :</p>
+    <blockquote>
 rrdgraph(Collectd_source, host, plugin, plugin_instance, type, type_instance)
-	</blockquote>
-	<p>
-		<code>Collectd_source</code> is mandatory. Fields <code>plugin_instance</code> and <code>type_instance</code> can be left empty. All fields except <code>Collectd_source</code> can be regular expressions to match more than one graph.
-	</p> 
-	<h1>Example</h1>
+    </blockquote>
+    <p>
+        <code>Collectd_source</code> is mandatory. Fields <code>plugin_instance</code> and <code>type_instance</code> can be left empty. All fields except <code>Collectd_source</code> can be regular expressions to match more than one graph.
+    </p> 
+    <h1>Example</h1>
 <pre>
 # Title #
 ## memory for host1 ##
@@ -66,8 +87,10 @@ rrdgraph(localhost, host[12], load,, load,)
 ## all cpu for host1 ##
 rrdgraph(localhost, host1, cpu, .*, cpu,)
 </pre>
-	</div>
-	<div class="selection_show" tabid="{{ tabid }}">
-	</div>
-	    
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="selection_show" tabid="{{ tabid }}"></div>
 </div>
