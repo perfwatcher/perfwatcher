@@ -62,8 +62,8 @@ class folder_filling_regex {
         global $jstree;
         $datas = $jstree->get_datas($this->item['id']);
         if ($regex === null) {
-            if (isset($this->datas['serverslist']) && isset($this->datas['serverslist']['servernameregex'])) {
-                $regex = $this->datas['serverslist']['servernameregex'];
+            if (isset($datas['serverslist']) && isset($datas['serverslist']['servernameregex'])) {
+                $regex = $datas['serverslist']['servernameregex'];
             }
         }
         if (! $regex) {
