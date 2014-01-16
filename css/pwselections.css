@@ -1,0 +1,63 @@
+/**
+ * pwselections.css
+ * 
+ * This is default stylesheet for HTML 4
+ * More information at http://www.w3.org/TR/CSS21/sample.html
+ * 
+ **/
+div.selection_show                   { margin: 8px }
+div.selection_show h1                { font-size: 2em; margin: .67em 0 }
+div.selection_show h2                { font-size: 1.5em; margin: .75em 0 }
+div.selection_show h3                { font-size: 1.17em; margin: .83em 0 }
+div.selection_show (h4, p,
+               blockquote, ul,
+               fieldset, form,
+               ol, dl, dir,
+               menu)             { margin: 1.12em 0 }
+div.selection_show h5                { font-size: .83em; margin: 1.5em 0 }
+div.selection_show h6                { font-size: .75em; margin: 1.67em 0 }
+div.selection_show (h1, h2, h3, h4,
+               h5, h6, b,
+               strong)           { font-weight: bolder }
+div.selection_show blockquote        { margin-left: 40px; margin-right: 40px }
+div.selection_show (i, cite, em,
+               var, address)     { font-style: italic }
+div.selection_show (pre, tt, code,
+               kbd, samp)        { font-family: monospace }
+div.selection_show pre               { white-space: pre }
+div.selection_show (button, textarea,
+               input, select)    { display: inline-block }
+div.selection_show big               { font-size: 1.17em }
+div.selection_show (small, sub, sup) { font-size: .83em }
+div.selection_show sub               { vertical-align: sub }
+div.selection_show sup               { vertical-align: super }
+div.selection_show table             { border-spacing: 2px; }
+div.selection_show (thead, tbody,
+               tfoot)            { vertical-align: middle }
+div.selection_show (td, th, tr)      { vertical-align: inherit }
+div.selection_show (s, strike, del)  { text-decoration: line-through }
+div.selection_show hr                { border: 1px inset }
+div.selection_show (ol, ul, dir,
+               menu, dd)         { margin-left: 40px }
+div.selection_show ol                { list-style-type: decimal }
+div.selection_show (ol ul, ul ol,
+               ul ul, ol ol)     { margin-top: 0; margin-bottom: 0 }
+div.selection_show (u, ins)          { text-decoration: underline }
+div.selection_show br:before         { content: "\A"; white-space: pre-line }
+div.selection_show center            { text-align: center }
+div.selection_show (:link, :visited) { text-decoration: underline }
+div.selection_show :focus            { outline: thin dotted invert }
+
+/* Begin bidirectionality settings (do not change) */
+div.selection_show BDO[DIR="ltr"]  { direction: ltr; unicode-bidi: bidi-override }
+div.selection_show BDO[DIR="rtl"]  { direction: rtl; unicode-bidi: bidi-override }
+
+div.selection_show *[DIR="ltr"]    { direction: ltr; unicode-bidi: embed }
+div.selection_show *[DIR="rtl"]    { direction: rtl; unicode-bidi: embed }
+
+@media print {
+div.selection_show   h1            { page-break-before: always }
+div.selection_show ( h1, h2, h3,
+div.selection_show   h4, h5, h6)   { page-break-after: avoid }
+div.selection_show ( ul, ol, dl )  { page-break-before: avoid }
+}
