@@ -79,7 +79,11 @@ class folder_filling_regex {
         global $jstree;
         $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
-        $datas['serverslist']['servernameregex'] = $regex;
+        if($regex) {
+            $datas['serverslist']['servernameregex'] = $regex;
+        } else {
+            unset($datas['serverslist']['servernameregex']);
+        }
         $jstree->set_datas($this->item['id'], $datas);
         return true;
     }

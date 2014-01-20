@@ -68,7 +68,11 @@ class folder_filling_manual {
         global $jstree;
         $datas = $jstree->get_datas($this->item['id']);
         if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
-        $datas['serverslist']['manuallist'] = $list;
+        if($list) {
+            $datas['serverslist']['manuallist'] = $list;
+        } else {
+            unset($datas['serverslist']['manuallist']);
+        }
         $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
