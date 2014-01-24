@@ -31,7 +31,7 @@
 (function( $ ){
 
   var options = {
-    tabid              : 0,
+    pwtabid              : 0,
     selection_id       : 0,
     selection_is_saved : true
   }
@@ -47,14 +47,14 @@
 
     show_clipboard_contents: function () {
 	    var options = this.data();
-        var tabid = options['tabid'];
+        var pwtabid = options['pwtabid'];
         var cliptext = '';
         $.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
         $('<div id="selection_clipboard_contents"></div>')
             .html('<pre>'+cliptext+'</pre>')
             .dialog({
                 autoOpen: true,
-                appendTo: '.selection_command[tabid="'+tabid+'"]',
+                appendTo: '.selection_command[pwtabid="'+pwtabid+'"]',
                 width: '800px',
 //                position: {my: 'right top', at: 'bottom left', of: '#clip' },
                 title: 'Clipboard contents',
@@ -69,30 +69,30 @@
     },
     update_saved_info: function (is_saved) {
 	    var options = this.data();
-        var tabid = options['tabid'];
+        var pwtabid = options['pwtabid'];
         options['selection_is_saved'] = is_saved;
         this.data(options);
-        current_selection = '.selection_command[tabid="'+tabid+'"]';
+        current_selection = '.selection_command[pwtabid="'+pwtabid+'"]';
         
         if(is_saved) {
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save"]').attr('disabled', 'disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save_show"]').attr('disabled', 'disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_reload"]').attr('disabled', 'disabled');
-            $('.selection_command[tabid="'+tabid+'"] span[class="selection_span_info"]').hide();
-            $('.selection_edit[tabid="'+tabid+'"] textarea').one('input propertychange', function() { $(current_selection).pwselection('update_saved_info', false); });
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save"]').attr('disabled', 'disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save_show"]').attr('disabled', 'disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_reload"]').attr('disabled', 'disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] span[class="selection_span_info"]').hide();
+            $('.selection_edit[pwtabid="'+pwtabid+'"] textarea').one('input propertychange', function() { $(current_selection).pwselection('update_saved_info', false); });
         } else {
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save"]').removeAttr('disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save_show"]').removeAttr('disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_reload"]').removeAttr('disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save"]').removeAttr('disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save_show"]').removeAttr('disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_reload"]').removeAttr('disabled');
         }
       return this;
     },
     save_markup: function () {
 	    var options = this.data();
-        var tabid = options['tabid'];
+        var pwtabid = options['pwtabid'];
         var selection_id = options['selection_id'];
-        var markup = $('.selection_edit[tabid="'+tabid+'"] textarea').val();
-        current_selection = '.selection_command[tabid="'+tabid+'"]';
+        var markup = $('.selection_edit[pwtabid="'+pwtabid+'"] textarea').val();
+        current_selection = '.selection_command[pwtabid="'+pwtabid+'"]';
         $.ajax({
             async : false,
             type: 'POST',
@@ -113,9 +113,9 @@
     },
     load_markup: function () {
 	    var options = this.data();
-        var tabid = options['tabid'];
+        var pwtabid = options['pwtabid'];
         var selection_id = options['selection_id'];
-        current_selection = '.selection_command[tabid="'+tabid+'"]';
+        current_selection = '.selection_command[pwtabid="'+pwtabid+'"]';
         $.ajax({
             async : false,
             type: 'POST',
@@ -125,7 +125,7 @@
             cache: false,
             success: function(result, textStatus, XMLHttpRequest) {
                 if(result['markup']) {
-                    $('.selection_edit[tabid="'+tabid+'"] textarea').val(result['markup']);
+                    $('.selection_edit[pwtabid="'+pwtabid+'"] textarea').val(result['markup']);
                     $(current_selection).pwselection('update_saved_info', true);
                 }
             },
@@ -251,28 +251,28 @@
     },
     switch_to_show: function () {
 	    var options = this.data();
-        var tabid = options['tabid'];
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_edit"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_reload"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_show"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save_show"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_paste"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_showclip"]').hide();
+        var pwtabid = options['pwtabid'];
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_edit"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_reload"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_show"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save_show"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_paste"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_showclip"]').hide();
         if(options['selection_is_saved']) {
-                $('.selection_command[tabid="'+tabid+'"] span[class="selection_span_info"]').hide();
+                $('.selection_command[pwtabid="'+pwtabid+'"] span[class="selection_span_info"]').hide();
         } else {
-                $('.selection_command[tabid="'+tabid+'"] span[class="selection_span_info"]').show();
+                $('.selection_command[pwtabid="'+pwtabid+'"] span[class="selection_span_info"]').show();
         }
-        $('.selection_edit[tabid="'+tabid+'"]').hide();
-        $('.selection_show[tabid="'+tabid+'"]').show();
+        $('.selection_edit[pwtabid="'+pwtabid+'"]').hide();
+        $('.selection_show[pwtabid="'+pwtabid+'"]').show();
     
         var converter = new Showdown.converter({ extensions: ['rrdgraph'] });
-        var markup = $('.selection_edit[tabid="'+tabid+'"] textarea').val();
+        var markup = $('.selection_edit[pwtabid="'+pwtabid+'"] textarea').val();
         var html = converter.makeHtml(markup);
-        $('.selection_show[tabid="'+tabid+'"]').html(html);
+        $('.selection_show[pwtabid="'+pwtabid+'"]').html(html);
         var graphid=0;
-        $('.selection_show[tabid="'+tabid+'"] span[class="rrdgraph_to_render"]').each(function(idx) {
+        $('.selection_show[pwtabid="'+pwtabid+'"] span[class="rrdgraph_to_render"]').each(function(idx) {
             var item_current = $(this);
             var code=decodeURIComponent($(this).attr('rrdgraph'));
             var graph_vars = [];
@@ -288,7 +288,7 @@
             if(graph_vars['host']) {
                 var all_graphs = $(this).pwselection('retreive_graphs_list', graph_vars);
                 $.each(all_graphs, function(i, g) {
-                    var item_graph = $('<img class="graph" id="graph_'+tabid+'_'+graphid+'" zone="tab"/>');
+                    var item_graph = $('<img class="graph" id="graph_'+pwtabid+'_'+graphid+'" zone="tab"/>');
                     item_graph.insertAfter(item_current);
                     item_graph.pwgraph(g).pwgraph('display');
                     item_current = item_graph;
@@ -303,24 +303,24 @@
     },
     switch_to_edit: function () {
 	    var options = this.data();
-        var tabid = options['tabid'];
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_edit"]').hide();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_reload"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_show"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_save_show"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_paste"]').show();
-        $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_showclip"]').show();
-        $('.selection_command[tabid="'+tabid+'"] span[class="selection_span_info"]').hide();
-        $('.selection_edit[tabid="'+tabid+'"]').show();
-        $('.selection_show[tabid="'+tabid+'"]').hide();
+        var pwtabid = options['pwtabid'];
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_edit"]').hide();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_reload"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_show"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save_show"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_paste"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_showclip"]').show();
+        $('.selection_command[pwtabid="'+pwtabid+'"] span[class="selection_span_info"]').hide();
+        $('.selection_edit[pwtabid="'+pwtabid+'"]').show();
+        $('.selection_show[pwtabid="'+pwtabid+'"]').hide();
     
         if(clipboard.length) {
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_paste"]').removeAttr('disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_showclip"]').removeAttr('disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_paste"]').removeAttr('disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_showclip"]').removeAttr('disabled');
         } else {
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_paste"]').attr('disabled', 'disabled');
-            $('.selection_command[tabid="'+tabid+'"] input[class="selection_btn_showclip"]').attr('disabled', 'disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_paste"]').attr('disabled', 'disabled');
+            $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_showclip"]').attr('disabled', 'disabled');
         }
     
         $('#timebutton').hide();

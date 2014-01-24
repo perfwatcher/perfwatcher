@@ -2,34 +2,34 @@
 <div>
 	<script type="text/javascript">
 	$(function () {
-		var selection = $('.selection_command[tabid="{{ tabid }}"]').pwselection({tabid: "{{ tabid }}", selection_id : "{{ selection_id }}" });
+		var selection = $('.selection_command[pwtabid="{{ pwtabid }}"]').pwselection({pwtabid: "{{ pwtabid }}", selection_id : "{{ selection_id }}" });
 
 		$(selection)
 			.pwselection('load_markup')
 			.pwselection('switch_to_show');
 
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_edit"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_edit"]').click(function() {
 			selection.pwselection('switch_to_edit');
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_reload"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_reload"]').click(function() {
 			selection.pwselection('load_markup');
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_save"]').click(function() {
 			selection.pwselection('save_markup');
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_show"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_show"]').click(function() {
 			selection.pwselection('switch_to_show');
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_save_show"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_save_show"]').click(function() {
 			selection.pwselection('save_markup');
 			selection.pwselection('switch_to_show');
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_paste"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_paste"]').click(function() {
 			var cliptext = '';
 			$.each(clipboard, function(i,txt) { cliptext += txt + "\n"; });
-			$('.selection_edit[tabid="{{ tabid }}"] textarea').insertAtCaret(cliptext);
+			$('.selection_edit[pwtabid="{{ pwtabid }}"] textarea').insertAtCaret(cliptext);
 		});
-		$('.selection_command[tabid="{{ tabid }}"] input[class="selection_btn_showclip"]').click(function() {
+		$('.selection_command[pwtabid="{{ pwtabid }}"] input[class="selection_btn_showclip"]').click(function() {
 			selection.pwselection('show_clipboard_contents');
 		});
 		
@@ -51,7 +51,7 @@
 			$( this ).parents( ".portlet:first" ).find( ".portlet-content" ).toggle();
 	});
 	</script>
-    <div class="selection_command" tabid="{{ tabid }}">
+    <div class="selection_command" pwtabid="{{ pwtabid }}">
       <input type="button" class="selection_btn_edit"  value="edit"></input>
       <input type="button" class="selection_btn_save"  value="save"></input>
       <input type="button" class="selection_btn_save_show"  value="save and show"></input>
@@ -61,7 +61,7 @@
       <input type="button" class="selection_btn_showclip"  value="show clipboard"></input>
 	  <span class="selection_span_info">Warning, your selection is not saved</span>
     </div>
-	<div class="selection_edit" tabid="{{ tabid }}">
+	<div class="selection_edit" pwtabid="{{ pwtabid }}">
       <textarea></textarea>
       <div id="selection_help_portlet" class="column">
         <div class="portlet">
@@ -92,5 +92,5 @@ rrdgraph(localhost, host1, cpu, .*, cpu,)
         </div>
       </div>
     </div>
-    <div class="selection_show" tabid="{{ tabid }}"></div>
+    <div class="selection_show" pwtabid="{{ pwtabid }}"></div>
 </div>

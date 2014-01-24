@@ -43,11 +43,11 @@ function get_grouped_types() {
 }
 
 function get_tab_id_from_name(name) {
-	var tabid = 1;
+	var pwtabid = 1;
 	var result = 0;
-    tabid = $('#items div[plugin="'+name+'"]').attr('tabid');
-    if(typeof tabid === 'undefined') return(0);
-	return(parseInt(tabid));
+    pwtabid = $('#itemtab li[plugin="'+name+'"]').attr('pwtabid');
+    if(typeof pwtabid === 'undefined') return(0);
+	return(parseInt(pwtabid));
 }
 
 function select_node_with_data(datas) {
@@ -55,13 +55,15 @@ function select_node_with_data(datas) {
 	$('#datetime').hide();
 	$('#timespan').hide();
 	$('#itemtab').remove();
-	$('#items').html('<div id="itemtab"></div>');
+	$('#items').html('<div id="itemtab" class="no-border"></div>');
 	$('#itemtab').html(ich.information_tab({ }));
-	$('#itemtab').jqxTabs({ height: $('#mainSplitter').height() -3, theme: theme, scrollStep: 697, keyboardNavigation: false });
+	var tabs = $('#itemtab').tabs();
+    $('#tabpanel').height($('#rightpane').height()-$('#itemtab ul').height() - 30);
+    $('#tab0').data('loaded', true);
     if(datas.length <= 0) {
         return;
     }
-	var tabid = 1;
+	var pwtabid = 1;
 	json_item_datas = datas;
 	var id;
 	if(datas['jstree'] && datas['jstree']['id']) {
@@ -114,26 +116,47 @@ function select_node_with_data(datas) {
                 });
             });
         $.each(agg, function(plugin, plugin_instance) {
-            create_plugin_tab(plugin, plugin_instance, tabid++);
+            create_plugin_tab(plugin, plugin_instance, pwtabid++);
             });
 	}
 	if (datas['plugins']) {
 		$.each(datas['plugins'], function(plugin, plugin_instance) {
-			create_plugin_tab(plugin, plugin_instance, tabid++);
+			create_plugin_tab(plugin, plugin_instance, pwtabid++);
 		});
 	}
 
     $.each(json_item_datas['tab_ids'], function(tabref, tabcontent) {
-            create_custom_tab(tabref, tabid++, tabcontent);
+            create_custom_tab(tabref, pwtabid++, tabcontent);
             });
-	$('#itemtab').jqxTabs('select', 0);
+    tabs.tabs("option", "active", 0);
 	if(id) {
 		hide_menu_for(datas['jstree']['pwtype']);
 	}
-	$('#itemtab').bind('tabclick', function (event) {
-		current_tab = event.args.item;
-		load_tab(event.args.item);
-	});
+    tabs.tabs({
+        beforeActivate: function(event, ui) {
+            $('#timebutton').hide();
+            $('#datetime').hide();
+            $('#timespan').hide();
+        },
+        beforeLoad: function(event, ui) {
+            if(ui.tab.data("loaded")) {
+                event.preventDefault();
+                return;
+            }
+            var pwtabid = ui.tab.attr('pwtabid');
+            var tabplugin = ui.tab.attr('plugin');
+            ui.panel.attr('plugin', tabplugin);
+            ui.panel.attr('pwtabid', pwtabid);
+            if(tabplugin == 'custom_view_selection') { ui.panel.attr('custom_tab_id', ui.tab.attr('custom_tab_id')); }
+            current_tab = pwtabid;
+            load_tab(pwtabid);
+            ui.jqXHR.success(function() {
+                ui.tab.data("loaded", true);
+            });
+            ui.jqXHR.abort();
+        }
+    });
+
 /* Portlets */
 	if(json_item_datas['config'] && json_item_datas['config']['widgets']) {
 /* Portlets configuration */
@@ -173,6 +196,7 @@ function select_node_with_data(datas) {
 	});
 
 	}
+    tabs.tabs("refresh");
 }
 
 
@@ -192,15 +216,16 @@ function select_node_by_name(fullhost) {
         tab = a[1];
     }
 	$.getJSON('action.php?tpl=json_node_defaults&view_id='+view_id+'&CdSrc='+collectd_source+'&host='+host, function(datas) {
-		var tabid = 0;
+		var pwtabid = 0;
 		select_node_with_data(datas);
 		if(tab != "") {
-			tabid = get_tab_id_from_name(tab);
+			pwtabid = get_tab_id_from_name(tab);
 		}
-		if(tabid > 0) { 
-			current_tab = tabid;
-			load_tab(tabid);
-			$('#itemtab').jqxTabs('select', tabid);
+		if(pwtabid > 0) { 
+            var tabs = $('#itemtab').tabs();
+			current_tab = pwtabid;
+            tabs.tabs('option', 'active', $('#itemtab li[plugin="'+tab+'"]').index());
+            tabs.tabs("refresh");
 		}
 	} );
 }
@@ -209,52 +234,53 @@ function select_node(nodeid) {
 	$.getJSON('action.php?tpl=json_node_datas&view_id='+view_id+'&id='+nodeid, function(datas) { select_node_with_data(datas); } );
 }
 
-function create_plugin_tab(plugin, plugin_instance, tabid) {
-	$('#itemtab').jqxTabs('addAt', tabid, plugin, '<div plugin="'+plugin+'" tabid="'+tabid+'"></div>');
+function create_plugin_tab(plugin, plugin_instance, pwtabid) {
+    var tab_li = "<li plugin='"+plugin+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+plugin+"</a></li>";
+    var tabs = $('#itemtab').tabs();
+    tabs.find(".ui-tabs-nav").append(tab_li);
 }
 
-function create_custom_tab(tabref, tabid, tabcontent) {
-	$('#itemtab').jqxTabs('addAt', tabid,
-            tabcontent['title'],
-            '<div plugin="custom_view_selection" custom_tab_id="'+tabcontent['id']+'" tabid="'+tabid+'"></div>'
-            );
+function create_custom_tab(tabref, pwtabid, tabcontent) {
+    var tab_li = "<li plugin='custom_view_selection' custom_tab_id='"+tabcontent['id']+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+tabcontent['title']+"</a></li>";
+    var tabs = $('#itemtab').tabs();
+    tabs.find(".ui-tabs-nav").append(tab_li);
 }
 
-function load_tab(tabid) {
+function load_tab(pwtabid) {
 	$('#timebutton').hide();
 	$('#datetime').hide();
 	$('#timespan').hide();
-	if (tabid == 0) { return; }
-	if ($('div[tabid="'+tabid+'"]').attr('done')) {
+	if (pwtabid == 0) { return; }
+	if ($('div[pwtabid="'+pwtabid+'"]').attr('done')) {
 		return;
 	}
-	$('div[tabid="'+tabid+'"]').attr('done', 1);
-	var custom_function_test = 'typeof '+$('div[tabid="'+tabid+'"]').attr('plugin')+'_plugin_view';
+	$('div[pwtabid="'+pwtabid+'"]').attr('done', 1);
+	var custom_function_test = 'typeof '+$('div[pwtabid="'+pwtabid+'"]').attr('plugin')+'_plugin_view';
 	if (eval(custom_function_test) == 'function' ) {
-		eval($('div[tabid="'+tabid+'"]').attr('plugin')+'_plugin_view')(tabid, $('div[tabid="'+tabid+'"]').attr('plugin'));
+		eval($('div[pwtabid="'+pwtabid+'"]').attr('plugin')+'_plugin_view')(pwtabid, $('div[pwtabid="'+pwtabid+'"]').attr('plugin'));
 		return;
 	}
-	plugin_view(tabid, $('div[tabid="'+tabid+'"]').attr('plugin'));
+	plugin_view(pwtabid, $('div[pwtabid="'+pwtabid+'"]').attr('plugin'));
 }
 
-function custom_view_selection_plugin_view(tabid, plugin) {
-    var selection_id = $('div[tabid="'+tabid+'"]').attr('custom_tab_id');
+function custom_view_selection_plugin_view(pwtabid, plugin) {
+    var selection_id = $('div[pwtabid="'+pwtabid+'"]').attr('custom_tab_id');
 	custom_view_selection = ich.custom_view_selection({
-		tabid: tabid,
+		pwtabid: pwtabid,
         selection_id: selection_id
 	});
-	$(custom_view_selection).appendTo('div[tabid="'+tabid+'"]');
+	$(custom_view_selection).appendTo('div[pwtabid="'+pwtabid+'"]');
 }
 
-function plugin_view (tabid, plugin) {
+function plugin_view (pwtabid, plugin) {
 	$.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
-        $('<h2>Collectd "'+cdsrc+'"</h2>').appendTo('div[tabid="'+tabid+'"]');
+        $('<h2>Collectd "'+cdsrc+'"</h2>').appendTo('div[pwtabid="'+pwtabid+'"]');
 		$.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
             if(current_plugin == plugin) {
 				$.each(current_plugin_instance, function (plugin_instance, type) {
 					$.each(type, function (type, type_instance) {
 						$.each(type_instance, function (type_instance, none) { 
-							$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[tabid="'+tabid+'"]');
+							$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
 							$('#graph_'+graphid).pwgraph({
 								cdsrc: cdsrc,
 								host: json_item_datas['host'],
@@ -273,7 +299,7 @@ function plugin_view (tabid, plugin) {
 	$.each(json_item_datas['plugins'][plugin], function (plugin_instance, type) {
 		$.each(type, function (type, type_instance) {
 			$.each(type_instance, function (type_instance, none) { 
-				$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[tabid="'+tabid+'"]');
+				$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
 				$('#graph_'+graphid).pwgraph({
 					cdsrc: json_item_datas['config']['CdSrc']['source'],
 					host: json_item_datas['host'],

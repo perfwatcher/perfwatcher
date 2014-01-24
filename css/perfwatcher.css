@@ -9,14 +9,13 @@
  * 
  **/
 * { font-family:Verdana,alial; font-size:10px; }
-* body { overflow:hidden; }
 img { border:0; }
 html, body { margin:0; padding:0; }
 table, td { margin:0; padding:0; }
 table td { vertical-align:top; text-align:left; }
 body, td, th, pre, code, select, option, input, textarea { font-family:verdana,arial,sans-serif; font-size:10px; }
 #logo { height:16px; vertical-align:middle; margin-top:-2px; margin-bottom:-2px; margin-right:2px; }
-#mainSplitter { border: 0px solid #FFFFFF; height:auto; }
+#mainSplitter { border: 0px solid #FFFFFF; }
 #tree { background-color:#FFFFFF;  }
 #leftpane { background-color:#FFFFFF; overflow:auto; }
 #timebutton { position:absolute; z-index: 800 }
@@ -47,3 +46,7 @@ div.selection_edit > textarea { width: 650px; height: 400px; }
 #mainMenu .ui-menu > .ui-menu-item li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
 #graphmenu li.ui-menu-item a { padding-left: 1em; padding-right: 1em; }
 span.selection_span_info { text-align: center; border: 2px solid red; margin: 0; padding: 0 2em; height: 100%; }
+.no-border { border: 0; padding: 0; margin: 0; -moz-border-radius: 0; -webkit-border-radius: 0; }
+#rightpane { overflow: hidden; }
+#tabpanel { padding: 0; margin: 0; overflow: visible; }
+#tabpanel.ui-layout-content { overflow: auto; border-top: 0 ! important; }

@@ -30,10 +30,10 @@
 
 function custom_plugin_view_generic_graph(graphinfo) {
     if(graphinfo['show_html_legend']) {
-        $('<h1>Collectd source '+graphinfo['cdsrc']+' </h1>').appendTo('div[tabid="'+graphinfo['tabid']+'"] div div[class="graphcontainer"]');
+        $('<h1>Collectd source '+graphinfo['cdsrc']+' </h1>').appendTo('div[pwtabid="'+graphinfo['pwtabid']+'"] div div[class="graphcontainer"]');
     }
-    $('<img class="graph" id="graph_'+graphinfo['tabid']+'_'+graphinfo['graphid']+'" zone="tab"/><br/>').appendTo('div[tabid="'+graphinfo['tabid']+'"] div div[class="graphcontainer"]');
-    $('#graph_'+graphinfo['tabid']+'_'+graphinfo['graphid']).pwgraph({
+    $('<img class="graph" id="graph_'+graphinfo['pwtabid']+'_'+graphinfo['graphid']+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+graphinfo['pwtabid']+'"] div div[class="graphcontainer"]');
+    $('#graph_'+graphinfo['pwtabid']+'_'+graphinfo['graphid']).pwgraph({
         cdsrc: graphinfo['cdsrc'],
         host: graphinfo['host'],
         plugin: graphinfo['plugin'],
@@ -43,15 +43,15 @@ function custom_plugin_view_generic_graph(graphinfo) {
     }).pwgraph('display');
 }
 
-function custom_plugin_view_generic(tabid, plugin, options) {
+function custom_plugin_view_generic(pwtabid, plugin, options) {
     var selector0_legend = 'Select Collectd source(s)';
     var selector1_legend = '';
     var selector2_legend = '';
     var selector3_legend = '';
-    var selector0_select = 'select[tabid="'+tabid+'"][part="cdsrc"]';
-    var selector1_select = 'select[tabid="'+tabid+'"][part="plugin_instance"]';
-    var selector2_select = 'select[tabid="'+tabid+'"][part="type"]';
-    var selector3_select = 'select[tabid="'+tabid+'"][part="type_instance"]';
+    var selector0_select = 'select[pwtabid="'+pwtabid+'"][part="cdsrc"]';
+    var selector1_select = 'select[pwtabid="'+pwtabid+'"][part="plugin_instance"]';
+    var selector2_select = 'select[pwtabid="'+pwtabid+'"][part="type"]';
+    var selector3_select = 'select[pwtabid="'+pwtabid+'"][part="type_instance"]';
     var cdsrc_list = new Array();
     var pi_list = new Array();
     var t_list = new Array();
@@ -173,9 +173,9 @@ function custom_plugin_view_generic(tabid, plugin, options) {
         $(selector3_select).remove();
     }
 
-    var input_selector = 'input[tabid='+tabid+']';
+    var input_selector = 'input[pwtabid='+pwtabid+']';
     $(input_selector).click(function () {
-        $('div[tabid="'+tabid+'"] div div[class="graphcontainer"]').html('');
+        $('div[pwtabid="'+pwtabid+'"] div div[class="graphcontainer"]').html('');
 
         var cdsrc_list_selected = new Array();
         var pi_list_selected = new Array();
@@ -219,7 +219,7 @@ function custom_plugin_view_generic(tabid, plugin, options) {
                         graphid++;
                         var graphinfo = {
                             show_html_legend: show_html_legend_per_graph,
-                            tabid: tabid,
+                            pwtabid: pwtabid,
                             graphid: graphid,
                             cdsrc: cdsrc,
                             host: json_item_datas['host'],
@@ -236,11 +236,11 @@ function custom_plugin_view_generic(tabid, plugin, options) {
     }).jqxButton({ theme: theme });
 }
 
-function custom_plugin_view_generic_one_selector(tabid, plugin, options) {
+function custom_plugin_view_generic_one_selector(pwtabid, plugin, options) {
     var selector0_legend = 'Select Collectd source(s)';
     var selector1_legend = '';
-    var selector0_select = 'select[tabid="'+tabid+'"][part="cdsrc"]';
-    var selector1_select = 'select[tabid="'+tabid+'"][part="plugin_filter"]';
+    var selector0_select = 'select[pwtabid="'+pwtabid+'"][part="cdsrc"]';
+    var selector1_select = 'select[pwtabid="'+pwtabid+'"][part="plugin_filter"]';
     var cdsrc_list = new Array();
     var selector0_show = 0;
     var selector1_show = 0;
@@ -307,9 +307,9 @@ function custom_plugin_view_generic_one_selector(tabid, plugin, options) {
     if(cdsrc_list.length > 1) { selector0_show = 1; } else { $(selector0_select).remove(); }
     selector1_show = 1;
 
-    var input_selector = 'input[tabid='+tabid+']';
+    var input_selector = 'input[pwtabid='+pwtabid+']';
     $(input_selector).click(function () {
-        $('div[tabid="'+tabid+'"] div div[class="graphcontainer"]').html('');
+        $('div[pwtabid="'+pwtabid+'"] div div[class="graphcontainer"]').html('');
 
         var cdsrc_list_selected = new Array();
         if(selector0_show) {
@@ -323,7 +323,7 @@ function custom_plugin_view_generic_one_selector(tabid, plugin, options) {
                 graphid++;
                 var graphinfo = {
                     show_html_legend: show_html_legend_per_graph,
-                    tabid: tabid,
+                    pwtabid: pwtabid,
                     graphid: graphid,
                     cdsrc: $(this).data()[0],
                     host: json_item_datas['host'],
@@ -339,7 +339,7 @@ function custom_plugin_view_generic_one_selector(tabid, plugin, options) {
 }
 
 
-function cpu_plugin_view(tabid, plugin) {
+function cpu_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -347,13 +347,13 @@ function cpu_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('cpu_plugin_view', r.responseText);
-				ich.cpu_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.cpu_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function df_plugin_view(tabid, plugin) {
+function df_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -361,13 +361,13 @@ function df_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('df_plugin_view', r.responseText);
-				ich.df_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.df_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function disk_plugin_view(tabid, plugin) {
+function disk_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -375,13 +375,13 @@ function disk_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('disk_plugin_view', r.responseText);
-				ich.disk_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.disk_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function interface_plugin_view(tabid, plugin) {
+function interface_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -389,13 +389,13 @@ function interface_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('interface_plugin_view', r.responseText);
-				ich.interface_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.interface_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function disk_plugin_view(tabid, plugin) {
+function disk_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -403,13 +403,13 @@ function disk_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('disk_plugin_view', r.responseText);
-				ich.disk_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.disk_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function processes_plugin_view(tabid, plugin) {
+function processes_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -417,13 +417,13 @@ function processes_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('processes_plugin_view', r.responseText);
-				ich.processes_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.processes_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function protocols_plugin_view(tabid, plugin) {
+function protocols_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -431,13 +431,13 @@ function protocols_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('protocols_plugin_view', r.responseText);
-				ich.protocols_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.protocols_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function tcpconns_plugin_view(tabid, plugin) {
+function tcpconns_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -445,13 +445,13 @@ function tcpconns_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('tcpconns_plugin_view', r.responseText);
-				ich.tcpconns_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.tcpconns_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});
 }
 
-function vmem_plugin_view(tabid, plugin) {
+function vmem_plugin_view(pwtabid, plugin) {
 	$.ajax({
 	    async : true,
 	    type: 'GET',
@@ -459,7 +459,7 @@ function vmem_plugin_view(tabid, plugin) {
 	    complete : function (r) {
 	        if(r.status) {
 				ich.addTemplate('vmem_plugin_view', r.responseText);
-				ich.vmem_plugin_view({ tabid: tabid, plugin: plugin }).appendTo('div[tabid="'+tabid+'"]');
+				ich.vmem_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
 	        }
 	    }
 	});

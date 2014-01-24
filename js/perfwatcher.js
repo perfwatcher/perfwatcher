@@ -91,11 +91,11 @@ $(document).ready(function() {
     });
     clipboard_update_title();
 
-	$('#mainSplitter').jqxSplitter({
-		panels: [{ size: '300px' }],
-		theme: theme,
-		height: $(document).height() - $('#mainMenu').height() - 1,
-		splitBarSize: '2px'
+    $('#mainSplitter').height($(window).height() - $('#mainMenu').height());
+	$('#mainSplitter').layout({
+        west__size: 300,
+        center__paneSelector: "#rightpane",
+        west__paneSelector: "#leftpane"
 	});
 	window.setTimeout(function () {
 		auto_refresh_status();
@@ -109,11 +109,11 @@ $(document).ready(function() {
 		$(current_graph).pwgraph(method).pwgraph('display');
 	});
 	$('#datetime').html((new Date).toString()).hide();
-	
+/* TODO splitter
 	$('#mainSplitter').bind('collapsed', function (event) {
 		treecollapsed = true;
 	});
-	
+*/	
 	$('#clip_content').click(function() {
         if(clipboard.length == 0) {
             notify_ko("Clipboard is empty");
@@ -216,10 +216,10 @@ $(document).ready(function() {
 			break;
 			case 'menu_delete_tab':
 				confirmfor({title: 'Do you really want to delete this tab ?'}, function() {
-					if($('div[tabid="'+current_tab+'"]').attr('custom_tab_id')) {
+					if($('div[pwtabid="'+current_tab+'"]').attr('custom_tab_id')) {
 						$.ajax({
 							async : false, type: "POST", url: "action.php?tpl=json_actions",
-							data : { "action" : "del_tab", "selection_id" : $('div[tabid="'+current_tab+'"]').attr('custom_tab_id') },
+							data : { "action" : "del_tab", "selection_id" : $('div[pwtabid="'+current_tab+'"]').attr('custom_tab_id') },
 							complete : function (r) {
 								if(!r.status) {
 									notify_ko('Error, can\'t retrieve data from server !');
@@ -247,6 +247,7 @@ $(document).ready(function() {
 			case 'menu_new_container':
 				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } });
 			break;
+/* TODO splitter
 			case 'menu_display_toggle_tree':
 				if (treecollapsed) {
 					$('#mainSplitter').jqxSplitter('expandAt', 0);
@@ -256,6 +257,7 @@ $(document).ready(function() {
 					treecollapsed = true;
 				}
 			break;
+*/
 			case 'menu_display_in_new_window':
 				alert('not implemented yet');
 			break;

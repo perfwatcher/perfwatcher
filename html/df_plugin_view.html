@@ -1,20 +1,20 @@
 <!-- Perfwatcher | File "df_plugin_view.html" | Copyright (c) 2012 Cyril Feraudet | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
 <div>
 	<script type="text/javascript">
-		var tabid = {{ tabid }};
+		var pwtabid = {{ pwtabid }};
 		var plugin = "{{ plugin }}";
-		custom_plugin_view_generic(tabid, plugin, 
+		custom_plugin_view_generic(pwtabid, plugin, 
 						{
 						'selector1_legend': 'Select filesystem(s)',
 						'selector1_legend_function': function (txt) { return('/'+txt.replace('-', '/')); },
 						'selector3_legend_function': function (txt) { return('/'+txt.replace('-', '/')); }
 						});
 	</script>
-    <select multiple="multiple" tabid="{{ tabid }}" part="cdsrc"></select>
-    <select multiple="multiple" tabid="{{ tabid }}" part="plugin_instance"></select>
-    <select multiple="multiple" tabid="{{ tabid }}" part="type"></select>
-    <select multiple="multiple" tabid="{{ tabid }}" part="type_instance"></select>
-	<input type="button" action="apply" tabid="{{ tabid }}" value="Apply" />
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="cdsrc"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="plugin_instance"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="type"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="type_instance"></select>
+	<input type="button" action="apply" pwtabid="{{ pwtabid }}" value="Apply" />
 	<br/>
 	<div class="graphcontainer">
 	

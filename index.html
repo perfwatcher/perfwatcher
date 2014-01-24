@@ -15,6 +15,7 @@
         @import "js/vendor/jqwidgets/styles/jqx.base.css";
         @import "css/vendor/jquery-ui/smoothness/jquery-ui-1.10.3.custom.min.css";
         @import "css/jquery.contextMenu.css";
+        @import "css/vendor/jquery/layout-default-1.3.0-rc30.79.css";
         @import "css/jquery.multiselect.css";
         @import "css/jquery.multiselect.filter.css";
         @import "css/pwselections.css";
@@ -31,6 +32,7 @@
         <script type="text/javascript" src="js/vendor/jquery/jquery.hotkeys.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/jquery.jstree.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="js/vendor/jquery/jquery.layout-1.3.0-rc30.79.min.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/ICanHaz.min.js"></script>
         <script type="text/javascript" src="js/vendor/jquery/jquery.noty.js"></script>
     	<script type="text/javascript" src="js/vendor/jqwidgets/jqxcore.js"></script>
@@ -76,29 +78,29 @@
 		<script id="widget" src="html/widget.html" type="text/html"></script>
 		<script id="contextmenutpl" src="html/contextmenu.html" type="text/html"></script>
 		<script type="text/javascript">
-			var theme;
+			var theme; // TODO: remove theme everywhere
 			$(document).ready(function() {
 				theme = getTheme();
 			});
 		</script>
     </head>
     <body>
-		<div id="mainMenu">
-			<div id="headerLeft"></div>
-			<div id="headerCenter"></div>
-			<div id="headerRight"></div>
-		</div>
+        <div id="mainMenu">
+        	<div id="headerLeft"></div>
+        	<div id="headerCenter"></div>
+        	<div id="headerRight"></div>
+        </div>
 		<div id="modaldialog"></div>
 		<div id="datetime"></div>
 		<div id="timebutton"></div>
 		<div id="timespan"></div>
 		<div id="contextmenu"></div>
 		<div id="mainSplitter">
-			<div id="leftpane">
+			<div id="leftpane" class="ui-layout-west no-border">
 				<div id="tree"></div>
 			</div>
-			<div id="rightpane">
-				<div id="items">
+			<div id="rightpane" class="ui-layout-center no-border">
+				<div id="items" class="no-border">
 					<div id="itemtab"></div>
 				</div>
 			</div>
