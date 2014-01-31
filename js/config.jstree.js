@@ -285,8 +285,7 @@ $(function () {
 		} else if(nodes[0] == 'host') {
 			var fullhost = location.hash.substr(6);
 			select_node_by_name(fullhost);
-			$('#mainSplitter').jqxSplitter('collapseAt', 0);
-			treecollapsed = true;
+            $('#mainSplitter').layout().close('west');
 		}
     });
 

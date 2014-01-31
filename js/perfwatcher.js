@@ -34,7 +34,6 @@ var pwgraph_hover_enabled = true;
 var pwgraph_current_zone = 'tab';
 var current_tab = null;
 graphid = 0;
-var treecollapsed = false;
 var contextMenu;
 var clipboard = new Array();
 var selection_is_saved = true;
@@ -109,11 +108,6 @@ $(document).ready(function() {
 		$(current_graph).pwgraph(method).pwgraph('display');
 	});
 	$('#datetime').html((new Date).toString()).hide();
-/* TODO splitter
-	$('#mainSplitter').bind('collapsed', function (event) {
-		treecollapsed = true;
-	});
-*/	
 	$('#clip_content').click(function() {
         if(clipboard.length == 0) {
             notify_ko("Clipboard is empty");
@@ -247,17 +241,9 @@ $(document).ready(function() {
 			case 'menu_new_container':
 				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } });
 			break;
-/* TODO splitter
 			case 'menu_display_toggle_tree':
-				if (treecollapsed) {
-					$('#mainSplitter').jqxSplitter('expandAt', 0);
-					treecollapsed = false;
-				} else {
-					$('#mainSplitter').jqxSplitter('collapseAt', 0);
-					treecollapsed = true;
-				}
+                $('#mainSplitter').layout().toggle('west');
 			break;
-*/
 			case 'menu_display_in_new_window':
 				alert('not implemented yet');
 			break;
