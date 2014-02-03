@@ -758,7 +758,6 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
 }
 
 $.top = {};
-// TODO : top not working
 function showtop (cdsrc, host, toptime) {
     $.top.time = toptime;
     $('<div id="modaldialogcontents"></div>')
@@ -767,13 +766,14 @@ function showtop (cdsrc, host, toptime) {
                 +  '<td class="prev" width="50%"><b>&#x2190;</b> previous</td>'
                 +  '<td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td>'
                 +'</tr></table>'
-                +'<div id="table"></div>'
+                +'<div id="topprocessgrid">'
+                +'</div>'
                 )
         .dialog({
             autoOpen: true,
             appendTo: '#modaldialog',
             title: 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(toptime),
-            width: 545,
+            width: 645,
             height: 620,
             maxHeight: $(window).height() - 50,
             position: {my: 'center top', at: 'center top', of: '#items' },
@@ -781,7 +781,7 @@ function showtop (cdsrc, host, toptime) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
-                $('#table').remove();
+                $('#topprocesstable').remove();
                 pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
@@ -805,62 +805,36 @@ function showtop (cdsrc, host, toptime) {
 }
 
 function load_top(cdsrc, host, toptime) {
+    $('#topprocessgrid').html(
+            '  <table id="topprocesstable"></table>'
+            +'  <div id="topprocessdiv"></div>'
+            );
 	var url = 'action.php?tpl=top&view_id='+view_id+'&cdsrc='+cdsrc+'&host='+host+'&time='+toptime;
-	var source = { 
-		datatype: "json", 
-		datafields: [ 
-			{ name: 'userlabel' }, 
-			{ name: 'grouplabel' }, 
-			{ name: 'rss', type: 'int' },
-			{ name: 'process' } ,
-			{ name: 'pid', type: 'int' }, 
-			{ name: 'cpu', type: 'int' }
-		], 
-		id: 'id', 
-		url: url, 
-		root: "data",
-	};
-	var dataAdapter = new $.jqx.dataAdapter(source, {
-                downloadComplete: function (data, status, xhr) {
-			if (data.date2) {
-				var topdate = new Date(data.date2 * 1000).toString();
-                $('#modaldialogcontents').dialog("option", "title", 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(data.date2));
-			} else if (data.error) {
-				if (data.error.result && data.error.result.status == 'path not found or no file for this tm') {
-                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+(new Date(toptime * 1000).toString()));
-				} else {
-                    $('#modaldialogcontents').dialog("option", "title", 'ERROR : No data for this date '+data.error);
-				} 
-			}
-		},
-                loadComplete: function (data) { },
-                loadError: function (xhr, status, error) { }
-        });
-	var cpurenderer = function (row, column, value) {
-		return '<span style="margin: 4px; float: right;">'+value+'%</span>';
-	}
-	var rssrenderer = function (row, column, value) {
-		return '<span style="margin: 4px; float: right;">'+bytesToSize(value)+'</span>';
-	}
-	$('#table').jqxGrid({
-		width: 525,
-		height: 564,
-	    source: dataAdapter,
-	    theme: theme,
-		sortable: true,
-		altrows: true,
-	    columns: [
-	      { text: 'PID', datafield: 'pid', cellsalign: 'right', width: 45 },
-	      { text: 'User', datafield: 'userlabel', width: 70 },
-	      { text: 'Group', datafield: 'grouplabel', width: 70 },
-	      { text: 'Memory', datafield: 'rss', cellsalign: 'right', width: 70, cellsrenderer: rssrenderer },
-	      { text: 'CPU', datafield: 'cpu', cellsalign: 'right', width: 50, cellsrenderer: cpurenderer },
-	      { text: 'Process', datafield: 'process', width: 200 }
-	  	],
-		ready: function () {
-	    	$("#table").jqxGrid('sortby', 'cpu', 'desc');
-		}
-	});
+    $('#topprocesstable').jqGrid({
+        url: url,
+        datatype: "json",
+        colNames: ['PID','User','Group','Memory','CPU','Process'],
+        colModel: [
+            {name: 'pid', index: 'pid', sortable: false},
+            {name: 'userlabel', index: 'userlabel'},
+            {name: 'grouplabel', index: 'grouplabel'},
+            {name: 'rss', index: 'rss', sorttype: 'int', align: 'right', formatter: function(cellvalue, options, rowObject) { return bytesToSize(cellvalue); }},
+            {name: 'cpu', index: 'cpu', sorttype: 'int', align: 'right', formatter: function(cellvalue, options, rowObject) { return cellvalue+' %'; }},
+            {name: 'process', index: 'process', sortable: false}
+            ],
+        rowNum: 20,
+        rowList: [10,20,30],
+        pager: '#topprocessdiv',
+        sortname: 'cpu',
+        sortorder: 'asc',
+        height: 'auto',
+        width: 630,
+        loadonce: true,
+        async: false,
+        loadComplete: function(data) {
+            $('#modaldialogcontents').dialog("option", "title", 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(data.userdata.date2));
+        }
+    });
 }
 
 // From http://stackoverflow.com/questions/1773069/using-jquery-to-compare-two-arrays
