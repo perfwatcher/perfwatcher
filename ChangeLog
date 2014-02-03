@@ -1,6 +1,7 @@
 2014-??-??, Version 2.1
 
 - tabs : use jqueryui tabs
+- tabs : new '+' tab to add a tab
 - grids : use jqgrid plugin
 - layout : use jquery.layout plugin
 - generic plugin view : use jqueryui button()

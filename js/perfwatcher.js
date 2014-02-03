@@ -182,22 +182,6 @@ $(document).ready(function() {
 					});
 				});
 			break;
-			case 'menu_new_tab':
-				askfornewtab({ }, function(title, lifetime) {
-					$.ajax({
-						async : false, type: "POST", url: "action.php?tpl=json_actions",
-						data : { "action" : "add_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
-						complete : function (r) {
-							if(!r.status) {
-								notify_ko('Error, can\'t retrieve data from server !');
-							} else {
-								select_node(json_item_datas['jstree']['id']);
-								notify_ok("Tab added");
-							}
-						}
-					});
-				});
-			break;
 			case 'menu_rename_node':
 				$('#tree').jstree("rename");
 			break;

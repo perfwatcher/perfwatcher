@@ -59,6 +59,7 @@ function select_node_with_data(datas) {
 	$('#itemtab').html(ich.information_tab({ }));
 	var tabs = $('#itemtab').tabs();
     $('#tabpanel').height($('#rightpane').height()-$('#itemtab ul').height() - 30);
+    $('#tabadd').data('tabadd', true);
     $('#tab0').data('loaded', true);
     if(datas.length <= 0) {
         return;
@@ -128,7 +129,7 @@ function select_node_with_data(datas) {
     $.each(json_item_datas['tab_ids'], function(tabref, tabcontent) {
             create_custom_tab(tabref, pwtabid++, tabcontent);
             });
-    tabs.tabs("option", "active", 0);
+    tabs.tabs("option", "active", 1);
 	if(id) {
 		hide_menu_for(datas['jstree']['pwtype']);
 	}
@@ -137,6 +138,25 @@ function select_node_with_data(datas) {
             $('#timebutton').hide();
             $('#datetime').hide();
             $('#timespan').hide();
+            if($(ui.newTab).find('a').attr('href') == '#tabadd') {
+				askfornewtab({ }, function(title, lifetime) {
+					$.ajax({
+						async : false, type: "POST", url: "action.php?tpl=json_actions",
+						data : { "action" : "add_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
+						complete : function (r) {
+							if(!r.status) {
+								notify_ko('Error, can\'t retrieve data from server !');
+							} else {
+                                create_custom_tab('unset', pwtabid++, {'id': json_item_datas['jstree']['id'], 'title': title == '' ? 'Custom view' : title});
+                                tabs.tabs("refresh");
+								notify_ok("Tab added");
+							}
+						}
+					});
+				});
+                event.preventDefault();
+                return;
+            }
         },
         beforeLoad: function(event, ui) {
             if(ui.tab.data("loaded")) {
@@ -244,6 +264,14 @@ function create_custom_tab(tabref, pwtabid, tabcontent) {
     var tab_li = "<li plugin='custom_view_selection' custom_tab_id='"+tabcontent['id']+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+tabcontent['title']+"</a></li>";
     var tabs = $('#itemtab').tabs();
     tabs.find(".ui-tabs-nav").append(tab_li);
+    tabs.find(".ui-tabs-nav").sortable({
+                items: "li[plugin='custom_view_selection']",
+                axis: 'x',
+                stop: function() {
+                    tabs.tabs('refresh');
+                    // TODO : save the order
+                }
+            });
 }
 
 function load_tab(pwtabid) {
@@ -335,7 +363,6 @@ function hide_menu_for(node_type) {
 	switch (node_type) {
 		case 'server':
 		case 'selection':
-            $('a[pwmenuid="menu_new_tab"]').parent().show();
 		break;
 		case 'container':
 			$('a[pwmenuid="menu_new_server"]').parent().show();
