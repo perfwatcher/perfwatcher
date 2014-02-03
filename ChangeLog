@@ -1,3 +1,10 @@
+2014-??-??, Version 2.1
+
+- tabs : use jqueryui tabs
+- grids : use jqgrid plugin
+- layout : use jquery.layout plugin
+- generic plugin view : use jqueryui button()
+
 2014-??-??, Version 2.0
 
 - New configuration table in db
