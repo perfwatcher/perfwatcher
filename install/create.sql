@@ -20,6 +20,7 @@ CREATE TABLE selections (
   id           bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   tree_id      bigint(20) unsigned NOT NULL,
   title        varchar(255) DEFAULT NULL,
+  sortorder    bigint(20) unsigned NOT NULL,
   deleteafter  bigint(20) unsigned NOT NULL,
   data         text                NOT NULL,
   PRIMARY KEY  (id),

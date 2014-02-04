@@ -71,7 +71,7 @@ function selection_get_all_with_node_id($node_id) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
-        $db->prepare("SELECT * FROM selections WHERE tree_id=?", array('integer'));
+        $db->prepare("SELECT *,IF(sortorder = 0, 999999, sortorder) AS s FROM selections WHERE tree_id=? ORDER BY s", array('integer'));
         $db->execute(array((int)$node_id));
         while($db->nextr()) {
             $v = $db->get_row('assoc');
@@ -80,6 +80,19 @@ function selection_get_all_with_node_id($node_id) {
         $db->destroy();
     }
     return($data);
+}
+
+function selection_reorder($neworder) {
+    global $db_config;
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        foreach($neworder as $id => $pos) {
+            $db->prepare("UPDATE selections set sortorder=? WHERE id=?", array('integer', 'integer'));
+            $db->execute(array((int)$pos,(int)$id));
+        }
+        $db->destroy();
+    }
+    return;
 }
 
 function selection_get_data($id) {

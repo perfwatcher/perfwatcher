@@ -2,6 +2,7 @@
 
 - tabs : use jqueryui tabs
 - tabs : new '+' tab to add a tab
+- tabs : custom tabs are sortable (position is saved)
 - grids : use jqgrid plugin
 - layout : use jquery.layout plugin
 - generic plugin view : use jqueryui button()

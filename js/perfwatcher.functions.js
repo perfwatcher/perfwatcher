@@ -50,6 +50,23 @@ function get_tab_id_from_name(name) {
 	return(parseInt(pwtabid));
 }
 
+function save_tab_order() {
+	var tabs = $('#itemtab').tabs();
+    var order = Array();
+    tabs.find("li[plugin='custom_view_selection']").each(function() {
+        order.push($(this).attr('custom_tab_id'));
+    });
+	$.ajax({
+		async : false, type: "POST", url: "action.php?tpl=json_actions",
+		data : { "action" : "reorder_tabs", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "order": order },
+		complete : function (r) {
+			if(!r.status) {
+				notify_ko('Error, can\'t save data on the server !');
+			}
+		}
+	});
+}
+
 function select_node_with_data(datas) {
 	$('#timebutton').hide();
 	$('#datetime').hide();
@@ -269,7 +286,7 @@ function create_custom_tab(tabref, pwtabid, tabcontent) {
                 axis: 'x',
                 stop: function() {
                     tabs.tabs('refresh');
-                    // TODO : save the order
+                    save_tab_order();
                 }
             });
 }

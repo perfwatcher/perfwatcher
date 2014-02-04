@@ -66,6 +66,17 @@ switch ($action) {
         selection_delete($selection_id);
         echo json_encode(array());
         break;
+    case 'reorder_tabs':
+        $order = get_arg('order', array(), 0, "Error : no tabs", __FILE__, __LINE__);
+        if(count($order)) {
+            $i = 1; # 0 is reserved for unsorted (eg lasts) tabs
+            $a = array();
+            foreach ($order as $tabid) {
+                $a{$tabid} = $i++;
+            }
+            selection_reorder($a);
+        }
+        break;
     case 'new_view':
         $view_title = get_arg('view_title', "no name", 0, "", __FILE__, __LINE__);
         list($id, $view_id) = create_new_view($view_title);
