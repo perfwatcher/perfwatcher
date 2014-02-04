@@ -186,9 +186,9 @@ function get_list_of_hosts_having_rrds($collectd_source_forced, $include_aggrega
 
         $ra = jsonrpc_query($collectd_source, $json);
 
-        if(!(isset($ra[0]) && isset($ra[1]))) { next; }
+        if(!(isset($ra[0]) && isset($ra[1]))) { continue; }
         $r = $ra[0];
-        if (! isset($r['nb'])) { next; }
+        if (! isset($r['nb'])) { continue; }
 
         $data = $r['values'];
         if($data) {
