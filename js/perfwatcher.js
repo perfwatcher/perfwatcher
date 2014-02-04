@@ -186,11 +186,6 @@ $(document).ready(function() {
 			break;
 			case 'menu_rename_tab':
 			break;
-			case 'menu_delete_node':
-				confirmfor({title: 'Do you really want to delete this server / container ?'}, function() {
-					$('#tree').jstree("remove");
-				});
-			break;
 			case 'menu_copy':
 				$('#tree').jstree("copy");
 			break;
@@ -200,17 +195,8 @@ $(document).ready(function() {
 			case 'menu_cut':
 				$('#tree').jstree("cut");
 			break;
-			case 'menu_new_server':
-				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "default", "pwtype" : "server" } });
-			break;
-			case 'menu_new_container':
-				$('#tree').jstree("create", null, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } });
-			break;
 			case 'menu_display_toggle_tree':
                 $('#mainSplitter').layout().toggle('west');
-			break;
-			case 'menu_display_in_new_window':
-				alert('not implemented yet');
 			break;
 			case 'menu_refresh_tree':
 				$('#tree').jstree("refresh");

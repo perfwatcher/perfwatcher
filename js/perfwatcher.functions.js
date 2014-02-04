@@ -388,12 +388,10 @@ function hide_menu_for(node_type) {
 	$('a[pwmenuid="menu_view_delete"]').parent().show();
 	$('a[pwmenuid="menu_rename_node"]').parent().show();
 	$('a[pwmenuid="menu_rename_tab"]').parent().show();
-	$('a[pwmenuid="menu_delete_node"]').parent().show();
 	$('a[pwmenuid="menu_copy"]').parent().show();
 	$('a[pwmenuid="menu_paste"]').parent().show();
 	$('a[pwmenuid="menu_cut"]').parent().show();
 	$('a[pwmenuid="menu_display_toggle_tree"]').parent().show();
-	$('a[pwmenuid="menu_display_in_new_window"]').parent().show();
 	$('a[pwmenuid="menu_refresh_tree"]').parent().show();
 	$('a[pwmenuid="menu_refresh_status"]').parent().show();
 	$('a[pwmenuid="menu_refresh_node"]').parent().show();
@@ -403,9 +401,6 @@ function hide_menu_for(node_type) {
 		case 'selection':
 		break;
 		case 'container':
-			$('a[pwmenuid="menu_new_server"]').parent().show();
-			$('a[pwmenuid="menu_new_container"]').parent().show();
-			$('a[pwmenuid="menu_new_aggregator"]').parent().show();
 			$('a[pwmenuid="menu_configure"]').parent().show();
 		break;
 	}

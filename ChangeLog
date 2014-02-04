@@ -7,6 +7,7 @@
 - layout : use jquery.layout plugin
 - generic plugin view : use jqueryui button()
 - views : use jqgrid plugin to load a view
+- Menu : removed useless entries; moved 'views' to the left
 
 2014-??-??, Version 2.0
 
