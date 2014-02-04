@@ -1,14 +1,3 @@
-2014-??-??, Version 2.1
-
-- tabs : use jqueryui tabs
-- tabs : new '+' tab to add a tab
-- tabs : custom tabs are sortable (position is saved)
-- grids : use jqgrid plugin
-- layout : use jquery.layout plugin
-- generic plugin view : use jqueryui button()
-- views : use jqgrid plugin to load a view
-- Menu : removed useless entries; moved 'views' to the left
-
 2014-??-??, Version 2.0
 
 - New configuration table in db
@@ -32,6 +21,15 @@
 - Removed "export" broken feature for graphs.
 - Disambiguation for licenses in some files
 - Removed keyboard navigation in tabs to prevent conflicts with edition in tabs
+- tabs : use jqueryui tabs
+- tabs : new '+' tab to add a tab
+- tabs : custom tabs are sortable (position is saved)
+- grids : use jqgrid plugin
+- layout : use jquery.layout plugin
+- generic plugin view : use jqueryui button()
+- views : use jqgrid plugin to load a view
+- Menu : removed useless entries; moved 'views' to the left
+
 
 2013-08-29, Version 1.3
 
