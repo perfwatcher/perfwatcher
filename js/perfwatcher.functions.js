@@ -278,9 +278,31 @@ function create_plugin_tab(plugin, plugin_instance, pwtabid) {
 }
 
 function create_custom_tab(tabref, pwtabid, tabcontent) {
-    var tab_li = "<li plugin='custom_view_selection' custom_tab_id='"+tabcontent['id']+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+tabcontent['title']+"</a></li>";
+    var tab_li = "<li plugin='custom_view_selection' custom_tab_id='"+tabcontent['id']+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+tabcontent['title']+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
     var tabs = $('#itemtab').tabs();
     tabs.find(".ui-tabs-nav").append(tab_li);
+    tabs.on("click", "li[pwtabid='"+pwtabid+"'] span.ui-icon-close", function() {
+            var thistab = $(this).closest("li");
+            var text = $(thistab).find('a').text();
+            var custom_tab_id = $(thistab).attr('custom_tab_id');
+            confirmfor({title: "Do you really want to delete tab '"+text+"'?"}, function() {
+                $.ajax({
+                    async : false, type: "POST", url: "action.php?tpl=json_actions",
+                    data : { "action" : "del_tab", "selection_id" : custom_tab_id },
+                    complete : function (r) {
+                            if(!r.status) {
+                                notify_ko('Error, can\'t retrieve data from server !');
+                            } else {
+                                var thispanel = $(thistab).attr("aria-controls");
+                                $(thistab).remove();
+                                $('#' + thispanel).remove();
+                                tabs.tabs("refresh");
+                            }
+                        }
+                    });
+                });
+            return(false);
+        });
     tabs.find(".ui-tabs-nav").sortable({
                 items: "li[plugin='custom_view_selection']",
                 axis: 'x',
@@ -366,7 +388,6 @@ function hide_menu_for(node_type) {
 	$('a[pwmenuid="menu_view_delete"]').parent().show();
 	$('a[pwmenuid="menu_rename_node"]').parent().show();
 	$('a[pwmenuid="menu_rename_tab"]').parent().show();
-	$('a[pwmenuid="menu_delete_tab"]').parent().show();
 	$('a[pwmenuid="menu_delete_node"]').parent().show();
 	$('a[pwmenuid="menu_copy"]').parent().show();
 	$('a[pwmenuid="menu_paste"]').parent().show();

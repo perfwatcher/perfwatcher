@@ -191,24 +191,6 @@ $(document).ready(function() {
 					$('#tree').jstree("remove");
 				});
 			break;
-			case 'menu_delete_tab':
-				confirmfor({title: 'Do you really want to delete this tab ?'}, function() {
-					if($('div[pwtabid="'+current_tab+'"]').attr('custom_tab_id')) {
-						$.ajax({
-							async : false, type: "POST", url: "action.php?tpl=json_actions",
-							data : { "action" : "del_tab", "selection_id" : $('div[pwtabid="'+current_tab+'"]').attr('custom_tab_id') },
-							complete : function (r) {
-								if(!r.status) {
-									notify_ko('Error, can\'t retrieve data from server !');
-								} else {
-									select_node(json_item_datas['jstree']['id']);
-									notify_ok("Tab removed");
-								}
-							}
-						});
-					}
-				});
-			break;
 			case 'menu_copy':
 				$('#tree').jstree("copy");
 			break;
