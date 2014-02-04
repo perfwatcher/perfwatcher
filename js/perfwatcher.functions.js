@@ -589,14 +589,7 @@ function perfwatcher_about_box() {
             },
             open: function(event, ui) {
                 $('#modaldialog').show();
-                $.ajax({
-                    async : false, type: 'POST', url: "action.php?tpl=version",
-                    complete : function (r) {
-                        if(r.status) {
-                            $('#modaldialogcontents').html(r.responseText);
-                        }
-                    }
-                });
+                $('#modaldialogcontents').html(ich.version({ 'version': PERFWATCHER_VERSION}));
             }
         });
 }

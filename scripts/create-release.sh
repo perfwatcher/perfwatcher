@@ -73,6 +73,11 @@ cd ..
 
 name=perfwatcher-${VERSION}
 
+mv ${name}/js/perfwatcher.js ${name}/js/perfwatcher.js.orig
+cat ${name}/js/perfwatcher.js.orig | sed -e "s/PERFWATCHER_VERSION=.*/PERFWATCHER_VERSION='${VERSION}';/g" > ${name}/js/perfwatcher.js
+echo ${VERSION} > ${name}/VERSION
+exit
+
 for comp in $COMPRESSIONS ; do
     case $comp in
         tbz|tgz|txz)

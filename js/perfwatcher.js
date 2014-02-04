@@ -27,6 +27,7 @@
  * @license   http://opensource.org/licenses/mit-license.php
  * @link      http://www.perfwatcher.org/
  **/ 
+var PERFWATCHER_VERSION="2.0.pr2-20140204";
 var json_item_datas = new Array();
 var current_graph = null;
 var current_selection = null;
