@@ -660,17 +660,10 @@ function select_view (set_view) {
 //	TODO : use ICanHaz here
     $('<div id="modaldialogcontents"></div>')
         .html(
-        		'<div>'+
-        			'<span style="float: left; margin-top: 5px; margin-right: 4px;">View :</span>'+
-        			'<input class="jqx-input" id="select_view_search" type="text" style="height: 23px; float: left; width: 223px;" />'+
-        		'</div>'+
-        		'<div style="clear: both;"></div>'+
-        		'<div id="select_view_list" style="margin-top: 10px;"></div>'+
-        		'<div style="clear: both;"></div>'+
-        		'<div style="float: right;">'+
-        			'<input type="button" value="No view selected" id="select_view_button_ok" />'+
-        			'<input type="button" value="Cancel" id="select_view_button_cancel" />'+
-        		'</div>'
+                '<div id="viewgrid">'
+                +'  <table id="viewtable"></table>'
+                +'  <div id="viewdiv"></div>'
+                +'</div>'
              )
         .dialog({
             autoOpen: true,
@@ -687,64 +680,34 @@ function select_view (set_view) {
             open: function(event, ui) {
                 $('#modaldialog').show();
             	var url = 'action.php?tpl=json_actions&action=list_views';
-            	var source = { 
-            		datatype: "json", 
-            		datafields: [ 
-            			{ name: 'view_id' }, 
-            			{ name: 'title' }
-            		], 
-            		id: 'id', 
-            		url: url,
-            		data: {
-            			maxrows: '10'
-            		}
-            	};
-            	var dataAdapter = new $.jqx.dataAdapter(source, {
-            		formatData: function(data) {
-            			data.startswith = $("#select_view_search").val();
-            			return data;
-            		}
-            	});
-            	$('#select_view_list').jqxListBox({
-            		width: 525,
-            		height: 500,
-            	    source: dataAdapter,
-            		displayMember: 'title',
-            		valueMember: 'view_id',
-            	    theme: theme
-            	});
-            	var me = this;
-            	me.view_id = 0;
-            	$('#select_view_search').on('keyup', function(event) {
-            		if(me.timer) clearTimeout(me.timer);
-            		me.timer = setTimeout(function() {
-            			dataAdapter.dataBind();
-            		}, 300);
-            	});
-            	$('#select_view_list').on('select', function(event) {
-            		var item = event.args.item;
-            		if(item) {
-            			me.view_id = item.value;
-            			$('#select_view_button_ok').val('Load view "'+item.label+'"');
-            		}
-            	});
-            	$('#select_view_button_ok').jqxButton({ theme: theme, width: '150', height: '25' });
-            	$('#select_view_button_cancel').jqxButton({ theme: theme, width: '150', height: '25' });
-            
-            	$('#select_view_button_ok').on('click', function(event) {
-            		$('#modaldialogcontents').dialog('close');
-            		if(me.view_id > 0) {
-            			view_id = me.view_id;
-            			set_view();
-            		}
-            	});
-            	$('#select_view_button_cancel').on('click', function(event) {
-            		$('#modaldialogcontents').dialog('close');
-            	});
+                $('#viewtable').jqGrid({
+                    url: url,
+                    datatype: "json",
+                    colNames: ['ID', 'View name'],
+                    colModel: [
+                        {name: 'view_id', index: 'view_id', hidden: true},
+                        {name: 'title', index: 'title'}
+                        ],
+                    rowNum: 20,
+                    rowList: [10,20,30],
+                    height: 'auto',
+                    width: 520,
+                    loadonce: true,
+                    caption: "",
+                    onSelectRow: function(id) {
+                        var rowdata = $('#viewtable').jqGrid('getRowData', id);
+                        $('#modaldialogcontents').dialog('close');
+                        if(rowdata.view_id > 0) {
+                            view_id = rowdata.view_id;
+                            set_view();
+                        }
+                    }
+                });
+                $('#viewtable').jqGrid('filterToolbar', {searchOperators: false, searchOnEnter: false, defaultSearch: 'cn'});
+                $('#viewgrid tr.ui-jqgrid-labels').hide();
             }
         })
         .show();
-//	set_view();
 }
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
