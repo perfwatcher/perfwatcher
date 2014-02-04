@@ -712,7 +712,7 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
             width: timeline_width,
             height: timeline_height,
             maxHeight: $(window).height() - 50,
-            position: {my: 'center top', at: 'center top', of: '#items' },
+            position: {my: 'right top', at: 'right-12 top+12', of: '#items' },
             close: function(event,ui) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
@@ -776,7 +776,7 @@ function showtop (cdsrc, host, toptime) {
             width: 645,
             height: 620,
             maxHeight: $(window).height() - 50,
-            position: {my: 'center top', at: 'center top', of: '#items' },
+            position: {my: 'right top', at: 'right-12 top+12', of: '#items' },
             close: function(event,ui) {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
