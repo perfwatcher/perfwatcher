@@ -5,6 +5,7 @@
 - grids : use jqgrid plugin
 - layout : use jquery.layout plugin
 - generic plugin view : use jqueryui button()
+- views : use jqgrid plugin to load a view
 
 2014-??-??, Version 2.0
 

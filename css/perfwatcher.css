@@ -29,7 +29,6 @@ div.controls { position:relative; clear:both; margin-right:5px; }
 #timebutton div.controls.zoom div { float: left; margin:0px 1px; }
 img.graph { border-bottom: 1px solid #888888; }
 li[tag="message"] b { color: green; }
-.jqx-tabs-content-element-base { white-space:nowrap; height: 100%; }
 .ui-widget-content { background: white repeat-x scroll 100% 100% #FFFFFF; border: 1px solid #AAAAAA; color: #222222; }
 .widget { height: 220px; }
 #timespan { background-color:#AAAAAA; opacity:0.6; filter:alpha(opacity=60); position:absolute; z-index: 800 }

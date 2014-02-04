@@ -68,7 +68,6 @@ $(document).ready(function() {
 	$('#headerCenter').html(ich.headerCentertpl({}));
 	$('#headerRight').html(ich.headerRighttpl({}));
 	$(ich.contextmenutpl({})).appendTo('body');
-	theme = getTheme();
 	$('#headerLeft > ul').menu({ position: { using: positionsubmenu }});
 	$('#headerLeft > ul > li > a > span.ui-icon-carat-1-e').removeClass('ui-icon');
 	$('#headerLeft').show();

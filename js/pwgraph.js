@@ -78,8 +78,8 @@
         delegate: "img.graph",
         menu: "#graphmenu",
         beforeOpen: function(event, ui) {
-            pos_beforeopen_x = event.clientX - $(ui.target).position().left;
-            pos_beforeopen_y = event.clientY - $(ui.target).position().top;
+            pos_beforeopen_x = event.clientX - $(ui.target).offset().left;
+            pos_beforeopen_y = event.clientY - $(ui.target).offset().top;
             },
         select: function(event, ui) {
             switch(ui.cmd) {
@@ -830,7 +830,6 @@ function load_top(cdsrc, host, toptime) {
         height: 'auto',
         width: 630,
         loadonce: true,
-        async: false,
         loadComplete: function(data) {
             $('#modaldialogcontents').dialog("option", "title", 'Top process for '+host+' at '+tm_to_ddmmyy_hhmmss(data.userdata.date2));
         }
