@@ -340,45 +340,49 @@ function custom_view_selection_plugin_view(pwtabid, plugin) {
 }
 
 function plugin_view (pwtabid, plugin) {
-	$.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
-        $('<h2>Collectd "'+cdsrc+'"</h2>').appendTo('div[pwtabid="'+pwtabid+'"]');
-		$.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
-            if(current_plugin == plugin) {
-				$.each(current_plugin_instance, function (plugin_instance, type) {
-					$.each(type, function (type, type_instance) {
-						$.each(type_instance, function (type_instance, none) { 
-							$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
-							$('#graph_'+graphid).pwgraph({
-								cdsrc: cdsrc,
-								host: json_item_datas['host'],
-								plugin: plugin,
-								plugin_instance: plugin_instance,
-								type: type,
-								type_instance: type_instance
-							}).pwgraph('display');
-							graphid++;
-						});
-					});
-				});
-            }
-		});
-	 });
-	$.each(json_item_datas['plugins'][plugin], function (plugin_instance, type) {
-		$.each(type, function (type, type_instance) {
-			$.each(type_instance, function (type_instance, none) { 
-				$('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
-				$('#graph_'+graphid).pwgraph({
-					cdsrc: json_item_datas['config']['CdSrc']['source'],
-					host: json_item_datas['host'],
-					plugin: plugin,
-					plugin_instance: plugin_instance,
-					type: type,
-					type_instance: type_instance
-				}).pwgraph('display');
-				graphid++;
-			});
-		});
-	 });
+    if(! (typeof json_item_datas['aggregators'] === 'undefined')) {
+        $.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
+            $('<h2>Collectd "'+cdsrc+'"</h2>').appendTo('div[pwtabid="'+pwtabid+'"]');
+            $.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
+                if(current_plugin == plugin) {
+                    $.each(current_plugin_instance, function (plugin_instance, type) {
+                        $.each(type, function (type, type_instance) {
+                            $.each(type_instance, function (type_instance, none) { 
+                                $('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
+                                $('#graph_'+graphid).pwgraph({
+                                    cdsrc: cdsrc,
+                                    host: json_item_datas['host'],
+                                    plugin: plugin,
+                                    plugin_instance: plugin_instance,
+                                    type: type,
+                                    type_instance: type_instance
+                                }).pwgraph('display');
+                                graphid++;
+                            });
+                        });
+                    });
+                }
+            });
+        });
+    }
+    if(! (typeof json_item_datas['plugins'][plugin] === 'undefined')) {
+        $.each(json_item_datas['plugins'][plugin], function (plugin_instance, type) {
+            $.each(type, function (type, type_instance) {
+                $.each(type_instance, function (type_instance, none) { 
+                    $('<img class="graph" id="graph_'+graphid+'" zone="tab"/><br/>').appendTo('div[pwtabid="'+pwtabid+'"]');
+                    $('#graph_'+graphid).pwgraph({
+                        cdsrc: json_item_datas['config']['CdSrc']['source'],
+                        host: json_item_datas['host'],
+                        plugin: plugin,
+                        plugin_instance: plugin_instance,
+                        type: type,
+                        type_instance: type_instance
+                    }).pwgraph('display');
+                    graphid++;
+                });
+            });
+        });
+    }
 }
 
 function hide_menu_for(node_type) {
@@ -576,6 +580,9 @@ function confirmfor(optionsarg, func) {
 
 function perfwatcher_about_box() {
 //	TODO : use ICanHaz here ?
+    $('#timebutton').hide();
+    $('#timespan').hide();
+    $('#datetime').hide();
     $('<div id="modaldialogcontents"></div>')
         .html('<p>About Perfwatcher...</p>')
         .dialog({
@@ -684,6 +691,9 @@ function splitMetric (metric) {
 
 function select_view (set_view) {
 //	TODO : use ICanHaz here
+    $('#timebutton').hide();
+    $('#timespan').hide();
+    $('#datetime').hide();
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<div id="viewgrid">'

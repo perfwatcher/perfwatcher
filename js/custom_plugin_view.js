@@ -81,7 +81,7 @@ function custom_plugin_view_generic(pwtabid, plugin, options) {
 
     if(options['graph_function']) { graph_function = options['graph_function']; }
 
-    if(json_item_datas['aggregators']) {
+    if((! (typeof json_item_datas['aggregators'] === 'undefined')) && json_item_datas['aggregators']) {
         $.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
            $.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
                if(current_plugin == plugin) {
@@ -100,7 +100,7 @@ function custom_plugin_view_generic(pwtabid, plugin, options) {
                });
            });
     }
-    if(json_item_datas['plugins'][plugin]) {
+    if((! (typeof json_item_datas['plugins'][plugin] === 'undefined')) && json_item_datas['plugins'][plugin]) {
         $.each(json_item_datas['plugins'][plugin], function (plugin_instance_name, plugin_instance) {
            $.each(plugin_instance, function (type_name, type) {
                if ($.inArray(json_item_datas['config']['CdSrc']['source'], cdsrc_list) == -1) { cdsrc_list.push(json_item_datas['config']['CdSrc']['source']); }
@@ -108,9 +108,9 @@ function custom_plugin_view_generic(pwtabid, plugin, options) {
                if ($.inArray(type_name, t_list) == -1) { t_list.push(type_name); }
                $.each(type, function (type_instance_name, type_instance) {
                    if ($.inArray(type_instance_name, ti_list) == -1) { ti_list.push(type_instance_name); }
-                   });
                });
            });
+        });
     }
     $.each(pi_list, function (i, pi) {
         if (switch_plugin_type_for_collectdv4_check && pi == '_' && pi_list.length == 1) { switch_plugin_type_for_collectdv4_needed = true; }
@@ -254,7 +254,7 @@ function custom_plugin_view_generic_one_selector(pwtabid, plugin, options) {
 
     if(options['graph_function']) { graph_function = options['graph_function']; }
 
-    if(json_item_datas['aggregators']) {
+    if((! (typeof json_item_datas['aggregators'] === 'undefined')) && json_item_datas['aggregators']) {
         $.each(json_item_datas['aggregators'], function (cdsrc, aggregator_plugins) {
             $.each(aggregator_plugins, function (current_plugin, current_plugin_instance) {
                 if(current_plugin == plugin) {
@@ -277,7 +277,7 @@ function custom_plugin_view_generic_one_selector(pwtabid, plugin, options) {
             });
         });
     }
-    if(json_item_datas['plugins'][plugin]) {
+    if((! (typeof json_item_datas['plugins'][plugin] === 'undefined')) && json_item_datas['plugins'][plugin]) {
         cdsrc_list.push(json_item_datas['config']['CdSrc']['source']);
         $.each(json_item_datas['plugins'][plugin], function (plugin_instance_name, plugin_instance) {
             $.each(plugin_instance, function (type_name, type) {
