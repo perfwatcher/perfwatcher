@@ -7,40 +7,40 @@
 
 /* Database configuration */
 #$db_config = array(
-#	"servername"=> "localhost",
-#	"username"	=> "root",
-#	"password"	=> "",
-#	"database"	=> "perfwatcher"
+#    "servername"=> "localhost",
+#    "username"    => "root",
+#    "password"    => "",
+#    "database"    => "perfwatcher"
 #);
 
 /** 
  *
- *	Custom widget. 
- *	Have a look at the wiki to see how to create custom widget 
+ *    Custom widget. 
+ *    Have a look at the wiki to see how to create custom widget 
  *
  */
 # $widgets[] = 'custom_widget';
 
 /**
  *
- *	Peuplator plugin. 
- *	Have a look at the wiki to see how to create plugin to fill folder with you CMDB content 
+ *    Peuplator plugin. 
+ *    Have a look at the wiki to see how to create plugin to fill folder with you CMDB content 
  *
  */
 # $peuplator_plugins[] = 'folder_filling_my_cmdb';
 
 /**
  *
- *	Extra javascript file 
- *	Add here all javascript you want to add to the web interface 
+ *    Extra javascript file 
+ *    Add here all javascript you want to add to the web interface 
  *
  */
 # $extra_jsfile[] = 'js/custom_plugin_view.js';
 
 /**
  *
- *	Collectd sources definitions
- *	Add/set your collectd sources
+ *    Collectd sources definitions
+ *    Add/set your collectd sources
  *  Note : localhost as a server needs a Unix socket for rrdcached
  *
  */
@@ -51,8 +51,8 @@ $collectd_sources = array(
 
 /**
  *
- *	Path for config files for aggregators
- *	Note : if Collectd is running on remote servers, you are in charge of copying
+ *    Path for config files for aggregators
+ *    Note : if Collectd is running on remote servers, you are in charge of copying
  *  the config files to the Collectd servers (see basic_aggregator configuration)
  *
  */
