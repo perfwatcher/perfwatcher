@@ -7,7 +7,7 @@
 
 /* Database configuration */
 #$db_config = array(
-#    "servername"=> "localhost",
+#    "servername"  => "localhost",
 #    "username"    => "root",
 #    "password"    => "",
 #    "database"    => "perfwatcher"
