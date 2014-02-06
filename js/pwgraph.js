@@ -721,9 +721,7 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
                 pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
-                $('#timebutton').hide();
-                $('#timespan').hide();
-                $('#datetime').hide();
+                hide_graph_helpers();
                 pwgraph_hover_enabled = false;
 
                 // Set timeline options
@@ -785,9 +783,7 @@ function showtop (cdsrc, host, toptime) {
                 pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
-                $('#timebutton').hide();
-                $('#timespan').hide();
-                $('#datetime').hide();
+                hide_graph_helpers();
                 pwgraph_hover_enabled = false;
 
                 $('#modaldialog').show();

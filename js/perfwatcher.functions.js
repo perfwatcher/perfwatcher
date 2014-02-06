@@ -67,10 +67,14 @@ function save_tab_order() {
 	});
 }
 
+function hide_graph_helpers() {
+    $('#timebutton').hide();
+    $('#datetime').hide();
+    $('#timespan').hide();
+}
+
 function select_node_with_data(datas) {
-	$('#timebutton').hide();
-	$('#datetime').hide();
-	$('#timespan').hide();
+    hide_graph_helpers();
 	$('#itemtab').remove();
 	$('#items').html('<div id="itemtab" class="no-border"></div>');
 	$('#itemtab').html(ich.information_tab({ }));
@@ -152,9 +156,7 @@ function select_node_with_data(datas) {
 	}
     tabs.tabs({
         beforeActivate: function(event, ui) {
-            $('#timebutton').hide();
-            $('#datetime').hide();
-            $('#timespan').hide();
+            hide_graph_helpers();
             if($(ui.newTab).find('a').attr('href') == '#tabadd') {
 				askfornewtab({ }, function(title, lifetime) {
 					$.ajax({
@@ -314,9 +316,7 @@ function create_custom_tab(tabref, pwtabid, tabcontent) {
 }
 
 function load_tab(pwtabid) {
-	$('#timebutton').hide();
-	$('#datetime').hide();
-	$('#timespan').hide();
+    hide_graph_helpers();
 	if (pwtabid == 0) { return; }
 	if ($('div[pwtabid="'+pwtabid+'"]').attr('done')) {
 		return;
@@ -580,9 +580,7 @@ function confirmfor(optionsarg, func) {
 
 function perfwatcher_about_box() {
 //	TODO : use ICanHaz here ?
-    $('#timebutton').hide();
-    $('#timespan').hide();
-    $('#datetime').hide();
+    hide_graph_helpers();
     $('<div id="modaldialogcontents"></div>')
         .html('<p>About Perfwatcher...</p>')
         .dialog({
@@ -691,9 +689,7 @@ function splitMetric (metric) {
 
 function select_view (set_view) {
 //	TODO : use ICanHaz here
-    $('#timebutton').hide();
-    $('#timespan').hide();
-    $('#datetime').hide();
+    hide_graph_helpers();
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<div id="viewgrid">'

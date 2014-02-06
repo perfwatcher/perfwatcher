@@ -90,9 +90,7 @@ function clipboard_prepare_dialog() {
 
     $('.rm_from_clipboard').click(function () {
         $(this).parent().parent().remove();
-        $('#timebutton').hide();
-        $('#timespan').hide();
-        $('#datetime').hide();
+        hide_graph_helpers();
     });
 }
 
@@ -103,9 +101,7 @@ function clipboard_refresh_view() {
         $('#modalcliplist ul .clipboard_string').show();
         $('#modalcliplist ul .rm_from_clipboard').hide();
         $('#modalcliplist ul img.graph').hide();
-        $('#timebutton').hide();
-        $('#timespan').hide();
-        $('#datetime').hide();
+        hide_graph_helpers();
     } else {
         $('#clipboard_switch_markdown_btn').text('Show markdown');
         $('#modalcliplist ul .clipboard_string').hide();
@@ -152,9 +148,7 @@ function clipboard_new_dialog() {
                 pwgraph_current_zone = "tab";
                 $('#modalclipcontent').html("");
                 $(this).dialog('destroy').remove();
-                $('#timebutton').hide();
-                $('#timespan').hide();
-                $('#datetime').hide();
+                hide_graph_helpers();
             },
             open: function(event, ui) {
                 pwgraph_current_zone = "clip";

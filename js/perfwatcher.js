@@ -72,9 +72,7 @@ $(document).ready(function() {
 	$('#headerLeft > ul').menu({
             position: { using: positionsubmenu },
             focus: function(event, ui) {
-                $('#timebutton').hide();
-                $('#datetime').hide();
-                $('#timespan').hide();
+                hide_graph_helpers();
             }
     });
 	$('#headerLeft > ul > li > a > span.ui-icon-carat-1-e').removeClass('ui-icon');
@@ -97,9 +95,7 @@ $(document).ready(function() {
     });
     clipboard_update_title();
     $('#mainMenu').on('mouseover', function() {
-            $('#timebutton').hide();
-            $('#datetime').hide();
-            $('#timespan').hide();
+                hide_graph_helpers();
         });
 
     $('#mainSplitter').height($(window).height() - $('#mainMenu').height());
@@ -113,21 +109,20 @@ $(document).ready(function() {
 	}, 10000);
 
 	$('#timebutton').html(ich.timebuttontpl({}));
-	$('#timebutton').hide();
-	$('#timespan').hide();
 	$('#timebutton div div').click(function () {
 		var method = $(this).attr('class');
 		$(current_graph).pwgraph(method).pwgraph('display');
 	});
-	$('#datetime').html((new Date).toString()).hide();
+	$('#datetime').html((new Date).toString());
+
+    hide_graph_helpers();
+
 	$('#clip_content').click(function() {
         if(clipboard.length == 0) {
             notify_ko("Clipboard is empty");
             return;
         }
-        $('#timebutton').hide();
-        $('#timespan').hide();
-        $('#datetime').hide();
+        hide_graph_helpers();
         clipboard_new_dialog();
         $('#clipboard_rollback_btn').click(function () {
                 $('#modalcliplist').html('');

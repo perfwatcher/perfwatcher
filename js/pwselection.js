@@ -323,10 +323,8 @@
             $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_showclip"]').attr('disabled', 'disabled');
         }
     
-        $('#timebutton').hide();
-        $('#datetime').hide();
-        $('#timespan').hide();
-          return this;
+        hide_graph_helpers();
+        return this;
     }
   };
 
