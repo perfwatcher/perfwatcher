@@ -134,7 +134,7 @@ function clipboard_new_dialog() {
             )
         .dialog({
             autoOpen: true,
-            appendTo: '#clip',
+            appendTo: '#modaldialog',
             width: '800px',
             maxHeight: $(window).height() - 50,
             position: {my: 'right top', at: 'bottom left', of: '#clip' },
