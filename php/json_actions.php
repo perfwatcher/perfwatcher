@@ -59,7 +59,7 @@ switch ($action) {
             $deleteafter = time() + $_POST['lifetime'];
         }
         $selection_id = selection_create_new($_POST['tab_title'], $id, $deleteafter);
-        echo json_encode(array());
+        echo json_encode(array("selection_id" => $selection_id));
         break;
     case 'del_tab':
         $selection_id = get_arg('selection_id', 0, 1, "Error : No valid id found !!!", __FILE__, __LINE__);

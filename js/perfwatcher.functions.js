@@ -166,7 +166,9 @@ function select_node_with_data(datas) {
 							if(!r.status) {
 								notify_ko('Error, can\'t retrieve data from server !');
 							} else {
-                                create_custom_tab('unset', pwtabid++, {'id': json_item_datas['jstree']['id'], 'title': title == '' ? 'Custom view' : title});
+                                var res = jQuery.parseJSON(r.responseText);
+                                var selection_id = res['selection_id'];
+                                create_custom_tab('unset', pwtabid++, {'id': selection_id, 'title': title == '' ? 'Custom view' : title});
                                 tabs.tabs("refresh");
 								notify_ok("Tab added");
 							}
