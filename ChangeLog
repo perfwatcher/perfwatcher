@@ -29,7 +29,8 @@
 - generic plugin view : use jqueryui button()
 - views : use jqgrid plugin to load a view
 - Menu : removed useless entries; moved 'views' to the left
-
+- Updated some dialogs (noty now only for notifications)
+- noty updated to version 2.2.2
 
 2013-08-29, Version 1.3
 

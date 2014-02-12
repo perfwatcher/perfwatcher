@@ -13,15 +13,15 @@ function piesliceclicked( index )
     switch(index) {
         case 'UP':
             for (var src in hosts_up) { list = list + hosts_up[src]; }
-            showserverlist (list, 'success');
+            showserverlist (list, 'Servers UP', 'status-up');
             break;
         case 'DOWN':
             for (var src in hosts_down) { list = list + hosts_down[src]; }
-            showserverlist (list, 'error');
+            showserverlist (list, 'Servers DOWN', 'status-down');
             break;
         case 'UNKNOWN':
             for (var src in hosts_unknown) { list = list + hosts_unknown[src]; }
-            showserverlist (list, 'warning');
+            showserverlist (list, 'Servers UNKNOWN', 'status-unknown');
             break;
     }
     //window.open( 'action.php?tpl=statuschart&action=get_servers&status='+status+'&id='+json_item_datas['jstree']['id'], '_new', 'status=1,height=300,width=300,resizable=1,scrollbars=yes' );

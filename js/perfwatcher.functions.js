@@ -158,7 +158,7 @@ function select_node_with_data(datas) {
         beforeActivate: function(event, ui) {
             hide_graph_helpers();
             if($(ui.newTab).find('a').attr('href') == '#tabadd') {
-				askfornewtab({ }, function(title, lifetime) {
+				askfornewtab(function(title, lifetime) {
 					$.ajax({
 						async : false, type: "POST", url: "action.php?tpl=json_actions",
 						data : { "action" : "add_tab", "view_id" : view_id, "id" : json_item_datas['jstree']['id'], "tab_title" : title == '' ? 'Custom view' : title, "lifetime": lifetime },
@@ -170,7 +170,6 @@ function select_node_with_data(datas) {
                                 var selection_id = res['selection_id'];
                                 create_custom_tab('unset', pwtabid++, {'id': selection_id, 'title': title == '' ? 'Custom view' : title});
                                 tabs.tabs("refresh");
-								notify_ok("Tab added");
 							}
 						}
 					});
@@ -284,7 +283,7 @@ function create_plugin_tab(plugin, plugin_instance, pwtabid) {
 function create_custom_tab(tabref, pwtabid, tabcontent) {
     var tab_li = "<li plugin='custom_view_selection' custom_tab_id='"+tabcontent['id']+"' pwtabid='"+pwtabid+"'><a href='tab"+pwtabid+"'>"+tabcontent['title']+"</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
     var tabs = $('#itemtab').tabs();
-    tabs.find(".ui-tabs-nav").append(tab_li);
+    tabs.find("#pluginselectiontabbar.ui-tabs-nav").append(tab_li);
     tabs.on("click", "li[pwtabid='"+pwtabid+"'] span.ui-icon-close", function() {
             var thistab = $(this).closest("li");
             var text = $(thistab).find('a').text();
@@ -484,7 +483,7 @@ function refresh_status() {
 
 function notify_ko(text) {
 	noty({
-		"text":text, "layout":"center", "type":"error",
+		"text":text, "layout":"topCenter", "type":"error",
 		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
 		"speed":500, "timeout":5000, "closeButton":false,
 		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
@@ -493,90 +492,140 @@ function notify_ko(text) {
 
 function notify_ok(text) {
 	noty({
-		"text":text, "layout":"center", "type":"success",
+		"text":text, "layout":"topCenter", "type":"success",
 		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
 		"speed":500, "timeout":5000, "closeButton":false,
 		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
 	});
 }
-function showserverlist(list, type) {
-	noty({
-		"text":'<textarea>'+list+'</textarea>', "layout":"center", "type":type,
-		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
-		"speed":500, "timeout":60000, "closeButton":true,
-		"closeOnSelfClick":false, "closeOnSelfOver":false,"modal":true
-	});
+function showserverlist(list, title, state) {
+    $('<div id="modaldialogcontents"></div>').dialog({
+            autoOpen: true,
+            title: title,
+            height: 'auto',
+            width: 'auto',
+            position: {my: 'left top', at: 'left+12 top+64', of: '#items' },
+            appendTo: '#modaldialog',
+            buttons: {
+                    Ok: function() {
+                        $(this).dialog('close');
+                    }
+                },
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html('<textarea class="'+state+'"id="serverstatuslist">'+list+'</textarea>');
+            }
+        });
 }
-function askfornewtab(optionsarg, func) {
-	var options = { cancellabel: 'Cancel', oklabel: 'Create'};
-	$.extend(options, optionsarg);
-  noty({
-	"layout":"center",
-    text: 'Enter a name for this new tab <input type="text" id="askforinput" value="">  and a lifetime <select id="askforinput2" ><option value="0">Infinite</option><option value="86400">1 day</option><option value="604800">7 days</option><option value="2678400">1 month</option></select>', 
-    buttons: [
-      {type: 'button green', text: options['oklabel'], click: function($noty) {
-	  	  var name = $('#askforinput').val();
-		  func($('#askforinput').val(), $('#askforinput2').val());
-          $noty.close();
-        }
-      },
-      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
-          $noty.close();
-          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
-        }
-      }
-      ],
-    closable: false,
-    timeout: false
-  });
+function askfornewtab(func) {
+    $('<div id="modaldialogcontents"></div>').dialog({
+            autoOpen: true,
+            title: 'New tab',
+            height: 'auto',
+            width: 'auto',
+            appendTo: '#modaldialog',
+            buttons: {
+                Ok: function() {
+                        var askfornewtabname = $('#askfornewtabname').val();
+                        var askfornewtabttl = $('#askfornewtabttl').val();
+                        $(this).dialog('close');
+                        func(askfornewtabname, askfornewtabttl);
+                    },
+                Cancel: function() {
+                        $(this).dialog('close');
+                    }
+            },
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html(ich.newtabtpl());
+            }
+        });
   return false;
 }
 function askfor(optionsarg, func) {
-	var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
+	var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'Question'};
 	$.extend(options, optionsarg);
-  noty({
-	"layout":"center",
-    text: options['title']+' <input type="text" id="askforinput" value="">', 
-    buttons: [
-      {type: 'button green', text: options['oklabel'], click: function($noty) {
-	  	  var name = $('#askforinput').val();
-		  func($('#askforinput').val());
-          $noty.close();
-        }
-      },
-      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
-          $noty.close();
-          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
-        }
-      }
-      ],
-    closable: false,
-    timeout: false
-  });
+    $('<div id="modaldialogcontents"></div>').dialog({
+            autoOpen: true,
+            title: options['title'],
+            height: 'auto',
+            width: 'auto',
+            position: {my: 'center top', at: 'center top+64', of: '#items' },
+            appendTo: '#modaldialog',
+            buttons: [
+                {
+                    text: options['oklabel'],
+                    click: function() {
+                        var askforvalue = $('#askforvalue').val();
+                        $(this).dialog('close');
+                        func(askforvalue);
+                    }
+                },
+                {
+                    text: options['cancellabel'],
+                    click: function() {
+                        $(this).dialog('close');
+                    }
+                }
+            ],
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html(ich.askfor({label: options['title']}));
+            }
+        });
   return false;
 }
 
 function confirmfor(optionsarg, func) {
-  var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'How mutch ?'};
-  $.extend(options, optionsarg);
-  noty({
-	"layout":"center",
-    text: options['title'], 
-    buttons: [
-      {type: 'button green', text: options['oklabel'], click: function($noty) {
-		  func();
-          $noty.close();
-        }
-      },
-      {type: 'button pink', text: options['cancellabel'], click: function($noty) {
-          $noty.close();
-          noty({force: true, text: 'You clicked "'+options['cancellabel']+'" button', type: 'error', "layout":"center", "closeOnSelfClick":true, "closeOnSelfOver":true});
-        }
-      }
-      ],
-    closable: false,
-    timeout: false
-  });
+	var options = { cancellabel: 'Cancel', oklabel: 'Ok', title: 'Question'};
+	$.extend(options, optionsarg);
+    $('<div id="modaldialogcontents"></div>').dialog({
+            autoOpen: true,
+            title: options['title'],
+            height: 'auto',
+            width: 'auto',
+            position: {my: 'center top', at: 'center top+64', of: '#items' },
+            appendTo: '#modaldialog',
+            buttons: [
+                {
+                    text: options['oklabel'],
+                    click: function() {
+                        $(this).dialog('close');
+                        func();
+                    }
+                },
+                {
+                    text: options['cancellabel'],
+                    click: function() {
+                        $(this).dialog('close');
+                    }
+                }
+            ],
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html(ich.confirmfor({label: options['title']}));
+            }
+        });
   return false;
 }
 
