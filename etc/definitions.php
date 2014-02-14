@@ -1250,6 +1250,7 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
     $GraphDefs['if_multicast'] = $GraphDefs['ipt_packets'];
     $GraphDefs['if_tx_errors'] = $GraphDefs['if_rx_errors'];
 
+    $MetaGraphDefs['nb_values']         = 'meta_graph_nb_values';
     $MetaGraphDefs['files_count']       = 'meta_graph_files_count';
     $MetaGraphDefs['files_size']        = 'meta_graph_files_size';
     $MetaGraphDefs['users']             = 'meta_graph_users';
@@ -1320,6 +1321,39 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
             }
         }
     }
+}
+
+function meta_graph_nb_values($collectd_source, $host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
+    global $config;
+    $local_opts = array();
+
+    if($plugin == "write_top") {
+        switch($type_instances) {
+            case 'nb_hosts':
+                $opts['rrd_opts'] = array(
+                        '-v', 'Nb Hosts',
+                        '--units-exponent', '0',
+                        );
+                break;
+            case 'nb_free_chunks':
+                $opts['rrd_opts'] = array('-v', 'Nb Free memory chunks');
+                break;
+            case 'nb_tops_to_flush':
+                $opts['rrd_opts'] = array('-v', 'Nb Top Ps to flush');
+                break;
+            default:
+                if($type_instances) {
+                    $opts['rrd_opts'] = array('-v', $type_instances);
+                }
+        }
+    } else if($plugin == "jsonrpc") {
+        $opts['rrd_opts'] = array(
+                '-v', 'Nb metrics',
+                '--units-exponent', '3',
+                ); 
+    }
+
+    return collectd_draw_rrd($collectd_source, $host, $plugin, $plugin_instance, $type, $type_instances, array_merge($opts, $local_opts));
 }
 
 function meta_graph_files_count($collectd_source, $host, $plugin, $plugin_instance, $type, $type_instances, $opts = array()) {
