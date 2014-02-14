@@ -436,7 +436,7 @@ function collectd_draw_rrd($collectd_source, $host, $plugin, $pinst = null, $typ
 
 /**
  * Draw RRD file based on it's structure
- * @timespan
+ * @collectd_source
  * @host
  * @plugin
  * @pinst
@@ -445,7 +445,7 @@ function collectd_draw_rrd($collectd_source, $host, $plugin, $pinst = null, $typ
  * @opts
  * @return Commandline to call RRDGraph in order to generate the final graph
  */
-function collectd_draw_generic($collectd_source, $timespan, $host, $plugin, $pinst = null, $type, $tinst = null, $opts = array()) {
+function collectd_draw_generic($collectd_source, $host, $plugin, $pinst = null, $type, $tinst = null, $opts = array()) {
     global $config, $GraphDefs, $begin, $end;
 
     if (!isset($GraphDefs[$type]))

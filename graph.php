@@ -227,7 +227,7 @@ if (isset($MetaGraphDefs[$type])) {
         $rrd_cmd = $MetaGraphDefs[$type]($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
     }
 } else if (isset($GraphDefs[$type])) {
-    $rrd_cmd = collectd_draw_generic($collectd_source, $timespan, $host, $plugin, $pinst, $type, $tinst, $opts);
+    $rrd_cmd = collectd_draw_generic($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
 } else {
     $rrd_cmd = collectd_draw_rrd($collectd_source, $host, $plugin, $pinst, $type, $tinst, $opts);
 }
