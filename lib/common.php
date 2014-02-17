@@ -392,4 +392,86 @@ function get_node_name($id) {
     return get_node_name_by_id($id);
 }
 
+/*
+ * Get all rrd files on Collectd servers.
+ * Then ask Collectd servers for a status.
+ * This is useful to get the list of dead servers.
+ */
+function get_dead_servers_list($collectd_source_forced=null, $include_aggregators=0, $return_unknown_only=1) {
+    global $collectd_sources;
+
+    $ret = array();
+    if($collectd_source_forced) {
+        $local_collectd_sources[] = $collectd_source_forced;
+    } else {
+        $local_collectd_sources = array_keys($collectd_sources);
+    }
+
+    foreach ($local_collectd_sources as $collectd_source) {
+        $rrd_list = array();
+
+        // Get list of rrd hosts
+        $json = json_encode(array(
+                    "jsonrpc" => "2.0",
+                    "method" => "pw_get_dir_hosts",
+                    "params" => "",
+                    "id" => 0)
+                );
+
+        $ra = jsonrpc_query($collectd_source, $json);
+
+        if(!(isset($ra[0]) && isset($ra[1]))) { continue; }
+        $r = $ra[0];
+        if (! isset($r['nb'])) { continue; }
+
+        $data = $r['values'];
+        if($data) {
+            if($include_aggregators) {
+                foreach ($data as $h) {
+                    $rrd_list[] = $h;
+                }
+            } else {
+                foreach ($data as $h) {
+                    if(substr($h, 0, 11) != "aggregator_") $rrd_list[] = $h;
+                }
+            }
+        }
+
+        // Ask status for all rrd hosts
+        $json = json_encode(array(
+                    "jsonrpc" => "2.0",
+                    "method" => "pw_get_status",
+                    "params" => array(
+                        "timeout" => 240,
+                        "server" => $rrd_list,
+                        ),
+                    "id" => 0)
+                );
+
+        $ra = jsonrpc_query($collectd_source, $json);
+
+        if(!(isset($ra[0]) && isset($ra[1]))) { continue; }
+        $data = $ra[0];
+
+        if($data) {
+            if($return_unknown_only) {
+                foreach ($data as $h => $r) {
+                    if($r == "unknown") {
+                        $ret[$collectd_source][$h] = $r;
+                    }
+                }
+            } else {
+                foreach ($data as $h => $r) {
+                    $ret[$collectd_source][$h] = $r;
+                }
+            }
+        }
+
+        ksort($ret[$collectd_source]);
+    }
+    ksort($ret);
+
+    return $ret;
+}
+
 ?>
