@@ -90,6 +90,8 @@ $rv = json_encode(
                     'inherited' => $collectd_source_is_inherited
                     )
                 )
-            ));
+            ),
+        JSON_FORCE_OBJECT
+        );
 echo $rv;
 ?>
