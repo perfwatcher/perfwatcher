@@ -18,12 +18,16 @@
 
 require 'lib/common.php';
 
+$collectd_source = get_arg("collectd_source", 0, 0, "", __FILE__, __LINE__);
+$include_aggregators = get_arg("include_aggregators", 0, 0, "", __FILE__, __LINE__);
+$return_unknown_only = get_arg("return_unknown_only", 1, 0, "", __FILE__, __LINE__);
+
 header('Content-Type: application/json');
 header('Cache-Control: max-age=60');
 
-    $dead_servers_list = get_dead_servers_list();
-    print json_encode($dead_servers_list);
+$dead_servers_list = get_dead_servers_list($collectd_source, $include_aggregators, $return_unknown_only);
+print json_encode($dead_servers_list);
 
-    exit();
+exit();
 
 ?>
