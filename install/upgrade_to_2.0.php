@@ -39,9 +39,21 @@ $defaultcdsrc = read_value_from_stdin(
         array_keys($collectd_sources),
         $collectd_source_default
         );
+$dropemptytabs = 'n';
+$dropemptytabs = read_value_from_stdin(
+        "Do you want to drop empty tabs ? (default='yes')",
+        array('yes', 'no', 'y', 'n'),
+        'y'
+        );
+if(substr($dropemptytabs,0,1) == 'y') {
+    $dropemptytabs = 1;
+} else {
+    $dropemptytabs = 0;
+}
 
 echo "You will use the following parameters :\n";
 echo "  default Collectd source : '$defaultcdsrc'\n";
+echo "  drop empty tabs         : ".($dropemptytabs?'yes':'no')."\n";
 
 $confirm = read_value_from_stdin("Confirm ? (y/N)", array('y', 'n', 'N'), 'n');
 if($confirm != 'y') { 
@@ -151,6 +163,17 @@ if ($db->connect()) {
 
         foreach ($t_datas as $k => $v) {
             if($k == 'tabs') {
+                $pwtype = "";
+
+                # Check for non empty tabs
+                $sometabsnotempty=0;
+                foreach ($v as $tab_title => $tab_description) {
+                    if(isset($tab_description['selected_graph']) && $tab_description['selected_graph']) {
+                        if($t['pwtype'] != "container") { $sometabsnotempty = 1; break; }
+                        if(isset($tab_description['selected_hosts']) && (count($tab_description['selected_hosts']) >= 1)) { $sometabsnotempty = 1; break; }
+                        if(isset($tab_description['selected_aggregators']) && (count($tab_description['selected_aggregators']) >= 1)) { $sometabsnotempty = 1; break; }
+                    }
+                }
                 if($t['pwtype'] == "container") {
                     $db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
                     $db->execute(array((int)$t['view_id'], $t['parent_id']));
@@ -158,58 +181,94 @@ if ($db->connect()) {
                     $res =  $db->get_row("assoc");
                     $pos =  $res['position'];
 
-                    $db->prepare("INSERT into tree (view_id, parent_id, position, title, pwtype) VALUES (?, ?, ?, ?, ?)", array('integer', 'integer', 'integer', 'text', 'text'));
-                    $db->execute(array((int)$t['view_id'], (int)$t['id'], (int)$pos, 'tabs_from_'.$t['title'], 'selection'));
-                    $tree_id = $db->insert_id('tree', 'id');
+                    if($sometabsnotempty || ($dropemptytabs == 0)) {
+                        $db->prepare("INSERT into tree (view_id, parent_id, position, title, pwtype) VALUES (?, ?, ?, ?, ?)", array('integer', 'integer', 'integer', 'text', 'text'));
+                        $db->execute(array((int)$t['view_id'], (int)$t['id'], (int)$pos, 'tabs_from_'.$t['title'], 'selection'));
+                        $tree_id = $db->insert_id('tree', 'id');
+                        $pwtype = "container";
+                    }
                 } else {
                     $tree_id = $t['id'];
+                    $pwtype = "server";
                 }
 
-                foreach ($v as $tab_title => $tab_description) {
-                    $deleteafter = isset($tab_description['deleteafter'])?$tab_description['deleteafter']:0;
-                    $title = isset($tab_description['tab_title'])?$tab_description['tab_title']:"no_title";
-                    $markup = "";
-                    if(isset($tab_description['selected_graph']) && isset($tab_description['selected_hosts'])) {
-                        $markup .= "<table>\n";
-                        foreach ($tab_description['selected_hosts'] as $tab_host) {
-                            $markup .= "  <tr>\n";
-                            foreach ($tab_description['selected_graph'] as $tab_graph) {
+                if($sometabsnotempty || ($dropemptytabs == 0)) {
+                    foreach ($v as $tab_title => $tab_description) {
+                        $deleteafter = isset($tab_description['deleteafter'])?$tab_description['deleteafter']:0;
+                        $title = isset($tab_description['tab_title'])?$tab_description['tab_title']:"no_title";
+                        $markup = "";
+                        if(isset($tab_description['selected_graph']) && $tab_description['selected_graph'] && ($pwtype == "server")) {
+                            $selected_graphs = $tab_description['selected_graph'];
+                            if(!is_array($selected_graphs)) {
+                                $selected_graphs = explode(',', $tab_description['selected_graph']);
+                            }
+                            foreach ($selected_graphs as $tab_graph) {
                                 if(is_array($tab_graph)) {
                                     $gd = $tab_graph;
                                 } else {
                                     $gd = explode("|", $tab_graph);
                                 }
-                                $markup .= "    <td>rrdgraph('$defaultcdsrc', '$tab_host', '$gd[0]', '$gd[1]', '$gd[2]', '$gd[3]')</td>\n";
-                            }
-                            $markup .= "  </tr>\n";
-                        }
-                        $markup .= "</table>\n";
-                    }
-                    if(isset($tab_description['selected_graph']) && isset($tab_description['selected_aggregators'])) {
-                        $markup .= "<table>\n";
-                        foreach ($tab_description['selected_aggregators'] as $tab_host) {
-                            $markup .= "  <tr>\n";
-                            foreach ($tab_description['selected_graph'] as $tab_graph) {
-                                if(is_array($tab_graph)) {
-                                    $gd = $tab_graph;
-                                } else {
-                                    $gd = explode("|", $tab_graph);
+                                if(count($gd) >= 3) {
+                                    $markup .= "rrdgraph('$defaultcdsrc', '$tab_host', '$gd[0]', '$gd[1]', '$gd[2]', '$gd[3]')\n";
                                 }
-                                $markup .= "    <td>rrdgraph('$defaultcdsrc', '$tab_host', '$gd[0]', '$gd[1]', '$gd[2]', '$gd[3]')</td>\n";
                             }
-                            $markup .= "  </tr>\n";
                         }
-                        $markup .= "</table>\n";
-                    }
-                    if($markup) {
-                        if($t['pwtype'] == "container") $markup = "WARNING : this tab was converted from a container. You may edit it and use regex for hosts definition.\n\n".$markup;
-                        $markup = "# Converted from older Perfwatcher tab #\n".$markup;
-                    }
-                    $data = array('markup' => $markup);
+                        if(isset($tab_description['selected_graph']) && $tab_description['selected_graph'] && isset($tab_description['selected_hosts'])) {
+                            $markup .= "<table>\n";
+                            foreach ($tab_description['selected_hosts'] as $tab_host) {
+                                $markup .= "  <tr>\n";
+                                $selected_graphs = $tab_description['selected_graph'];
+                                if(!is_array($selected_graphs)) {
+                                    $selected_graphs = explode(',', $tab_description['selected_graph']);
+                                }
+                                foreach ($selected_graphs as $tab_graph) {
+                                    if(is_array($tab_graph)) {
+                                        $gd = $tab_graph;
+                                    } else {
+                                        $gd = explode("|", $tab_graph);
+                                    }
+                                    if(count($gd) >= 3) {
+                                        $markup .= "    <td>rrdgraph('$defaultcdsrc', '$tab_host', '$gd[0]', '$gd[1]', '$gd[2]', '$gd[3]')</td>\n";
+                                    }
+                                }
+                                $markup .= "  </tr>\n";
+                            }
+                            $markup .= "</table>\n";
+                        }
+                        if(isset($tab_description['selected_graph']) && $tab_description['selected_graph'] && isset($tab_description['selected_aggregators'])) {
+                            $markup .= "<table>\n";
+                            foreach ($tab_description['selected_aggregators'] as $tab_host) {
+                                $markup .= "  <tr>\n";
+                                $selected_graphs = $tab_description['selected_graph'];
+                                if(!is_array($selected_graphs)) {
+                                    $selected_graphs = explode(',', $tab_description['selected_graph']);
+                                }
+                                foreach ($selected_graphs as $tab_graph) {
+                                    if(is_array($tab_graph)) {
+                                        $gd = $tab_graph;
+                                    } else {
+                                        $gd = explode("|", $tab_graph);
+                                    }
+                                    if(count($gd) >= 3) {
+                                        $markup .= "    <td>rrdgraph('$defaultcdsrc', '$tab_host', '$gd[0]', '$gd[1]', '$gd[2]', '$gd[3]')</td>\n";
+                                    }
+                                }
+                                $markup .= "  </tr>\n";
+                            }
+                            $markup .= "</table>\n";
+                        }
+                        if(($dropemptytabs == 0) || $markup) {
+                            if($markup) {
+                                if($t['pwtype'] == "container") $markup = "WARNING : this tab was converted from a container. You may edit it and use regex for hosts definition.\n\n".$markup;
+                                $markup = "# Converted from older Perfwatcher tab #\n".$markup;
+                            }
+                            $data = array('markup' => $markup);
 # Insert a new selection
-                    $db->prepare("INSERT INTO selections (title, tree_id, deleteafter, data) VALUES (?, ?, ?, ?)", array('text', 'integer', 'integer', 'text'));
-                    $db->execute(array($title, (int)$tree_id, (int)$deleteafter, serialize($data)));
-                    $db->free();
+                            $db->prepare("INSERT INTO selections (title, tree_id, deleteafter, data) VALUES (?, ?, ?, ?)", array('text', 'integer', 'integer', 'text'));
+                            $db->execute(array($title, (int)$tree_id, (int)$deleteafter, serialize($data)));
+                            $db->free();
+                        }
+                    }
                 }
             }
         }
