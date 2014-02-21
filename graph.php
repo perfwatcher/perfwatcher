@@ -63,43 +63,44 @@ function error($code, $code_msg, $title, $msg) {
     $png     = imagecreate($w, $h);
 
     $c_bkgnd = imagecolorallocate($png, 255, 255, 255);
+    $c_fgnd  = imagecolorallocate($png, 255, 255, 255);
+    $c_blt   = imagecolorallocate($png, 208, 208, 208);
+    $c_brb   = imagecolorallocate($png, 160, 160, 160);
+    $c_grln  = imagecolorallocate($png, 114, 114, 114);
+    $c_grarr = imagecolorallocate($png, 128,  32,  32);
+    $c_txt   = imagecolorallocate($png, 0, 0, 0);
+    $c_etxt  = imagecolorallocate($png, 64, 0, 0);
+    if (function_exists('imageantialias'))
+        imageantialias($png, true);
+    //imagefilledrectangle($png, 0,   0, $w, $h, $c_bkgnd);
+    imagefilledrectangle($png, 51, 33, $w-31, $h-47, $c_fgnd);
+    imageline($png,  51,  30,  51, $h-43, $c_grln);
+    imageline($png,  48, $h-46, $w-28, $h-46, $c_grln);
+    imagefilledpolygon($png, array(49, 30,    51, 26,    53, 30), 3, $c_grarr);
+    imagefilledpolygon($png, array($w-28, $h-48,  $w-24, $h-46,  $w-28, $h-44), 3, $c_grarr);
+    //	imageline($png,    0,    0,   $w,    0, $c_blt);
+    //	imageline($png,    0,    1,   $w,    1, $c_blt);
+    //	imageline($png,    0,    0,    0,   $h, $c_blt);
+    //	imageline($png,    1,    0,    1,   $h, $c_blt);
+    //	imageline($png, $w-1,    0, $w-1,   $h, $c_brb);
+    //	imageline($png, $w-2,    1, $w-2,   $h, $c_brb);
+    //	imageline($png,    1, $h-2,   $w, $h-2, $c_brb);
+    //	imageline($png,    0, $h-1,   $w, $h-1, $c_brb);
+    imagestring($png, 4, ceil(($w-strlen($title)*imagefontwidth(4)) / 2), 10, $title, $c_txt);
     if (isset($_GET['debug'])) {
-        $c_fgnd  = imagecolorallocate($png, 255, 255, 255);
-        $c_blt   = imagecolorallocate($png, 208, 208, 208);
-        $c_brb   = imagecolorallocate($png, 160, 160, 160);
-        $c_grln  = imagecolorallocate($png, 114, 114, 114);
-        $c_grarr = imagecolorallocate($png, 128,  32,  32);
-        $c_txt   = imagecolorallocate($png, 0, 0, 0);
-        $c_etxt  = imagecolorallocate($png, 64, 0, 0);
-        if (function_exists('imageantialias'))
-            imageantialias($png, true);
-        //imagefilledrectangle($png, 0,   0, $w, $h, $c_bkgnd);
-        imagefilledrectangle($png, 51, 33, $w-31, $h-47, $c_fgnd);
-        imageline($png,  51,  30,  51, $h-43, $c_grln);
-        imageline($png,  48, $h-46, $w-28, $h-46, $c_grln);
-        imagefilledpolygon($png, array(49, 30,    51, 26,    53, 30), 3, $c_grarr);
-        imagefilledpolygon($png, array($w-28, $h-48,  $w-24, $h-46,  $w-28, $h-44), 3, $c_grarr);
-        //	imageline($png,    0,    0,   $w,    0, $c_blt);
-        //	imageline($png,    0,    1,   $w,    1, $c_blt);
-        //	imageline($png,    0,    0,    0,   $h, $c_blt);
-        //	imageline($png,    1,    0,    1,   $h, $c_blt);
-        //	imageline($png, $w-1,    0, $w-1,   $h, $c_brb);
-        //	imageline($png, $w-2,    1, $w-2,   $h, $c_brb);
-        //	imageline($png,    1, $h-2,   $w, $h-2, $c_brb);
-        //	imageline($png,    0, $h-1,   $w, $h-1, $c_brb);
-        imagestring($png, 4, ceil(($w-strlen($title)*imagefontwidth(4)) / 2), 10, $title, $c_txt);
         imagestring($png, 5, 60, 35, sprintf('%s [%d]', $code_msg, $code), $c_etxt);
-        if (function_exists('imagettfbbox') && is_file($config['error_font'])) {
-            // Detailled error message
-            $fmt_msg = makeTextBlock($msg, $config['error_font'], 10, $w-86);
-            $fmtbox  = imagettfbbox(12, 0, $config['error_font'], $fmt_msg);
-            imagettftext($png, 10, 0, 55, 35+3+imagefontwidth(5)-$fmtbox[7]+$fmtbox[1], $c_txt, $config['error_font'], $fmt_msg);
-        } else {
-            imagestring($png, 4, 53, 35+6+imagefontwidth(5), $msg, $c_txt);
-        }
+    }
+    if (function_exists('imagettfbbox') && is_file($config['error_font'])) {
+        // Detailled error message
+        $fmt_msg = makeTextBlock($msg, $config['error_font'], 10, $w-86);
+        $fmtbox  = imagettfbbox(12, 0, $config['error_font'], $fmt_msg);
+        imagettftext($png, 10, 0, 55, 35+3+imagefontwidth(5)-$fmtbox[7]+$fmtbox[1], $c_txt, $config['error_font'], $fmt_msg);
+    } else {
+        imagestring($png, 4, 53, 35+6+imagefontwidth(5), $msg, $c_txt);
     }
     imagepng($png);
     imagedestroy($png);
+
 }
 
 /**
@@ -244,19 +245,6 @@ if(!$rrd_cmd) {
     return error500($graph_identifier, "Failed to tell RRD how to generate the graph");
 }
 
-if (isset($_GET['download'])) {
-    header("Pragma: public");
-    header("Expires: 0");
-    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-    header("Cache-Control: private",false);
-    header("Content-Type: application/octet-stream");
-    header("Content-Disposition: attachment; filename=\"graph.png\";" );
-    header("Content-Transfer-Encoding: binary"); 
-} else {
-    header('Content-Type: image/png');
-}
-header('Cache-Control: max-age=60');
-
 ################################################################
 # The following commented code allows to flush rrdcached before
 # drawing.
@@ -289,22 +277,37 @@ header('Cache-Control: max-age=60');
 ################################################################
 
 /* Graph the rrds */
-    $json = json_encode(array(
-                "jsonrpc" => "2.0",
-                "method" => "pw_rrd_graphonly",
-                "params" => $rrd_cmd,
-                "id" => 0)
-            );
-    $ra = jsonrpc_query($collectd_source, $json);
+$json = json_encode(array(
+            "jsonrpc" => "2.0",
+            "method" => "pw_rrd_graphonly",
+            "params" => $rrd_cmd,
+            "id" => 0)
+        );
+$ra = jsonrpc_query($collectd_source, $json);
 
-    $ret = array();
-    if(!(isset($ra[0]) && isset($ra[1]))) { echo file_get_contents($config["failed_rrdgraph_png"]); exit(); }
-    $r = $ra[0];
-    if(isset($r["image"])) {
-    echo base64_decode($r["image"]);
-    } else {
-        echo file_get_contents($config["failed_rrdgraph_png"]);
-    }
+$ret = array();
+if(!(isset($ra[0]) && isset($ra[1]))) {
+    return error500($graph_identifier, "Collectd server failed to answer the request for a graph");
+}
+$r = $ra[0];
+if(!isset($r["image"])) {
+    return error404($graph_identifier, "Collectd server failed to send a graph");
+}
+
+if (isset($_GET['download'])) {
+    header("Pragma: public");
+    header("Expires: 0");
+    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+    header("Cache-Control: private",false);
+    header("Content-Type: application/octet-stream");
+    header("Content-Disposition: attachment; filename=\"graph.png\";" );
+    header("Content-Transfer-Encoding: binary"); 
+} else {
+    header('Content-Type: image/png');
+}
+header('Cache-Control: max-age=60');
+echo base64_decode($r["image"]);
+
 
 ################################################################
 # This is how we generated the graphs before.
