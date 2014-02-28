@@ -101,6 +101,21 @@
                     var options = $(current_graph).data();
                     showtimeline(options['cdsrc'], $(current_graph).data().host,options['begin'],options['end']);
                     break;
+                case 'copy':
+                    if (window.clipboardData) { // Internet Explorer
+                        var img = $(current_graph)[0];
+                        img.contentEditable = 'true';
+                        var controlRange;
+                        if (document.body.createControlRange) {
+                            controlRange = document.body.createControlRange();
+                            controlRange.addElement(img);
+                            controlRange.execCommand('Copy');
+                        }
+                        img.contentEditable = 'false';
+                    } else {
+                        notify_ko("This function is not implemented on your browser yet "); 
+                    }
+                    break;
                 case 'save':
                     var url = $(current_graph).attr('src') + '&download';
                     document.location = url;
