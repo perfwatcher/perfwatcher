@@ -15,5 +15,5 @@ admin> GRANT ALL PRIVILEGES ON perfwatcher.* TO 'perfwatcher'@'yourhostname' IDE
 
 3/ Create the database schema :
 
-cat create.sql | mysql -u perfwatcher -h localhost -p perfwatcher
+cat create.mysql | mysql -u perfwatcher -h localhost -p perfwatcher
 
