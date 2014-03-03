@@ -49,7 +49,7 @@ class _database {
 
     function __construct($args = null) {
         if($args) { $this->settings = array_merge($this->settings, $args); }
-        if($this->settings["error_file"] === true) $this->settings["error_file"] = dirname(__FILE__)."/__mysql_errors.log";
+        if($this->settings["error_file"] === true) $this->settings["error_file"] = "logs/perfwatcher_".$this->settings["dbtype"]."_errors.log";
     }
 
     function connect() {
