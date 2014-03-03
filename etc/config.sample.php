@@ -5,12 +5,23 @@
  *
  */
 
-/* Database configuration */
+/* Database configuration for mysql */
 #$db_config = array(
+#    "dbtype"      => "mysql",
 #    "servername"  => "localhost",
 #    "username"    => "root",
 #    "password"    => "",
 #    "database"    => "perfwatcher"
+#);
+
+/* Database configuration for postgresql */
+#$db_config = array(
+#    "dbtype"      => "pgsql",
+#    "servername"  => "localhost",
+#    "username"    => "root",
+#    "password"    => "",
+#    "database"    => "perfwatcher"
+#    "serverport"  => false,
 #);
 
 /** 

@@ -120,6 +120,7 @@ class _tree_struct {
     }
 
     function set_datas($id, $data) {
+# TODO: sql/id
         $this->db->prepare("UPDATE ".$this->table." SET datas=? WHERE view_id = ? AND id = ?", array('text', 'integer', 'integer'));
         $this->db->execute(array(serialize($data), (int)$this->view_id, (int)$id));
     }
@@ -144,6 +145,7 @@ class _tree_struct {
     }
 
     function _create($parent, $position) {
+# TODO: sql/id
         $this->db->prepare("INSERT into ".$this->table." (view_id, parent_id, position) VALUES (?, ?, ?)", array('integer', 'integer', 'integer'));
         $this->db->execute(array((int)$this->view_id, (int)$parent, (int)$position) );
         return $this->db->insert_id($this->table, 'id');
@@ -195,6 +197,7 @@ class _tree_struct {
         $this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE view_id = ? AND id = ?", array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array($ref_id,$position,(int)$this->view_id, $id));
 
+# TODO: sql/compat
         $this->db->query("SET @a=-1");
         $this->db->prepare("UPDATE ".$this->table." SET position = @a:=@a+1 WHERE view_id = ? AND parent_id = ? ORDER BY position", array('integer', 'integer'));
         $this->db->execute(array($this->view_id, $ref_id));
@@ -258,6 +261,7 @@ class json_tree extends _tree_struct {
     }
 
     function max_pos($parent_id) {
+# TODO: sql/compat
         $this->db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
         $this->db->execute(array((int)$this->view_id, $parent_id));
         $this->db->nextr();
@@ -267,6 +271,9 @@ class json_tree extends _tree_struct {
 
     function set_node($data) {
         if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
+# TODO: sql/id
+# Note : is << SET ".$this->fields["id"]." = ".$this->fields["id"]." " >> useful ?
+# Note : cannot we do it another way ?
         $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
         foreach($this->add_fields as $k => $v) {
             if(isset($data[$k])) {
@@ -297,6 +304,9 @@ class json_tree extends _tree_struct {
 
             $i = 0;
             foreach($data as $dk => $dv) {
+# TODO: sql/id
+# Note : is << SET ".$this->fields["id"]." = ".$this->fields["id"]." " >> useful ?
+# Note : cannot we do it another way ?
                 $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
                 foreach($this->add_fields as $k => $v) {
                     if(isset($dv[$k])) {
@@ -327,6 +337,7 @@ class json_tree extends _tree_struct {
     function generate_aggregator_id($id) {
 # WARNING : this way of getting a unique id is not atomic.
 # You should not use this method somewhere else than bin/aggregator or things may break.
+# TODO: sql/compat
         $this->db->query("SELECT agg_id FROM ".$this->table." WHERE agg_id < (5+(select count(distinct agg_id) from ".$this->table."))  order by agg_id asc");
         $agg_id = 0;
         while($this->db->nextr()) {

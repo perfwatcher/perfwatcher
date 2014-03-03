@@ -301,6 +301,7 @@ function create_new_view($title) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
+# TODO: sql/id
         $db->prepare("INSERT INTO tree (view_id, parent_id, position, pwtype, title) SELECT MAX(view_id)+1, 1, 0, 'container', ? FROM tree", array('text'));
         $db->execute($title);
         $id = $db->insert_id('tree', 'id');

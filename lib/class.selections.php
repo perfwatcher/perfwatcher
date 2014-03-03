@@ -33,6 +33,7 @@ function selection_create_new($title, $node_id, $deleteafter) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
+# TODO: sql/id
         $db->prepare("INSERT INTO selections (title, tree_id, deleteafter) VALUES (?, ?, ?)", array('text', 'integer', 'integer'));
         $db->execute(array($title, (int)$node_id, (int)$deleteafter));
         $id = $db->insert_id('selections', 'id');
@@ -71,6 +72,7 @@ function selection_get_all_with_node_id($node_id) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
+# TODO: sql/compat
         $db->prepare("SELECT *,IF(sortorder = 0, 999999, sortorder) AS s FROM selections WHERE tree_id=? ORDER BY s", array('integer'));
         $db->execute(array((int)$node_id));
         while($db->nextr()) {
