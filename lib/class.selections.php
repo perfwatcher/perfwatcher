@@ -33,10 +33,10 @@ function selection_create_new($title, $node_id, $deleteafter) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
-# TODO: sql/id
-        $db->prepare("INSERT INTO selections (title, tree_id, deleteafter) VALUES (?, ?, ?)", array('text', 'integer', 'integer'));
-        $db->execute(array($title, (int)$node_id, (int)$deleteafter));
-        $id = $db->insert_id('selections', 'id');
+        $id = $db->insert_id_before('selections', 'id', "in selection_create_new()");
+        $db->prepare("INSERT INTO selections (id, title, tree_id, deleteafter, sortorder, data) VALUES (?, ?, ?, ?, ?, ?)", array('integer', 'text', 'integer', 'integer', 'integer', 'text'));
+        $db->execute(array((int)$id, $title, (int)$node_id, (int)$deleteafter, (int)0, serialize(array())));
+        $id = $db->insert_id_after($id, 'selections', 'id', "in selection_create_new()");
         $db->destroy();
     }
     return($id);
@@ -72,8 +72,7 @@ function selection_get_all_with_node_id($node_id) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
-# TODO: sql/compat
-        $db->prepare("SELECT *,IF(sortorder = 0, 999999, sortorder) AS s FROM selections WHERE tree_id=? ORDER BY s", array('integer'));
+        $db->prepare("SELECT *,CASE WHEN (sortorder = 0) THEN 999999 ELSE sortorder END AS s FROM selections WHERE tree_id=? ORDER BY s", array('integer'));
         $db->execute(array((int)$node_id));
         while($db->nextr()) {
             $v = $db->get_row('assoc');

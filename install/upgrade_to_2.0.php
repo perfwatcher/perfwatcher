@@ -175,7 +175,7 @@ if ($db->connect()) {
                     }
                 }
                 if($t['pwtype'] == "container") {
-                    $db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
+                    $db->prepare("SELECT COALESCE(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
                     $db->execute(array((int)$t['view_id'], $t['parent_id']));
                     $db->nextr();
                     $res =  $db->get_row("assoc");

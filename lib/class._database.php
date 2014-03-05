@@ -71,6 +71,8 @@ class _database {
             if(PEAR::isError($this->link)) {
                 $this->error($this->link->getMessage());
                 unset($this->link);
+            } else {
+                $this->link->loadModule('Extended', null, false);
             }
             unset($this->sth);
         }
@@ -244,6 +246,29 @@ class _database {
             $this->link->disconnect();
             die();
         }
+    }
+
+    function insert_id_before($table, $field, $die_message_if_fail=null) {
+        if (!$this->link && !$this->connect()) $this->error("No connection");
+        $r = $this->link->getBeforeID($table,$field, true, true);
+        if (PEAR::isError($r)) {
+            $this->error("Failed in insert_id_before() : ".$r->getMessage().($die_message_if_fail?" | $die_message_if_fail":""));
+            if($die_message_if_fail) {
+                die($die_message_if_fail);
+            }
+        }
+        return($r);
+    }
+    function insert_id_after($id, $table, $field, $die_message_if_fail=null) {
+        if(!$this->link) return false;
+        $r = $this->link->getAfterID($id, $table,$field, true, true);
+        if (PEAR::isError($r)) {
+            $this->error("Failed in insert_id_after() : ".$r->getMessage().($die_message_if_fail?" | $die_message_if_fail":""));
+            if($die_message_if_fail) {
+                die($die_message_if_fail);
+            }
+        }
+        return($r);
     }
     function insert_id($table = null, $field = null) {
         if(!$this->link) return false;

@@ -120,7 +120,6 @@ class _tree_struct {
     }
 
     function set_datas($id, $data) {
-# TODO: sql/id
         $this->db->prepare("UPDATE ".$this->table." SET datas=? WHERE view_id = ? AND id = ?", array('text', 'integer', 'integer'));
         $this->db->execute(array(serialize($data), (int)$this->view_id, (int)$id));
     }
@@ -145,10 +144,10 @@ class _tree_struct {
     }
 
     function _create($parent, $position) {
-# TODO: sql/id
-        $this->db->prepare("INSERT into ".$this->table." (view_id, parent_id, position) VALUES (?, ?, ?)", array('integer', 'integer', 'integer'));
-        $this->db->execute(array((int)$this->view_id, (int)$parent, (int)$position) );
-        return $this->db->insert_id($this->table, 'id');
+        $id = $this->db->insert_id_before($this->table, 'id', "in class tree::_create()");
+        $this->db->prepare("INSERT into ".$this->table." (id, view_id, parent_id, position) VALUES (?, ?, ?, ?)", array('integer', 'integer', 'integer', 'integer'));
+        $this->db->execute(array((int)$id, (int)$this->view_id, (int)$parent, (int)$position) );
+        return $this->db->insert_id_after($id, $this->table, 'id', "in class tree::_create()");
     }
 
     function del_node($title) {
@@ -183,7 +182,7 @@ class _tree_struct {
         return true;
     }
 
-    function _move($id, $ref_id, $position = 0, $is_copy = false) {
+    function _move($id, $ref_id, $position = 0) {
         if ($ref_id == 0) { $ref_id++; }
         $sql  = "UPDATE ".$this->table." ";
         $sql .= "SET position = position + 1 ";
@@ -197,10 +196,7 @@ class _tree_struct {
         $this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE view_id = ? AND id = ?", array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array($ref_id,$position,(int)$this->view_id, $id));
 
-# TODO: sql/compat
-        $this->db->query("SET @a=-1");
-        $this->db->prepare("UPDATE ".$this->table." SET position = @a:=@a+1 WHERE view_id = ? AND parent_id = ? ORDER BY position", array('integer', 'integer'));
-        $this->db->execute(array($this->view_id, $ref_id));
+        dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $ref_id);
         return true;
     }
 
@@ -261,31 +257,28 @@ class json_tree extends _tree_struct {
     }
 
     function max_pos($parent_id) {
-# TODO: sql/compat
-        $this->db->prepare("SELECT IFNULL(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
+        $this->db->prepare("SELECT COALESCE(MAX(position+1),0) AS position FROM tree WHERE view_id = ? AND parent_id = ?", array('integer', 'integer'));
         $this->db->execute(array((int)$this->view_id, $parent_id));
         $this->db->nextr();
         $res =  $this->db->get_row("assoc");
         return $res['position'];
     }
 
-    function set_node($data) {
+    function set_node($data, $id=null) {
         if(count($this->add_fields) == 0) { return "{ \"status\" : 1 }"; }
-# TODO: sql/id
-# Note : is << SET ".$this->fields["id"]." = ".$this->fields["id"]." " >> useful ?
-# Note : cannot we do it another way ?
-        $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
+        $sql = "UPDATE ".$this->table." SET "; 
         foreach($this->add_fields as $k => $v) {
             if(isset($data[$k])) {
-                $sql .= ", ".$this->fields[$v]." = ? ";
+                $set_sql[] = $this->fields[$v]." = ? ";
                 $set_value[] = $data[$k];
                 $set_type[] = 'text';
             }
         }
+        $sql .= implode(", ", $set_sql);
         $sql .= " WHERE ".$this->fields["view_id"]." = ?";
         $sql .= " AND   ".$this->fields["id"]." = ?";
         $set_value[] = (int)$this->view_id;
-        $set_value[] = (int)$data["id"];
+        $set_value[] = ($id === null)?((int)$data["id"]):((int)$id);
         $set_type[] = 'integer';
         $set_type[] = 'integer';
 
@@ -295,39 +288,22 @@ class json_tree extends _tree_struct {
     }
     function rename_node($data) { return $this->set_node($data); }
 
+    function copy_node_fields($refid, $dstid) {
+        dbcompat__copy_with_update($this->db, $this->table, $refid, $dstid, 'id', $this->add_fields);
+    }
+
     function move_node($data) { 
-        $id = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"], (int)$data["copy"]);
-        if(!$id) return "{ \"status\" : 0 }";
-        if((int)$data["copy"] && count($this->add_fields)) {
-            $ids	= array_keys($this->_get_children($id, true));
-            $data	= $this->_get_children((int)$data["id"], true);
-
-            $i = 0;
-            foreach($data as $dk => $dv) {
-# TODO: sql/id
-# Note : is << SET ".$this->fields["id"]." = ".$this->fields["id"]." " >> useful ?
-# Note : cannot we do it another way ?
-                $sql = "UPDATE ".$this->table." SET ".$this->fields["id"]." = ".$this->fields["id"]." "; 
-                foreach($this->add_fields as $k => $v) {
-                    if(isset($dv[$k])) {
-                        $sql .= ", ".$this->fields[$v]." = ? ";
-                        $set_value[] = $dv[$k];
-                        $set_type[] = 'text';
-                    }
-                }
-                $sql .= " WHERE ".$this->fields["view_id"]." = ?";
-                $sql .= " AND   ".$this->fields["id"]." = ?";
-                $set_value[] = (int)$this->view_id;
-                $set_value[] = (int)$ids[$i];
-                $set_type[] = 'integer';
-                $set_type[] = 'integer';
-
-                $this->db->prepare($sql, $set_type);
-                $this->db->execute($set_value);
-                $i++;
-            }
+        $rc = 0;
+        if((int)$data["copy"]) {
+            $id = parent::_create((int)$data["ref"], (int)$data["position"]);
+            if(!$id) return "{ \"status\" : 0 }";
+            $this->copy_node_fields($data["id"], $id);
+            $rc = true;
+        } else {
+            $rc = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"]);
         }
-        return "{ \"status\" : 1, \"id\" : ".$id." }";
+        if(!$rc) return "{ \"status\" : 0 }";
+        return "{ \"status\" : 1, \"id\" : ".$rc." }";
     }
     function remove_node($data) {
         $id = parent::_remove((int)$data["id"]);
@@ -337,7 +313,6 @@ class json_tree extends _tree_struct {
     function generate_aggregator_id($id) {
 # WARNING : this way of getting a unique id is not atomic.
 # You should not use this method somewhere else than bin/aggregator or things may break.
-# TODO: sql/compat
         $this->db->query("SELECT agg_id FROM ".$this->table." WHERE agg_id < (5+(select count(distinct agg_id) from ".$this->table."))  order by agg_id asc");
         $agg_id = 0;
         while($this->db->nextr()) {

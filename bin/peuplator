@@ -31,14 +31,11 @@ if ($db->connect()) {
 		$db->execute(array((int)$tm));
 
 # Remove selections when there is no item in the tree with selection tree_id
-# TODO: sql/compat
-		$db->prepare("DELETE FROM selections WHERE tree_id NOT IN (SELECT id FROM tree)");
+		$db->prepare("DELETE FROM selections WHERE NOT EXISTS (SELECT id FROM tree WHERE tree.id = selections.tree_id)");
 		$db->execute();
 
 # Remove items in tree when they have no parent
-# TODO: sql/compat
-		$db->prepare("DELETE FROM tree WHERE parent_id NOT IN (SELECT id FROM (SELECT id FROM tree) x) AND parent_id <> 1");
-		$db->execute();
+		dbcompat__remove_items_in_tree_when_they_have_no_parent($db);
 
 # End of database cleaning
 #

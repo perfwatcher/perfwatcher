@@ -28,6 +28,7 @@
  **/ 
 
 require "etc/config.default.php";
+require "lib/compat._database.php";
 require "lib/class._database.php";
 require "lib/class.tree.php";
 require "lib/class.selections.php";
@@ -301,10 +302,10 @@ function create_new_view($title) {
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
-# TODO: sql/id
-        $db->prepare("INSERT INTO tree (view_id, parent_id, position, pwtype, title) SELECT MAX(view_id)+1, 1, 0, 'container', ? FROM tree", array('text'));
-        $db->execute($title);
-        $id = $db->insert_id('tree', 'id');
+        $id = $db->insert_id_before('tree', 'id', "in create_new_view()");
+        $db->prepare("INSERT INTO tree (id, view_id, parent_id, position, pwtype, title) VALUES (?, (SELECT MAX(view_id)+1 FROM tree), 1, 0, 'container', ?)", array('integer', 'text'));
+        $db->execute(array((int)$id, $title));
+        $id = $db->insert_id_after($id, 'tree', 'id', "in create_new_view()");
         $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));
         $db->execute((int)$id);
         if($db->nextr()) {
