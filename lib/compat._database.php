@@ -64,7 +64,12 @@ function dbcompat__reorder_objects_positions($db, $table, $view_id, $ref_id) {
 function dbcompat__copy_with_update($db, $table, $refid, $dstid, $fieldidname, $fields) {
     switch($db->settings{"dbtype"}) {
         case "mysql" :
-            $db->prepare("UPDATE $table SET (".implode(", ", $fields).") = (SELECT ".implode(", ", $fields)." FROM $table WHERE $fieldidname = ?) WHERE $fieldidname = ?", array('integer', 'integer'));
+            $sql_l = array();
+            foreach ($fields as $f) {
+                $sql_l[] = "x.$f = y.$f";
+            }
+            $sql = "UPDATE $table x, $table y SET ".implode(", ", $sql_l)." WHERE y.$fieldidname = ? AND  x.$fieldidname = ?";
+            $db->prepare($sql, array('integer', 'integer'));
             $db->execute(array((int)$refid, (int)$dstid));
         break;
         case "pgsql" :

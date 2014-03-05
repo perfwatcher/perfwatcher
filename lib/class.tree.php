@@ -169,6 +169,7 @@ class _tree_struct {
     }
 
     function _remove($id) {
+# TODO sql : reorder here (bug mysql)
         if((int)$id === 1) { return false; }
         $children = $this->_get_children($id, true);
         $this->db->prepare("DELETE FROM ".$this->table
@@ -197,6 +198,11 @@ class _tree_struct {
         $this->db->execute(array($ref_id,$position,(int)$this->view_id, $id));
 
         dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $ref_id);
+        return true;
+    }
+
+    function _reorder_positions($id) {
+        dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $id);
         return true;
     }
 
@@ -294,14 +300,15 @@ class json_tree extends _tree_struct {
 
     function move_node($data) { 
         $rc = 0;
+        $id = 0;
         if((int)$data["copy"]) {
             $id = parent::_create((int)$data["ref"], (int)$data["position"]);
             if(!$id) return "{ \"status\" : 0 }";
             $this->copy_node_fields($data["id"], $id);
-            $rc = true;
         } else {
-            $rc = parent::_move((int)$data["id"], (int)$data["ref"], (int)$data["position"]);
+            $id = (int)$data["id"];
         }
+        $rc = parent::_move($id, (int)$data["ref"], (int)$data["position"]);
         if(!$rc) return "{ \"status\" : 0 }";
         return "{ \"status\" : 1, \"id\" : ".$rc." }";
     }
