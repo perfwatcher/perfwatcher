@@ -1,7 +1,11 @@
 
 DROP TABLE IF EXISTS tree;
+
+DROP SEQUENCE IF EXISTS tree_id_seq;
+CREATE SEQUENCE tree_id_seq START 2;
+
 CREATE TABLE tree (
-  id        SERIAL UNIQUE CHECK (id > 1),
+  id        integer NOT NULL DEFAULT nextval('tree_id_seq') UNIQUE CHECK (id > 1),
   view_id   numeric(20) NOT NULL,
   parent_id numeric(20) NOT NULL,
   position  numeric(20) NOT NULL,
@@ -12,6 +16,7 @@ CREATE TABLE tree (
   PRIMARY KEY (id),
   UNIQUE (id,parent_id)
 );
+ALTER SEQUENCE tree_id_seq OWNED BY tree.id;
 
 CREATE INDEX view_id ON tree (view_id);
 CREATE INDEX title ON tree (title);
@@ -38,6 +43,6 @@ CREATE TABLE config (
   PRIMARY KEY  (confkey)
 );
 
-INSERT INTO tree (id,view_id, parent_id,position,title, pwtype) VALUES (2,1,1,0,'Default view', 'container');
+INSERT INTO tree (view_id, parent_id,position,title, pwtype) VALUES (1,1,0,'Default view', 'container');
 INSERT INTO config (confkey, value) VALUES ('schema_version', '1.0');
 
