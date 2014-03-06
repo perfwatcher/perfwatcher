@@ -1,3 +1,8 @@
+2014-03-06, Version XXX
+
+- Bugs fixed when moving/copying nodes in the tree
+- New Postgresql support
+
 2014-02-21, Version 2.0
 
 - New configuration table in db
