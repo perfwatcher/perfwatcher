@@ -169,8 +169,10 @@ class _tree_struct {
     }
 
     function _remove($id) {
-# TODO sql : reorder here (bug mysql)
         if((int)$id === 1) { return false; }
+        $item = $this->_get_node($id);
+        $parent_id = $item["parent_id"];
+
         $children = $this->_get_children($id, true);
         $this->db->prepare("DELETE FROM ".$this->table
                 ." WHERE ".$this->fields["view_id"]." = ?"
@@ -180,11 +182,16 @@ class _tree_struct {
             $this->db->execute(array((int)$this->view_id, (int) $child['id']));
         }
         $this->db->execute(array((int)$this->view_id, (int) $id));
+        dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $parent_id);
         return true;
     }
 
     function _move($id, $ref_id, $position = 0) {
         if ($ref_id == 0) { $ref_id++; }
+        # First, reorder in case there are holes in the numbering
+        dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $ref_id);
+
+        # Then make a hole for the new node
         $sql  = "UPDATE ".$this->table." ";
         $sql .= "SET position = position + 1 ";
         $sql .= "WHERE view_id = ? ";
@@ -194,10 +201,10 @@ class _tree_struct {
         $this->db->prepare($sql, array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array($this->view_id, $ref_id,$position,$id));
 
+        # And insert the new node at the right place
         $this->db->prepare("UPDATE ".$this->table." SET parent_id = ?, position = ? WHERE view_id = ? AND id = ?", array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array($ref_id,$position,(int)$this->view_id, $id));
 
-        dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $ref_id);
         return true;
     }
 
