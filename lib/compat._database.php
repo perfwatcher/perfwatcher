@@ -30,6 +30,19 @@ function dbcompat_error_not_supported($db, $f,$l,$fc) {
     $db->error("$fc is not supported for your DB (".$db->settings{"dbtype"}.")", "$f/$l/$fc");
 }
 
+/*
+ * Note for developers
+ * ===================
+ *
+ * Please name/prototype your fonctions as this :
+ * function dbcompat__<what your function does> ($db, <your args here)
+ *
+ * Your functions should support all the supported databases. Check the switch/case in the existing functions.
+ *
+ * Your functions should always call dbcompat_error_not_supported($db,__FILE__,__LINE__,__FUNCTION__); for the
+ * not supported databases.
+ */
+
 function dbcompat__remove_items_in_tree_when_they_have_no_parent($db) {
     switch($db->settings{"dbtype"}) {
         case "mysql" :
