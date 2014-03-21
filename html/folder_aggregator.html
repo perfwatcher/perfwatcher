@@ -106,18 +106,19 @@
                 cache: false, 
                 success: function(result, textStatus, XMLHttpRequest) {
                     var alreadytreated = new Array();
+					var grouped_type = $.map(json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'], function(n,i) { return(n); });
                     $(result['result']).each(function(i, metric) {
                         m = splitMetric(metric);
                         p = m[0]; pi = m[1]; t = m[2]; ti = m[3];
-                        var grouped_type = jQuery.inArray(t, json_item_datas['config']['widgets']['folder_aggregator']['grouped_type'] );
-                        if (grouped_type != -1) {
+                        var is_grouped_type = jQuery.inArray(t, grouped_type );
+                        if (is_grouped_type != -1) {
                             if (alreadytreated[p+pi+t]) {
                                 return;
                             } else {
                                 alreadytreated[p+pi+t] = true;
                             }
                         }
-                        $('<option>'+p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && grouped_type == -1 ? '-'+ti : '')+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin_'+cdsrc+']');
+                        $('<option>'+p+(pi != '' ? '-'+pi : '')+'/'+t+(ti != '' && is_grouped_type == -1 ? '-'+ti : '')+'</option>').appendTo('div[widget="folder_aggregator"] select[class=select_plugin_'+cdsrc+']');
                     });
                     $('div[widget="folder_aggregator"] select[class=select_plugin_'+cdsrc+']').multiselect({ noneSelectedText : "Select a metric to aggregate :", multiple : false, selectedList : 1 }).multiselectfilter({ 'width' : '330px' });
                 },
