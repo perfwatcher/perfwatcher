@@ -55,7 +55,7 @@ switch ($res['pwtype']) {
         $aggregators = array();
         break;
     case 'container' :
-        $host = 'aggregator_'.$res['id'];
+        $host = 'aggregator_'.$res['agg_id'];
         $plugins = array();
         $aggregators = array();
         foreach ($collectd_sources as $cdid => $cdsrc) {
