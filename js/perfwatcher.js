@@ -119,7 +119,7 @@ $(document).ready(function() {
 
 	$('#clip_content').click(function() {
         if(clipboard.length == 0) {
-            notify_ko("Clipboard is empty");
+            notify_ok("Clipboard is empty");
             return;
         }
         hide_graph_helpers();

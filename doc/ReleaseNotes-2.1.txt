@@ -19,6 +19,21 @@ disable aggregators for that source.
 
 Check etc/config.sample.php for more information.
 
+
+Copy a graph to the Windows clipboard
+=====================================
+
+On Internet Explorer, right click on a graph then "Copy Image". This will copy
+the image to your Windows Clipboard and you will be able to paste it to
+another application (Outlook, MSPaint, Word...)
+
+Mozilla and Chrome users : your browser does not allow Javascript to copy an
+image to the clipboard so you cannot copy as easily as on IE.
+
+Workaroung for Mozilla users : you can [Shift][Ctrl][Right click] and you will get the usual
+context menu including "Copy image".
+
+
 Database update
 ===============
 

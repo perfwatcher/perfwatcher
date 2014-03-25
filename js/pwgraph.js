@@ -113,7 +113,8 @@
                         }
                         img.contentEditable = 'false';
                     } else {
-                        notify_ko("This function is not implemented on your browser yet "); 
+                        notify_ko("This function is not implemented on your browser yet.&nbsp;&nbsp;");
+                        notify_ko("Mozilla users can [Shift][Ctrl][right click] on the image and use the standard menu to copy the image.&nbsp;&nbsp;"); 
                     }
                     break;
                 case 'save':

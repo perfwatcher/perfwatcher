@@ -485,9 +485,11 @@ function notify_ko(text) {
 	noty({
 		"text":text, "layout":"topCenter", "type":"error",
 		"animateOpen":{"height":"toggle"}, "animateClose":{"height":"toggle"},
-		"speed":500, "timeout":5000, "closeButton":false,
+		"speed":500, "timeout":50000, "closeButton":false,
 		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
 	});
+    $('#noty_topCenter_layout_container').css({width: "80%", left: "10%"});
+    $('#noty_topCenter_layout_container li').css({width: "100%"});
 }
 
 function notify_ok(text) {
@@ -497,6 +499,8 @@ function notify_ok(text) {
 		"speed":500, "timeout":5000, "closeButton":false,
 		"closeOnSelfClick":true, "closeOnSelfOver":true,"modal":false
 	});
+    $('#noty_topCenter_layout_container').css({width: "80%", left: "10%"});
+    $('#noty_topCenter_layout_container li').css({width: "100%"});
 }
 function showserverlist(list, title, state) {
     $('<div id="modaldialogcontents"></div>').dialog({

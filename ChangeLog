@@ -4,6 +4,7 @@
 - New Postgresql support
 - Aggregators can be disabled for some Collectd sources
 - Developers only : Collectd source moved from datas to new dedicated column 'cdsrc'
+- IE users : Copy a graph to the Windows clipboard (See Release Notes for Mozilla and IE)
 
 2014-02-21, Version 2.0
 
