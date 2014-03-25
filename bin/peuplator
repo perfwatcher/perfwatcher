@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 
 chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 

@@ -143,22 +143,26 @@
         complete : function (r) {
             if(r.status) { 
                 sources = jQuery.parseJSON(r.responseText);
-                if (json_item_datas['datas'] && json_item_datas['datas']['aggregators']) {
-                    $.each(json_item_datas['datas']['aggregators'], function(agg, aggdata) {
-                            if(aggdata['CdSrc'] && ( -1 ==  $.inArray(aggdata['CdSrc'], sources))) {
-                                sources.push(aggdata['CdSrc']);
-                            };
-                        });
+                if(0 == sources.length) {
+                    $("#folder_aggregator_tabs").html("<p>There are no Collectd aggregators for this container</p>");
+                } else {
+                    if (json_item_datas['datas'] && json_item_datas['datas']['aggregators']) {
+                        $.each(json_item_datas['datas']['aggregators'], function(agg, aggdata) {
+                                if(aggdata['CdSrc'] && ( -1 ==  $.inArray(aggdata['CdSrc'], sources))) {
+                                    sources.push(aggdata['CdSrc']);
+                                };
+                            });
+                    }
+                    folder_aggregator_cdsrc_fill();
+                    for (i in sources) {
+                        folder_aggregator_fill_pl(sources[i]);
+                        folder_aggregator_init(sources[i]);
+                    }
+                    $("#folder_aggregator_tabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
+                    $("#folder_aggregator_tabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
                 }
-                folder_aggregator_cdsrc_fill();
-                for (i in sources) {
-                    folder_aggregator_fill_pl(sources[i]);
-                    folder_aggregator_init(sources[i]);
-                }
-                $("#folder_aggregator_tabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
-                $("#folder_aggregator_tabs li").removeClass("ui-corner-top").addClass("ui-corner-left");
             } else { 
-                alert("Could not retreive Collectd sources");
+                $("#folder_aggregator_tabs").html("<p>Could not retreive Collectd sources</p>");
             }
         }
     });

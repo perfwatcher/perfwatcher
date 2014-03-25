@@ -42,10 +42,12 @@ switch($_POST['action']) {
     case 'get_collectd_sources':
         $current_cdsrc = $jstree->get_node_collectd_source($id);
         $children_cdsrc = array();
-        $children_cdsrc[$current_cdsrc] = 1;
+        if(is_aggregator_allowed($current_cdsrc)) {
+            $children_cdsrc[$current_cdsrc] = 1;
+        }
         $data = $jstree->_get_children($id, true, "", "", $current_cdsrc);
         foreach($data as $host) {
-            if($host['CdSrc']) $children_cdsrc[$host['CdSrc']] = 1;
+            if($host['CdSrc'] && is_aggregator_allowed($host['CdSrc'])) $children_cdsrc[$host['CdSrc']] = 1;
         }
         echo json_encode(array_keys($children_cdsrc));
         break;

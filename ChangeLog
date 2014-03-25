@@ -2,6 +2,7 @@
 
 - Bugs fixed when moving/copying nodes in the tree
 - New Postgresql support
+- Aggregators can be disabled for some Collectd sources
 
 2014-02-21, Version 2.0
 

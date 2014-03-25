@@ -57,7 +57,7 @@
  */
 $collectd_source_default = "localhost";
 $collectd_sources = array(
-    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/", 'proxy' => null ),
+    "localhost" => array( 'hostname' => "localhost", 'jsonrpc' => "http://127.0.0.1:8080/", 'proxy' => null, 'no_aggregator' => 0 ),
 );
 
 /**

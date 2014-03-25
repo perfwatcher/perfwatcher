@@ -1,5 +1,5 @@
 #!/usr/bin/php
-<?php
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 $starttime = time();
 chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
 
@@ -16,6 +16,11 @@ if (isset($argv[1])) {
             break;
         }
     }
+}
+
+$allowed_collectd_sources = array();
+foreach ($collectd_sources as $cdid => $cdconfig) {
+    $allowed_collectd_sources[$cdid] = is_aggregator_allowed($cdid);
 }
 
 $db = new _database($db_config);
@@ -68,6 +73,8 @@ foreach ($views as $view_id) {
 				foreach ($datas['aggregators'] as $aggregator => $aggdata) {
 						if (isset($alreadydoes[$aggregator])) { continue; }
 						$aggregator_cdsrc = $aggdata['CdSrc'];
+                        if(! isset($allowed_collectd_sources[$cdsrc])) { continue; }
+                        if(0 == $allowed_collectd_sources[$cdsrc]) { continue; }
 						if (!isset($children_with_cdsrc[$aggregator_cdsrc])) { continue; }
 						$aggregator_prefix = substr($aggregator, 0, -4);
 						$pluginstr = substr($aggdata['plugin'], 0, -4);

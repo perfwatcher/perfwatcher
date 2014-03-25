@@ -476,4 +476,24 @@ function get_dead_servers_list($collectd_source_forced=null, $include_aggregator
     return $ret;
 }
 
+/*
+ * Check if aggregators are allowed for this Collectd source
+ */
+function is_aggregator_allowed($cdsrc) {
+    global $collectd_sources;
+# unknown source
+    if(! isset($collectd_sources[$cdsrc])) return(0); 
+
+# known source; enabled by default
+    if(! isset($collectd_sources[$cdsrc]['no_aggregator'])) return(1);
+
+# First letter is 'y' so we disable it.
+    if(strtolower(substr($collectd_sources[$cdsrc]['no_aggregator'],0,1)) == 'y') return(0);
+
+# option is enabled, so we disable the aggregator
+    if($collectd_sources[$cdsrc]['no_aggregator'] == 1) return(0);
+
+# All other values means that we enable the aggregator
+    return(1);
+}
 ?>
