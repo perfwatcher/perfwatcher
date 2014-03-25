@@ -93,7 +93,7 @@ class _tree_struct {
             $datas = $this->get_datas($id);
             if (isset($datas['sort']) && $datas['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
             $this->db->prepare(
-                    "SELECT ".implode(", ", $this->fields).",datas FROM ".$this->table
+                    "SELECT ".implode(", ", $this->fields).",cdsrc,datas FROM ".$this->table
                     ." WHERE ".$this->fields["view_id"]." = ?"
                     ." AND   ".$this->fields["parent_id"]." = ?"
                     ." ORDER BY ".$this->fields[$sort]." ASC",
@@ -104,14 +104,11 @@ class _tree_struct {
                 $tmp = $this->db->get_row("assoc");
                 $tmp["_path_"] = $path.$separator.$tmp['title'];
                 $cdsrc = "";
-                if(isset($tmp["datas"])) {
-                    $d = unserialize($tmp["datas"]);
-                    if(isset($d['CdSrc'])) {
-                        $cdsrc = $d['CdSrc'];
-                    }
-                    unset($tmp["datas"]);
+                if(isset($tmp["cdsrc"])) {
+                    $cdsrc = $tmp['cdsrc'];
                 }
                 $tmp['CdSrc'] = $cdsrc?$cdsrc:$collectd_source;
+                unset($tmp['cdsrc']);
                 $childrens[$tmp['pwtype'] != 'container' ? $tmp['title'] : 'aggregator_'.$tmp['id']] = $tmp;
             }
         }
@@ -221,6 +218,7 @@ class json_tree extends _tree_struct {
                 "title" => "title", 
                 "pwtype" => "pwtype", 
                 "agg_id" => "agg_id", 
+                "cdsrc" => "cdsrc", 
                 "datas" => "datas"
                 )) {
 
@@ -467,21 +465,36 @@ class json_tree extends _tree_struct {
         global $collectd_source_default;
         $cdsrc = $collectd_source_default;
         while ($parent_id != 0) {
-            $this->db->prepare("SELECT parent_id,datas FROM ".$this->table
+            $this->db->prepare("SELECT parent_id,cdsrc FROM ".$this->table
                     ." WHERE view_id = ?"
                     ." AND   id = ?",
                     array('integer', 'integer'));
             $this->db->execute(array((int)$this->view_id, $parent_id));
             $this->db->nextr();
             $parent_id = $this->db->f("parent_id");
-            $datas = $this->db->f("datas");
-            if(!$ret = unserialize($datas)) { continue; }
-            if(isset($ret['CdSrc']) ) {
-                $cdsrc = $ret['CdSrc'];
+            $c = $this->db->f("cdsrc");
+            if(isset($c) && $c ) {
+                $cdsrc = $c;
                 break;
             }
         }
         return $cdsrc;
+    }
+
+    function set_node_collectd_source($id, $cdsrc) {
+        global $collectd_sources;
+        $rc = 0;
+        if(isset($collectd_sources[$cdsrc])) {
+            $this->db->prepare("UPDATE ".$this->table." SET cdsrc=? WHERE id = ?", array('text', 'integer'));
+            $this->db->execute(array($cdsrc, (int)$id));
+        } else if($cdsrc == "") {
+            $this->db->prepare("UPDATE ".$this->table." SET cdsrc=NULL WHERE id = ?", array('integer'));
+            $this->db->execute(array((int)$id));
+        } else {
+            pw_error_log("Source '$cdsrc' is not a valid source for id=$id. No update");
+            $rc = -1;
+        }
+        return($rc);
     }
 
     function _create_default() {

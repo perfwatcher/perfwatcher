@@ -40,8 +40,8 @@ $jstree = new json_tree($view_id);
 $res = $jstree->_get_node($id);
 
 $datas = $jstree->get_datas($res['id']);
-if(isset($datas['CdSrc'])) {
-    $collectd_source = $datas['CdSrc'];
+if(isset($res['cdsrc']) && $res['cdsrc']) {
+    $collectd_source = $res['cdsrc'];
     $collectd_source_is_inherited = 0;
 } else {
     $collectd_source = $jstree->get_node_collectd_source($id);
@@ -76,6 +76,8 @@ switch ($res['pwtype']) {
 }
 
 
+# TODO : do not send directly $res and $data but filter to authorized values.
+# This needs to inventory used values.
 $rv = json_encode(
         array(
             'host' => $host,
@@ -86,6 +88,7 @@ $rv = json_encode(
             'config' => array(
                 'widgets' => get_widget($res),
                 'CdSrc' => array(
+                    'db_value' => $res['cdsrc'],
                     'source' => $collectd_source,
                     'inherited' => $collectd_source_is_inherited
                     )

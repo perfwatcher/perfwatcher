@@ -85,13 +85,11 @@ class folder_options {
 
     function save_cdsrc ($cdsrc) {
         global $jstree;
-        $datas = $jstree->get_datas($this->item['id']);
         if($cdsrc == "Inherit from parent") {
-            unset($datas['CdSrc']);
+            $jstree->set_node_collectd_source($this->item['id'], "");
         } else {
-            $datas['CdSrc'] = $cdsrc;
+            $jstree->set_node_collectd_source($this->item['id'], $cdsrc);
         }
-        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 }

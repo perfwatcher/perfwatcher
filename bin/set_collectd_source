@@ -82,10 +82,7 @@ foreach ($container_ids as $view_id => $id_list) {
         $jstree = new json_tree($view_id);
         $res = $jstree->_get_node($id);
         echo "Updating $id (".$res['title'].")\n";
-        $datas = $jstree->get_datas($res['id']);
-
-        $datas['CdSrc'] = $cdsrc;
-        $jstree->set_datas($res['id'], $datas);
+        $jstree->set_node_collectd_source($res['id'], $cdsrc);
 
     }
 }

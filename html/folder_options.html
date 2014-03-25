@@ -34,10 +34,8 @@
     				$(option).appendTo(select_cdsrc);
     		});
     
-    		if (json_item_datas['datas'] && json_item_datas['datas']['CdSrc'] ) {
-    			current_src = json_item_datas['datas']['CdSrc'];
-    		}
     		if (json_item_datas['config'] && json_item_datas['config']['CdSrc'] && json_item_datas['config']['CdSrc']['source']) {
+    			current_src = json_item_datas['config']['CdSrc']['db_value'];
     			current_src_computed = json_item_datas['config']['CdSrc']['source'];
     			current_src_computed_inherited = json_item_datas['config']['CdSrc']['inherited'];
     		}

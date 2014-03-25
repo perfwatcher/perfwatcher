@@ -7,6 +7,7 @@ CREATE TABLE tree (
   title     varchar(255) DEFAULT NULL,
   pwtype    varchar(255) DEFAULT NULL,
   agg_id    bigint(20) unsigned DEFAULT NULL,
+  cdsrc     varchar(255) DEFAULT NULL,
   datas     text NOT NULL,
   PRIMARY KEY (id),
   UNIQUE KEY id (id,parent_id),
@@ -34,5 +35,5 @@ CREATE TABLE config (
 );
 
 INSERT INTO tree (id,view_id, parent_id,position,title, pwtype) VALUES (2,1,1,0,'Default view', 'container');
-INSERT INTO config (confkey, value) VALUES ('schema_version', '1.0');
+INSERT INTO config (confkey, value) VALUES ('schema_version', '1.1');
 
