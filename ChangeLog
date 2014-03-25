@@ -1,8 +1,9 @@
-2014-03-06, Version XXX
+2014-03-26, Version 2.1
 
 - Bugs fixed when moving/copying nodes in the tree
 - New Postgresql support
 - Aggregators can be disabled for some Collectd sources
+- Developers only : Collectd source moved from datas to new dedicated column 'cdsrc'
 
 2014-02-21, Version 2.0
 
