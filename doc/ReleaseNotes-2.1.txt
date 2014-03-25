@@ -1,0 +1,34 @@
+Perfwatcher-2.1 Release notes
+=============================
+
+New Postgresql support
+======================
+
+First release with Postgresql support.
+It has never been tested in Production environment. Maybe you want to wait
+next release before using Postgresql support in Production, or prefer Mysql
+for this release.
+
+
+Aggregators can be disabled for some Collectd sources
+=====================================================
+
+In your etc/config.php, you can add a new parameter to Collectd sources
+($collectd_sources) as "no_aggregator" => 1 (or "no_aggregator" => 'yes') to
+disable aggregators for that source.
+
+Check etc/config.sample.php for more information.
+
+Database update
+===============
+
+Collectd Source was defined inside the "datas" blob in Perfwatcher-2.0.
+In Perfwatcher-2.1, it is moved to its own column "cdsrc".
+
+Note 1 : only Containers can have a significant Collectd Source. It will be
+ignored (or considered as a cache in future versions) for Selections and
+Servers.
+
+Note 2 : empty (null) cdsrc means that it inherits from parent.
+
+
