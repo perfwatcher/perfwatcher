@@ -47,26 +47,46 @@
 <hr >
 
 <h4>Prerequisites</h4>
-<p>
 	<ul>
 		<li>PHP 5 (PHP 5.3 allows you to use php-rrd extention)</li>
-		<li>MySQL Server &gt;= 4</li>
-		<li>PHP CLI 
-			<ul>
-				<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear php5-curl mysql-server mysql</code></pre></li>
-				<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql php5-curl mysql-server mysql-client</code></pre></li>
-				<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear php5-curl</code></pre></li>
-			</ul>
+		<li>MySQL Server &gt;= 4 or Postgresql Server &gt;= 8</li>
+		<li>MySQL
+		<ul>
+			<li>PHP CLI
+				<ul>
+					<li>On Redhat like :<pre><code>yum install php php-cli httpd php-mysql php-pear php5-curl mysql-server mysql</code></pre></li>
+					<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-mysql php5-curl mysql-server mysql-client</code></pre></li>
+					<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 mysql mysql-client php5-mysql php5 php5-pear php5-curl</code></pre></li>
+				</ul>
+			</li>
+			<li>MDB2 PEAR library for Mysql (check your umask - you may want to do <code>umask 0022</code> before installing MDB2 drivers)
+				<ul>
+					<li>On Redhat like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
+					<li>On Debian like :<pre><code>aptitude install php-mdb2-driver-mysql</code></pre></li>
+					<li>On Suse like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
+				</ul>
+			</li>
+		</ul>
 		</li>
-		<li>MDB2 PEAR library (check your umask - you may want to do <code>umask 0022</code> before installing MDB2 drivers)
-			<ul>
-				<li>On Redhat like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
-				<li>On Debian like :<pre><code>aptitude install php-mdb2-driver-mysql</code></pre></li>
-				<li>On Suse like :<pre><code>pear install MDB2_Driver_mysql</code></pre></li>
-			</ul>
+		<li>Posgresql
+		<ul>
+			<li>PHP CLI
+				<ul>
+					<li>On Redhat like :<pre><code>yum install php php-cli httpd php-pgsql php-pear php5-curl postgresql-server postgresql</code></pre></li>
+					<li>On Debian like :<pre><code>aptitude install php5 apache php5-cli php5-pgsql php5-curl postgresql postgresql-client</code></pre></li>
+					<li>On Suse like :<pre><code>zypper install apache2 apache2-mod_php5 postgresql-server postgresql-client php5-pgsql php5 php5-pear php5-curl</code></pre></li>
+				</ul>
+			</li>
+			<li>MDB2 PEAR library for Postgresql (check your umask - you may want to do <code>umask 0022</code> before installing MDB2 drivers)
+				<ul>
+					<li>On Redhat like :<pre><code>pear install MDB2_Driver_pgsql</code></pre></li>
+					<li>On Debian like :<pre><code>aptitude install php-mdb2-driver-pgsql</code></pre></li>
+					<li>On Suse like :<pre><code>pear install MDB2_Driver_pgsql</code></pre></li>
+				</ul>
+			</li>
+		</ul>
 		</li>
 	</ul>
-</p>
 
 <hr >
 
@@ -75,7 +95,7 @@
 	Two possibility :
 	<ul>
 		<li>Clone GitHub repo : <pre><code>git clone -b 'release/1.2' https://github.com/perfwatcher/perfwatcher.git</code></pre></li>
-		<li>Download last stable version : <pre><code>wget http://perfwatcher.free.fr/download/perfwatcher/perfwatcher-2.0.20140221.tar.gz</code></pre></li>
+		<li>Download last stable version : <pre><code>wget http://perfwatcher.free.fr/download/perfwatcher/perfwatcher-2.1.20140326.tar.gz</code></pre></li>
 	</ul>
 </p>
 
@@ -95,7 +115,7 @@
 		</li>
 	</ul>
 	<pre><code>
-tar xzf /&lt;your download directory&gt;/perfwatcher-2.0.20140221.tar.gz # If downloaded as tar.gz
+tar xzf /&lt;your download directory&gt;/perfwatcher-2.1.20140326.tar.gz # If downloaded as tar.gz
  or
 mv /&lt;your clone directory&gt;/perfwatcher . # If cloned from GitHub
 
@@ -129,10 +149,34 @@ mkdir logs
 
 <p>3/ Create the database schema</p>
 
-<p><pre><code>cat install/create.sql | mysql -u perfwatcher -h localhost -p perfwatcher</code></pre></p>
+<p><pre><code>cat install/create.mysql | mysql -u perfwatcher -h localhost -p perfwatcher</code></pre></p>
 
-<p>Note : If you upgrade from older version, please check for any script/README file in the <code>install/</code> directory.</p>
+<p>Note : If you upgrade from older version, please check for any script or README or UPGRADE file in the <code>install/</code> directory.</p>
 
+<h4>Create Postgresql database</h4>
+<p>1/ Check your pg_hba.conf file</p>
+<p>Basic installation should contain a line like this :</p>
+<p><pre><code># TYPE  DATABASE    USER        CIDR-ADDRESS          METHOD
+[...]
+local   all         all                               md5
+</code></pre></p>
+
+<p>2/ Create a user (and grants - need admin permissions)</p>
+
+<p>Run this line (most linux users will need to use the postgres account)</p>
+<p><pre><code># su - postgres
+$ createuser --encrypted --no-inherit --login --pwprompt --no-createrole --no-superuser --no-createdb perfwatcher</code></pre></p>
+
+<p>3/ Create the database</p>
+
+<p>Run this line (most linux users will need to use the postgres account)</p>
+<p><pre><code># su - postgres
+$ createdb -e --encoding=UTF8 --owner=perfwatcher perfwatcher</code></pre></p>
+
+<p>4/ Create the database schema</p>
+<p><pre><code>cat install/create.pgsql | psql -W perfwatcher perfwatcher</code></pre></p>
+
+<p>Note : If you upgrade from older version, please check for any script or README or UPGRADE file in the <code>install/</code> directory.</p>
 <hr >
 
 <h4>Configuring crontab</h4>
