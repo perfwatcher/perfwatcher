@@ -48,7 +48,8 @@ class folder_filling_manual {
     function get_info() {
         return array(
                 'title' => "Autofill this container using manual list",
-                'content_url' => 'html/folder_filling_manual.html'
+                'content_url' => 'html/folder_filling_manual.html',
+                'db_config_key' => 'serverslist',
                 );
     }
 

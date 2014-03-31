@@ -49,7 +49,8 @@ class folder_filling_regex {
     function get_info() {
         return array(
                 'title' => "Autofill this container using regex",
-                'content_url' => 'html/folder_filling_regex.html'
+                'content_url' => 'html/folder_filling_regex.html',
+                'db_config_key' => 'serverslist',
                 );
     }
 

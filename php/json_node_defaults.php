@@ -63,21 +63,13 @@ foreach ($collectd_source_list as $cs) {
 if("" == $collectd_source) {
     echo json_encode(array());
 } else {
-    echo json_encode(
-            array(
-                'host' => $host,
-                'plugins' => $plugins,
-                'aggregators' => array(),
-                'jstree' => array('title' => $host),
-                'datas' => array(),
-                'config' => array(
-                    'widgets' => get_widget(array( 'pwtype' => 'server' ) ),
-                    'CdSrc' => array(
-                        'source' => $collectd_source,
-                        'inherited' => $collectd_source_is_inherited
-                        )
-                    )
-                ));
+    $item_datas = new json_item_data();
+    $item_datas->set_host($host);
+    $item_datas->set_plugins($plugins);
+    $item_datas->set_jstree(array('title' => $host));
+    $item_datas->set_config_widgets(array( 'pwtype' => 'server' ));
+    $item_datas->set_config_source("", $collectd_source, $collectd_source_is_inherited);
+    echo $item_datas->to_json();
 }
 ?>
 

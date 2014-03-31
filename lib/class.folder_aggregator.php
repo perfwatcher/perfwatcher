@@ -50,7 +50,8 @@ class folder_aggregator {
         return array(
                 'title' => "Aggregated metrics from servers under this container",
                 'content_url' => 'html/folder_aggregator.html',
-                'grouped_type' => $grouped_type
+                'grouped_type' => $grouped_type,
+                'db_config_key' => 'aggregators',
                 );
     }
 

@@ -1,0 +1,17 @@
+Perfwatcher-2.2 Release notes
+=============================
+
+Developers : Configuration for widgets
+======================================
+There is more control on json_item_datas array.
+The data passed to the browser is now sent from lib/class.json_item_datas.php
+to allow more control (and reduce the memory use).
+
+Consequence for widgets : a new configuration item appears in the get_info()
+method : 'db_config_key'. This is the name of the configuration item in the
+database.
+Check lib/class.*.php for examples.
+
+Note : if you do not add 'db_config_key' there you will not be able to load
+your configuration from the database.
+

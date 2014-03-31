@@ -56,7 +56,8 @@ class folder_options {
 
         return array(
                 'title' => "$obt options",
-                'content_url' => 'html/folder_options.html'
+                'content_url' => 'html/folder_options.html',
+                'db_config_key' => 'sort',
                 );
     }
 

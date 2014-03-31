@@ -32,6 +32,7 @@ require "lib/compat._database.php";
 require "lib/class._database.php";
 require "lib/class.tree.php";
 require "lib/class.selections.php";
+require "lib/class.json_item_datas.php";
 require_once("MDB2.php");
 
 function pw_error_log($msg, $file="unset", $line="unset", $fct="unset") {

@@ -1,3 +1,6 @@
+
+- Developers only : new checks on json_item_datas (less mem / better control)
+
 2014-03-26, Version 2.1
 
 - Bugs fixed when moving/copying nodes in the tree

@@ -75,26 +75,16 @@ switch ($res['pwtype']) {
         break;
 }
 
+$item_datas = new json_item_data();
+$item_datas->set_host($host);
+$item_datas->set_plugins($plugins);
+$item_datas->set_aggregators($aggregators);
+$item_datas->set_jstree($res);
+foreach ($datas as $k => $v) {
+$item_datas->set_datas($k,$v);
+}
+$item_datas->set_config_widgets(get_widget($res));
+$item_datas->set_config_source($res['cdsrc'], $collectd_source, $collectd_source_is_inherited);
+echo $item_datas->to_json();
 
-# TODO : do not send directly $res and $data but filter to authorized values.
-# This needs to inventory used values.
-$rv = json_encode(
-        array(
-            'host' => $host,
-            'plugins' => $plugins,
-            'aggregators' => $aggregators,
-            'jstree' => $res,
-            'datas' => $datas,
-            'config' => array(
-                'widgets' => get_widget($res),
-                'CdSrc' => array(
-                    'db_value' => $res['cdsrc'],
-                    'source' => $collectd_source,
-                    'inherited' => $collectd_source_is_inherited
-                    )
-                )
-            ),
-        JSON_FORCE_OBJECT
-        );
-echo $rv;
 ?>
