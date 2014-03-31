@@ -4,6 +4,7 @@
 chdir(dirname(__FILE__)."/..");
 $upgrade_scripts = array(
     "install/upgrade_scripts/upgrade_to_1.1.php",
+    "install/upgrade_scripts/upgrade_to_1.2.php",
 );
 
 foreach ($upgrade_scripts as $script) {

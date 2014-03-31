@@ -1,5 +1,6 @@
 
 - Developers only : new checks on json_item_datas (less mem / better control)
+- Developers only : container option 'sort' now saved in 'container_options'
 
 2014-03-26, Version 2.1
 

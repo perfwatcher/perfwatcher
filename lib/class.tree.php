@@ -91,7 +91,7 @@ class _tree_struct {
             }
         } else {
             $datas = $this->get_datas($id);
-            if (isset($datas['sort']) && $datas['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
+            if (isset($datas['container_options']['sort']) && $datas['container_options']['sort'] == 1) { $sort = 'title'; } else { $sort = 'position'; }
             $this->db->prepare(
                     "SELECT ".implode(", ", $this->fields).",cdsrc,datas FROM ".$this->table
                     ." WHERE ".$this->fields["view_id"]." = ?"

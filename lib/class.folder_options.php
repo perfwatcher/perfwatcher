@@ -57,7 +57,7 @@ class folder_options {
         return array(
                 'title' => "$obt options",
                 'content_url' => 'html/folder_options.html',
-                'db_config_key' => 'sort',
+                'db_config_key' => 'container_options',
                 );
     }
 
@@ -74,7 +74,7 @@ class folder_options {
     function save_sort ($sort) {
         global $jstree;
         $datas = $jstree->get_datas($this->item['id']);
-        $datas['sort'] = $sort;
+        $datas['container_options']['sort'] = $sort;
         $jstree->set_datas($this->item['id'], $datas);
         return true;
     }

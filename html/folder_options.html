@@ -5,7 +5,10 @@
 
 	// Sort options
 	if(json_item_datas['jstree']['pwtype'] == 'container') {
-    	if (json_item_datas['datas'] && json_item_datas['datas']['sort'] && json_item_datas['datas']['sort'] == 1) {
+    	if (json_item_datas['datas'] 
+						&& json_item_datas['datas']['container_options'] 
+						&& json_item_datas['datas']['container_options']['sort'] 
+						&& json_item_datas['datas']['container_options']['sort'] == 1) {
     		$('#options_server_sorting input[name=sort][value="1"]').attr('checked', 'checked');
     	} else {
     		$('#options_server_sorting input[name=sort][value="0"]').attr('checked', 'checked');
