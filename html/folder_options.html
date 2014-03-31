@@ -22,10 +22,12 @@
     
     	$.getJSON('action.php?tpl=folder_options&action=get_config_list', function(data) {
     		var current_src = "Inherit from parent";
+    		var autodetect_src = "Auto-detect";
 			var current_src_computed = "unknown";
 			var current_src_computed_inherited = 0;
     		json_data = data;
     		json_data.unshift(current_src);
+    		json_data.unshift(autodetect_src);
     		$.each(json_data, function (n, value) {
     				var option = document.createElement('option');
     				if(value.length > 50) {

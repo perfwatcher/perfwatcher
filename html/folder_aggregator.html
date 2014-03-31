@@ -144,7 +144,7 @@
             if(r.status) { 
                 sources = jQuery.parseJSON(r.responseText);
                 if(0 == sources.length) {
-                    $("#folder_aggregator_tabs").html("<p>There are no Collectd aggregators for this container</p>");
+                    $("#folder_aggregator_tabs").html("<p>There are no configurable Collectd aggregators for this container</p>");
                 } else {
                     if (json_item_datas['datas'] && json_item_datas['datas']['aggregators']) {
                         $.each(json_item_datas['datas']['aggregators'], function(agg, aggdata) {

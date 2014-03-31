@@ -484,7 +484,7 @@ class json_tree extends _tree_struct {
     function set_node_collectd_source($id, $cdsrc) {
         global $collectd_sources;
         $rc = 0;
-        if(isset($collectd_sources[$cdsrc])) {
+        if(isset($collectd_sources[$cdsrc]) || ($cdsrc == "Auto-detect")) {
             $this->db->prepare("UPDATE ".$this->table." SET cdsrc=? WHERE id = ?", array('text', 'integer'));
             $this->db->execute(array($cdsrc, (int)$id));
         } else if($cdsrc == "") {

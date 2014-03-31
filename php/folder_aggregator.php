@@ -41,6 +41,10 @@ $owidget = new folder_aggregator($res);
 switch($_POST['action']) {
     case 'get_collectd_sources':
         $current_cdsrc = $jstree->get_node_collectd_source($id);
+        if($current_cdsrc == "Auto-detect") {
+            echo json_encode(array());
+            break;
+        }
         $children_cdsrc = array();
         if(is_aggregator_allowed($current_cdsrc)) {
             $children_cdsrc[$current_cdsrc] = 1;
