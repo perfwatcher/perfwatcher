@@ -52,8 +52,9 @@ foreach ($views as $view_id) {
 				if (!isset($datas['aggregators']) || count($datas['aggregators']) == 0) { continue; } 
 
 # Get Collectd source. Leave if the source is "Auto-detect"
-				$cdsrc = $jstree->get_node_collectd_source($container['id']);
-                if($cdsrc == "Auto-detect") { continue; }
+                list($cdsrc, $cdsrc_is_computed, $db_cdsrc) = $jstree->get_node_collectd_source($container['id'], $container);
+
+                if($db_cdsrc == "Auto-detect") { continue; }
 
 # Get Aggregator id (or generate it)
 				if(isset($container['agg_id']) && $container['agg_id']) {

@@ -28,6 +28,7 @@ $rrdtool_options = array('--border', '0', '-c', 'BACK#FFFFFF', '-v', ' ');
 $widgets = array();
 $widgets[] = 'vu_cpu_memory';
 $widgets[] = 'folder_status';
+$widgets[] = 'server_collectd_source';
 $widgets[] = 'load_meter';
 $widgets[] = 'folder_aggregator';
 $widgets[] = 'folder_options';

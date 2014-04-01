@@ -49,7 +49,6 @@ if (isset($_GET['CdSrc']) && $_GET['CdSrc']) {
 } else {
     $collectd_source_list = array_keys($collectd_sources);
 }
-$collectd_source_is_inherited = 0;
 
 $collectd_source = "";
 foreach ($collectd_source_list as $cs) {
@@ -66,9 +65,9 @@ if("" == $collectd_source) {
     $item_datas = new json_item_data();
     $item_datas->set_host($host);
     $item_datas->set_plugins($plugins);
-    $item_datas->set_jstree(array('title' => $host));
-    $item_datas->set_config_widgets(array( 'pwtype' => 'server' ));
-    $item_datas->set_config_source("", $collectd_source, $collectd_source_is_inherited);
+    $item_datas->set_jstree(array('title' => $host, 'pwtype' => 'server'));
+    $item_datas->set_config_widgets(get_widget(array( 'pwtype' => 'server' )));
+    $item_datas->set_config_source("", $collectd_source, 2);
     echo $item_datas->to_json();
 }
 ?>

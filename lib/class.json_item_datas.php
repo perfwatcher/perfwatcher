@@ -68,7 +68,7 @@ class json_item_data {
         $this->datas['aggregators'] = $aggregators;
     }
     function set_jstree($jstree) {
-        $this->datas['jstree']['id'] = isset($jstree['id'])?$jstree['id']:-1;
+        $this->datas['jstree']['id'] = isset($jstree['id'])?$jstree['id']:0;
         $this->datas['jstree']['pwtype'] = isset($jstree['pwtype'])?$jstree['pwtype']:"undef";
         $this->mandatory_fields['jstree'] = 1;
     }

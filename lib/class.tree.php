@@ -379,7 +379,7 @@ class json_tree extends _tree_struct {
                         )
                     );
         }
-        $collectd_source = $this->get_node_collectd_source((int)$data["id"]);
+        list($collectd_source, $cdsrc_is_computed, $db_cdsrc) = $this->get_node_collectd_source((int)$data["id"]);
         $result = array();
         //if((int)$data["id"] === 0) return json_encode($result);
         foreach($tmp as $k => $v) {
@@ -461,24 +461,66 @@ class json_tree extends _tree_struct {
         return $ids;
     }
 
-    function get_node_collectd_source($parent_id) {
-        global $collectd_source_default;
+    function get_node_collectd_source($id, $item=null) {
+        global $collectd_source_default, $collectd_sources;
+
+        if($item && isset($item['cdsrc']) && $item['cdsrc'] && isset($item['pwtype']) && ($item['pwtype'] == "container")) {
+            return array($item['cdsrc'], 0, $item['cdsrc']);
+        }
         $cdsrc = $collectd_source_default;
+        $db_cdsrc = "";
+        $cdsrc_is_computed = 0;
+        $cached_cdsrc = "";
+        $cached_host = "";
+        $parent_id = $id;
         while ($parent_id != 0) {
-            $this->db->prepare("SELECT parent_id,cdsrc FROM ".$this->table
+            $this->db->prepare("SELECT parent_id,title,pwtype,cdsrc FROM ".$this->table
                     ." WHERE view_id = ?"
                     ." AND   id = ?",
                     array('integer', 'integer'));
             $this->db->execute(array((int)$this->view_id, $parent_id));
             $this->db->nextr();
-            $parent_id = $this->db->f("parent_id");
             $c = $this->db->f("cdsrc");
-            if(isset($c) && $c ) {
-                $cdsrc = $c;
-                break;
+            if($id == $parent_id) {
+               // This is the cdsrc for the node #id
+               $db_cdsrc = $c; 
             }
+            $pwtype = $this->db->f("pwtype");
+            if($pwtype == "container") {
+                if(isset($c) && $c ) {
+                    $cdsrc = $c;
+                    break;
+                }
+                $cdsrc_is_computed = 1;
+            } else if($pwtype == "server") {
+                $cached_cdsrc = $c;
+                $cached_host = $this->db->f("title");
+            }
+            $parent_id = $this->db->f("parent_id");
         }
-        return $cdsrc;
+        if($cdsrc == "Auto-detect") {
+            if($cached_cdsrc && isset($collectd_sources[$cached_cdsrc])) {
+                return array($cached_cdsrc, 1, "Auto-detect");
+            }
+
+            $collectd_source_list = array_keys($collectd_sources);
+            $cdsrc = "";
+
+            foreach ($collectd_source_list as $cs) {
+                $plugins = get_list_of_rrds($cs, $cached_host);
+                if(! empty($plugins)) {
+                    $cdsrc = $cs;
+                    $this->set_node_collectd_source($id,$cdsrc);
+                    break;
+                }
+            }
+            if($cdsrc && isset($collectd_sources[$cdsrc])) {
+                return array($cdsrc, 1, "Auto-detect");
+            }
+            $cdsrc = $collectd_source_default;
+            $cdsrc_is_computed = 1;
+        }
+        return array($cdsrc, $cdsrc_is_computed, $db_cdsrc);
     }
 
     function set_node_collectd_source($id, $cdsrc) {

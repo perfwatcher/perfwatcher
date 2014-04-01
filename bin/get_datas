@@ -7,5 +7,6 @@ $view_id = get_view_id_from_id($id);
 
 $jstree = new json_tree($view_id);
 print_r($jstree->get_datas($id));
-echo "Collectd source : ".$jstree->get_node_collectd_source($id)."\n";
+list($cdsrc, $cdsrc_is_computed, $db_cdsrc) = $jstree->get_node_collectd_source($id);
+echo "Collectd source : $cdsrc\n";
 ?>

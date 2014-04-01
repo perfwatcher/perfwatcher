@@ -107,7 +107,7 @@ if($action_need_jstree) {
 
     switch ($action) {
         case 'get_hosts': 
-            $cdsrc = $jstree->get_node_collectd_source($id);
+            list($cdsrc, $cdsrc_is_computed, $db_cdsrc) = $jstree->get_node_collectd_source($id);
             $hosts = array();
             $children = $jstree->_get_children($id, true, "", "", $cdsrc);
             foreach($children as $host) {

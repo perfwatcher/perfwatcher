@@ -40,8 +40,8 @@ $res = $jstree->_get_node($id);
 $owidget = new folder_aggregator($res);
 switch($_POST['action']) {
     case 'get_collectd_sources':
-        $current_cdsrc = $jstree->get_node_collectd_source($id);
-        if($current_cdsrc == "Auto-detect") {
+        list($current_cdsrc, $cdsrc_is_computed, $db_cdsrc) = $jstree->get_node_collectd_source($id);
+        if($db_cdsrc == "Auto-detect") {
             echo json_encode(array());
             break;
         }

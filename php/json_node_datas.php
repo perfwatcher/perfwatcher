@@ -40,13 +40,7 @@ $jstree = new json_tree($view_id);
 $res = $jstree->_get_node($id);
 
 $datas = $jstree->get_datas($res['id']);
-if(isset($res['cdsrc']) && $res['cdsrc']) {
-    $collectd_source = $res['cdsrc'];
-    $collectd_source_is_inherited = 0;
-} else {
-    $collectd_source = $jstree->get_node_collectd_source($id);
-    $collectd_source_is_inherited = 1;
-}
+list($collectd_source, $collectd_source_is_inherited, $db_cdsrc) = $jstree->get_node_collectd_source($id, $res);
 
 switch ($res['pwtype']) {
     case 'server' :

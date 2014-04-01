@@ -1,6 +1,6 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 /**
- * Copyright (c) 2012 Cyril Feraudet
+ * Copyright (c) 2014 Yves Mettier
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,23 +21,22 @@
  * THE SOFTWARE.
  *
  * @category  Monitoring
- * @author    Cyril Feraudet <cyril@feraudet.com>
- * @copyright 2012 Cyril Feraudet
+ * @author    Yves Mettier <ymettier AT free fr>
+ * @copyright 2014 Yves Mettier
  * @license   http://opensource.org/licenses/mit-license.php
  * @link      http://www.perfwatcher.org/
  **/ 
 
-class folder_filling_regex {
+class server_collectd_source {
     private $item = array();
 
     function __construct($item) {
         $this->item =& $item;
     }
 
-
     function is_compatible() {
         switch($this->item['pwtype']) {
-            case 'container':
+            case 'server':
                 return true;
                 break;
             default:
@@ -48,44 +47,24 @@ class folder_filling_regex {
 
     function get_info() {
         return array(
-                'title' => "Autofill this container using regex",
-                'content_url' => 'html/folder_filling_regex.html',
-                'db_config_key' => 'serverslist',
+                'title' => "Collectd Source",
+                'content_url' => 'html/server_collectd_source.html',
+                'db_config_key' => 'server_collectd_source',
                 );
     }
 
-    function test ($regex) {
-        global $jstree;
-        return implode("\n", $this->get($regex));
+    function get_config_list () {
+        global $collectd_sources;
+        return array_keys($collectd_sources);
     }
 
-    function get ($regex = null) {
+    function save_cdsrc ($cdsrc) {
         global $jstree;
-        $datas = $jstree->get_datas($this->item['id']);
-        if ($regex === null) {
-            if (isset($datas['serverslist']) && isset($datas['serverslist']['servernameregex'])) {
-                $regex = $datas['serverslist']['servernameregex'];
-            }
-        }
-        if (! $regex) {
-            return array();
-        }
-        list($cdsrc, $cdsrc_is_computed, $db_cdsrc) = $jstree->get_node_collectd_source($this->item['id']);
-        $list = get_list_of_hosts_having_rrds($cdsrc, false);
-        $out = preg_grep("/${regex}/", array_keys($list));
-        return $out;
-    }
-
-    function save ($regex) {
-        global $jstree;
-        $datas = $jstree->get_datas($this->item['id']);
-        if (!isset($datas['serverslist'])) { $datas['serverslist'] = array(); }
-        if($regex) {
-            $datas['serverslist']['servernameregex'] = $regex;
+        if(strtolower($cdsrc) == "reset") {
+            $jstree->set_node_collectd_source($this->item['id'], "");
         } else {
-            unset($datas['serverslist']['servernameregex']);
+            $jstree->set_node_collectd_source($this->item['id'], $cdsrc);
         }
-        $jstree->set_datas($this->item['id'], $datas);
         return true;
     }
 }
