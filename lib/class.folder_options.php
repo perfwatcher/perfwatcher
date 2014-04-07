@@ -91,6 +91,10 @@ class folder_options {
         } else {
             $jstree->set_node_collectd_source($this->item['id'], $cdsrc);
         }
+        if($cdsrc == "Auto-detect") {
+            $jstree->set_container_nodes_autodetect_collectd_source($this->item['id']);
+        }
+
         return true;
     }
 }

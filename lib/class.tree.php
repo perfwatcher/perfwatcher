@@ -539,6 +539,82 @@ class json_tree extends _tree_struct {
         return($rc);
     }
 
+    function set_container_nodes_autodetect_collectd_source($id) {
+        global $collectd_sources, $collectd_source_default;
+        $containers_id = array();
+        $containers_id[] = $id;
+        $servers_id = array();
+
+        while(null !== ($cur_id = array_pop($containers_id))) {
+# Check servers
+            $this->db->prepare("SELECT id,title,cdsrc FROM ".$this->table
+                    ." WHERE pwtype = 'server'"
+                    ." AND   cdsrc NOT IN (".implode(",", array_keys($collectd_sources)).")"
+                    ." AND   parent_id = ?",
+                    array('integer'));
+            $this->db->execute(array((int)$cur_id));
+            while($this->db->nextr()) {
+                $a =  $this->db->get_row("assoc");
+                if( ! isset($collectd_sources[$a['cdsrc']]))
+                    $servers_id[$a['title']][] = $a['id'];
+            }
+
+# Traverse containers
+            $this->db->prepare("SELECT id FROM ".$this->table
+                    ." WHERE pwtype = 'container'"
+                    ." AND   parent_id = ?"
+                    ." AND   cdsrc = 'Auto-detect'",
+                    array('integer'));
+            $this->db->execute(array((int)$cur_id));
+            while($this->db->nextr()) {
+                $a =  $this->db->get_row("assoc");
+                $containers_id[] = $a['id'];
+            }
+        }
+# Check all servers
+        $local_collectd_sources = array_keys($collectd_sources);
+        foreach ($local_collectd_sources as $collectd_source) {
+            if(count($servers_id) <= 0) { break; }
+            // Ask status for all rrd hosts
+            $json = json_encode(array(
+                        "jsonrpc" => "2.0",
+                        "method" => "pw_get_status",
+                        "params" => array(
+                            "timeout" => 240,
+                            "server" => array_keys($servers_id),
+                            ),
+                        "id" => 0)
+                    );
+
+            $ra = jsonrpc_query($collectd_source, $json);
+
+            if(!(isset($ra[0]) && isset($ra[1]))) { continue; }
+            $data = $ra[0];
+
+            if($data) {
+                $server_source[$collectd_source] = array();
+                foreach ($data as $h => $r) {
+                    if($r != "unknown") {
+                        $server_source[$collectd_source] = array_merge($server_source[$collectd_source], $servers_id[$h]);
+                        unset($servers_id[$h]);
+                    }
+                }
+            }
+        }
+# Update all servers with identified sources
+        if(isset($server_source)) {
+            foreach (array_keys($server_source) as $collectd_source) {
+                if(!isset($server_source[$collectd_source])) { next; }
+                $this->db->prepare("UPDATE ".$this->table." SET cdsrc=? WHERE id IN (".implode(",", $server_source[$collectd_source]).")", array('text'));
+                $this->db->execute(array($collectd_source));
+            }
+        }
+        if(count($servers_id) > 0) {
+            $this->db->prepare("UPDATE ".$this->table." SET cdsrc=? WHERE id IN (".implode(",", array_keys($servers_id)).")", array('text'));
+            $this->db->execute(array($collectd_source_default));
+        }
+    }
+
     function _create_default() {
     }
 
