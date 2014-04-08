@@ -1,4 +1,5 @@
 
+- Collectd sources : new "Auto-detect" option.
 - Developers only : new checks on json_item_datas (less mem / better control)
 - Developers only : container option 'sort' now saved in 'container_options'
 
