@@ -123,8 +123,8 @@ class _tree_struct {
 
     function get_datas($id) {
         $containers = array();
-        $this->db->prepare("SELECT datas FROM ".$this->table." WHERE view_id = ? AND id = ?", array('integer', 'integer'));
-        $this->db->execute(array((int)$this->view_id, (int) $id));
+        $this->db->prepare("SELECT datas FROM ".$this->table." WHERE id = ?", array('integer'));
+        $this->db->execute(array((int) $id));
         $this->db->nextr();
         $datas = $this->db->get_row("assoc");
         if(!$ret = unserialize($datas["datas"])) { $this->db->free(); return array(); }
@@ -507,8 +507,21 @@ class json_tree extends _tree_struct {
             $cdsrc = "";
 
             foreach ($collectd_source_list as $cs) {
-                $plugins = get_list_of_rrds($cs, $cached_host);
-                if(! empty($plugins)) {
+                $json = json_encode(array(
+                            "jsonrpc" => "2.0",
+                            "method" => "pw_get_status",
+                            "params" => array(
+                                "timeout" => 240,
+                                "server" => array($cached_host),
+                                ),
+                            "id" => 0)
+                        );
+
+                $ra = jsonrpc_query($cs, $json);
+
+                if(!(isset($ra[0]) && isset($ra[1]))) { continue; }
+                $data = $ra[0];
+                if(isset($data[$cached_host]) && ($data[$cached_host] != "unknown")) {
                     $cdsrc = $cs;
                     $this->set_node_collectd_source($id,$cdsrc);
                     break;
