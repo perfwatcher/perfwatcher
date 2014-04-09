@@ -156,7 +156,9 @@ function select_node_with_data(datas) {
 	}
     tabs.tabs({
         beforeActivate: function(event, ui) {
+            var pwgraph_hover_enabled_prev = pwgraph_hover_enabled;
             hide_graph_helpers();
+            pwgraph_hover_enabled = false;
             if($(ui.newTab).find('a').attr('href') == '#tabadd') {
 				askfornewtab(function(title, lifetime) {
 					$.ajax({
@@ -175,8 +177,10 @@ function select_node_with_data(datas) {
 					});
 				});
                 event.preventDefault();
+                pwgraph_hover_enabled = pwgraph_hover_enabled_prev;
                 return;
             }
+            pwgraph_hover_enabled = pwgraph_hover_enabled_prev;
         },
         beforeLoad: function(event, ui) {
             if(ui.tab.data("loaded")) {
@@ -635,7 +639,9 @@ function confirmfor(optionsarg, func) {
 
 function perfwatcher_about_box() {
 //	TODO : use ICanHaz here ?
+    var pwgraph_hover_enabled_prev = pwgraph_hover_enabled;
     hide_graph_helpers();
+    pwgraph_hover_enabled = false;
     $('<div id="modaldialogcontents"></div>')
         .html('<p>About Perfwatcher...</p>')
         .dialog({
@@ -646,6 +652,7 @@ function perfwatcher_about_box() {
                 $(this).dialog('destroy').remove();
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
+                pwgraph_hover_enabled = pwgraph_hover_enabled_prev;
             },
             open: function(event, ui) {
                 $('#modaldialog').show();
@@ -744,7 +751,9 @@ function splitMetric (metric) {
 
 function select_view (set_view) {
 //	TODO : use ICanHaz here
+    var pwgraph_hover_enabled_prev = pwgraph_hover_enabled;
     hide_graph_helpers();
+    pwgraph_hover_enabled = false;
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<div id="viewgrid">'
@@ -763,6 +772,7 @@ function select_view (set_view) {
                 $('#modaldialog').hide();
                 $('#modaldialogcontents').html("");
                 $(this).dialog('destroy').remove();
+                pwgraph_hover_enabled = true;
             },
             open: function(event, ui) {
                 $('#modaldialog').show();
