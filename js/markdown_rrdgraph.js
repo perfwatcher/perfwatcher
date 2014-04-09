@@ -50,7 +50,9 @@ function pwmarkdown_rrdgraph_escape(str, dash) {
 }
 
 function pwmarkdown_filter(text) {
-	text = text.replace(/rrdgraph[ \t]*\(([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*),([^,\)]*)\)/gm, 
+//	Pattern for one argument : ("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)
+//	as one of "(?:[^\"]|\\.)*"  or  '(?:[^\']|\\.)*'  or [^,\)]*
+	text = text.replace(/rrdgraph[ \t]*\(("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)[ \t]*,[ \t]*("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)[ \t]*,[ \t]*("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)[ \t]*,[ \t]*("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)[ \t]*,[ \t]*("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)[ \t]*,[ \t]*("(?:[^\"]|\\.)*"|'(?:[^\']|\\.)*'|[^,\)]*)\)/gm, 
 			function(wholeMatch, cdsrc, host, p, pi, t, ti) {
 			cdsrc = pwmarkdown_rrdgraph_escape(pwmarkdown_trim_and_remove_quotes(cdsrc), false);
 			host = pwmarkdown_rrdgraph_escape(pwmarkdown_trim_and_remove_quotes(host), false);
@@ -73,6 +75,7 @@ function pwmarkdown_filter(text) {
 					"type": t,
 					"typeinstance": ti
 			});
+
 			return('<span class="rrdgraph_to_render" rrdgraph="'+encodeURIComponent(src)+'"></span>');
 	});
 	return text ;

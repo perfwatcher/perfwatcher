@@ -141,7 +141,7 @@
         var grouped_types = options['grouped_types'];
         var all_hosts = [];
         var all_graphs = [];
-        if(graph_vars['host'].match(/[\*,\+\[\]\$]/)) {
+        if(graph_vars['host'].match(/[\*\+\[\]\$]/)) {
             var regex = new RegExp(graph_vars['host']);
             $.ajax({
                 async: false,
