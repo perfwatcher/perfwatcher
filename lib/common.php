@@ -318,6 +318,22 @@ function create_new_view($title) {
     return(array($id,$view_id));
 }
 
+function list_view_roots() {
+    global $db_config;
+    $r = array();
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->query("SELECT id,view_id,title FROM tree WHERE parent_id = 1");
+        while($db->nextr()) {
+            $v = $db->get_row('assoc');
+            $r[] = $v;
+        }
+        $db->destroy();
+    }
+    return($r);
+}
+
 function list_views($maxrows, $startswith) {
     global $db_config;
     $r = array();

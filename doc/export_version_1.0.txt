@@ -1,0 +1,45 @@
+Export format 1.0
+
+Export contents
+---------------
+[
+    list of TREE
+]
+
+Export TREE
+-----------
+{
+        "nodes":            { tree of NODE },    
+        "selections":       [ list of SELECTION ],
+        "version":          "1.0",
+        "dbschema_version": DBSCHEMA_VERSION
+}
+
+export NODE
+-----------
+{
+        "id":        <id of the node>,
+        "parent_id": <id of the parent node>,
+        "title":     <name of the node, for example the server name>,
+        "pwtype":    <type of the node, one of "server", "container" or "selection">,
+        <any other field name> : <any contents>
+		"children":  { tree of NODE }
+}
+
+Note : any additionnal field name and contents must match with the database
+schema and contents.
+
+export SELECTION
+----------------
+{
+    "id":          <id of the selection>
+    "tree_id":     <id of the node in the tree>
+    "title":       <name of the tab>
+    "sortorder":   <index for sorting purpose>
+    "deleteafter": <timestamp>
+    "data":        <serialized data>
+}
+
+export DBSCHEMA_VERSION
+-----------------------
+This is the schema version of the database, as seen in the "config" table.

@@ -32,6 +32,7 @@ class _database {
     private $sth		= false;
     private $result		= false;
     private $row		= false;
+    private $schema_version = "";
 
     public $settings	= array(
             "dbtype" => "mysql",
@@ -79,6 +80,19 @@ class _database {
         /* if($this->link) mysql_query("SET NAMES 'utf8'"); */
 
         return ($this->link) ? true : false;
+    }
+
+    function get_db_schema() {
+        if($this->schema_version) { return($this->schema_version); }
+        $this->query("SELECT value FROM config WHERE confkey='schema_version'");
+        if($this->nextr()) {
+            $r = $this->get_row('assoc');
+            if($r && (isset($r['value']))) {
+                $this->schema_version = $r['value'];
+            }
+            $this->free();
+        }
+        return ($this->schema_version);
     }
 
     function query($sql) {

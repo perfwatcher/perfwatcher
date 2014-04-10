@@ -631,6 +631,104 @@ class json_tree extends _tree_struct {
     function _create_default() {
     }
 
+    function create_tree(&$list, $parent) {
+        $tree = array();
+        foreach ($parent as $k=>$l){
+            if(isset($list[$l['id']])){
+                $l['children'] = $this->create_tree($list, $list[$l['id']]);
+            }
+            $tree[] = $l;
+        } 
+        return $tree;
+    }
+
+    function new_tree($list, $root_id) {
+        $new = array();
+        foreach ($list as $a){
+            $new[$a['parent_id']][] = $a;
+        }
+        $tree = $this->create_tree($new, $new[$root_id]); // changed
+        return($tree);
+    }
+
+    function tree_export($id, $args) {
+        /* args keys :
+            'fields' : include fields ("all" or some of "position", "agg_id", "datas", "cdsrc" from the db definition)
+            'include_selections' : include selections ("no" means no selections; any other value to say yes)
+         */
+        $export_version = "1.0";
+        $fields = array("id", "parent_id", "title", "pwtype");
+
+        $containers_id = array();
+        $id_list = array();
+
+        $nodes = array();
+        $selections = array();
+
+        if(isset($args['fields']) && ($args['fields'] != "all")) {
+            $a = preg_split("/[\s,]+/", $args['fields'], PREG_SPLIT_NO_EMPTY);
+            foreach ($a as $f) {
+                if(!in_array($f, $fields)) {
+                    $fields[] = $f;
+                }
+            }
+        }
+# Get the root node info
+        $this->db->prepare("SELECT ".implode(", ", $fields)." FROM ".$this->table
+                ." WHERE id = ?",
+                array('integer'));
+        $this->db->execute(array((int)$id));
+        while($this->db->nextr()) {
+            $a =  $this->db->get_row("assoc");
+            $id_list[$a['id']] = 1;
+            $root_id = $a['parent_id'];
+            unset($a['view_id']);
+            $nodes[$a['id']] = $a;
+            if($a['pwtype'] == 'container') {
+                $containers_id[] = $a['id'];
+            }
+        }
+        while(null !== ($cur_id = array_pop($containers_id))) {
+# Traverse containers
+            $this->db->prepare("SELECT ".implode(", ", $fields)." FROM ".$this->table
+                    ." WHERE parent_id = ?",
+                    array('integer'));
+            $this->db->execute(array((int)$cur_id));
+            while($this->db->nextr()) {
+                $a =  $this->db->get_row("assoc");
+                $id_list[$a['id']] = 1;
+                unset($a['view_id']);
+                $nodes[$a['id']] = $a;
+                if($a['pwtype'] == 'container') {
+                    $containers_id[] = $a['id'];
+                }
+            }
+        }
+
+# Create the list of nodes
+        $tree = $this->new_tree($nodes, $root_id);
+
+# Create the list of selections
+        if(! isset($args['include_selections']) || ($args['include_selections'] != "no")) {
+            $this->db->query("SELECT * FROM selections "
+                    ." WHERE tree_id IN (".implode(',',array_keys($id_list)).")");
+            while($this->db->nextr()) {
+                $a =  $this->db->get_row("assoc");
+                $selections[$a['id']] = $a;
+            }
+        }
+# Encode the result
+        $json_result = json_encode(array(
+                    "nodes" => $tree, 
+                    "selections" => $selections,
+                    "version" => $export_version,
+                    "dbschema_version" => $this->db->get_db_schema(),
+                    )
+                );
+        return($json_result);
+    }
+
+
     function _drop() {
         $this->db->query("TRUNCATE ".$this->table);
     }
