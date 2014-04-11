@@ -153,35 +153,47 @@ $(function () {
 		"strings" : { loading : "Loading ...", new_node : "Untiteled"}
 	    },
 	    "contextmenu" : {
-		"select_node" : false,
-		"items" : {
-		    "create" : {
-			"separator_before"	: false,
-			"separator_after"	: true,
-			"label"			: "Add",
-			"action"		: false,
-			"submenu"           	: {
-			    "createserver" 	: {
-				"separator_before"	: false,
-				"separator_after"	: false,
-				"label"			: "Server",
-				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "default", "pwtype" : "server" } }); }
+			"select_node" : false,
+			"items" : {
+			    "create" : {
+					"separator_before"	: false,
+					"separator_after"	: true,
+					"label"			: "Add",
+					"action"		: false,
+					"submenu"           	: {
+					    "createserver" 	: {
+						"separator_before"	: false,
+						"separator_after"	: false,
+						"label"			: "Server",
+						"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "default", "pwtype" : "server" } }); }
+					    },
+					    "createselection" 	: {
+						"separator_before"	: false,
+						"separator_after"	: true,
+						"label"			: "Selection",
+						"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "selection", "pwtype" : "selection" } }); }
+					    },
+					    "createfolder" 	: {
+						"separator_before"	: false,
+						"separator_after"	: true,
+						"label"			: "Folder",
+						"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } }); }
+					    }
+					}
 			    },
-			    "createselection" 	: {
-				"separator_before"	: false,
-				"separator_after"	: true,
-				"label"			: "Selection",
-				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "selection", "pwtype" : "selection" } }); }
+			    "tree_import" : {
+					"separator_before"	: true,
+					"separator_after"	: false,
+					"label"				: "Import",
+					"action"	    	: function (obj) { tree_import(obj.attr("id").replace("node_","")); }
 			    },
-			    "createfolder" 	: {
-				"separator_before"	: false,
-				"separator_after"	: true,
-				"label"			: "Folder",
-				"action"		: function (obj) { this.create(obj, "last", { "attr" : { "rel" : "folder", "pwtype" : "container" } }); }
-			    }
+			    "tree_export" : {
+					"separator_before"	: false,
+					"separator_after"	: true,
+					"label"				: "Export",
+					"action"	    	: function (obj) { tree_export(obj.attr("id").replace("node_","")); }
+			    },
 			}
-		    }
-		}
 	    }
 	})
 	.bind("create.jstree", function (e, data) {
@@ -297,6 +309,7 @@ $(function () {
 			$('#tree').jstree("open_node", $('#node_'+node), function (event, data) { recurse_open_node (nodes); }, true);
 		}
 	}
+
 });
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
