@@ -653,11 +653,11 @@ class json_tree extends _tree_struct {
 
     function tree_export($id, $args) {
         /* args keys :
-            'fields' : include fields ("all" or some of "position", "agg_id", "datas", "cdsrc" from the db definition)
+            'fields' : include fields ("all" or some of "position", "datas", "cdsrc" from the db definition)
             'include_selections' : include selections ("no" means no selections; any other value to say yes)
          */
         $export_version = "1.0";
-        $fields = array("id", "parent_id", "title", "pwtype");
+        $fields = array("id", "parent_id", "title", "pwtype", "agg_id");
 
         $containers_id = array();
         $id_list = array();
@@ -683,6 +683,9 @@ class json_tree extends _tree_struct {
             $id_list[$a['id']] = 1;
             $root_id = $a['parent_id'];
             unset($a['view_id']);
+            if(! $a['agg_id']) {
+                unset($a['agg_id']);
+            }
             $nodes[$a['id']] = $a;
             if($a['pwtype'] == 'container') {
                 $containers_id[] = $a['id'];

@@ -21,6 +21,7 @@ export NODE
         "id":        <id of the node>,
         "title":     <name of the node, for example the server name>,
         "pwtype":    <type of the node, one of "server", "container" or "selection">,
+        "agg_id":    <aggregator id, optional>,
         <any other field name> : <any contents>
 		"children":  { tree of NODE }
 }
