@@ -142,6 +142,9 @@ class _tree_struct {
 
     function _create($parent, $position) {
         $id = $this->db->insert_id_before($this->table, 'id', "in class tree::_create()");
+        if($parent == 1) {
+            $this->view_id = $id;
+        }
         $this->db->prepare("INSERT into ".$this->table." (id, view_id, parent_id, position) VALUES (?, ?, ?, ?)", array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array((int)$id, (int)$this->view_id, (int)$parent, (int)$position) );
         return $this->db->insert_id_after($id, $this->table, 'id', "in class tree::_create()");
@@ -651,10 +654,97 @@ class json_tree extends _tree_struct {
         return($tree);
     }
 
+    function import_node($parent_id, $node, $is_root) {
+# Checks before import
+        if(!isset($node['title'])) { return(array(false, $parent_id, "Missing 'title'", array())); }
+        if(!isset($node['pwtype'])) { return(array(false, $parent_id, "pwtype", array())); }
+        switch($node['pwtype']) {
+            case "container": break;
+            case "server": break;
+            case "selection": break;
+            default : return(array(false, $parent_id, "pwtype '".$node['pwtype']."' not known", array()));
+        }
+
+# Check the position
+        $position = 0;
+        if($is_root) {
+            $position = (int) $this->max_pos($parent_id);
+        } else if(isset($node['position'])) {
+            $position = (int) $node['position'];
+        }
+# Start the import
+        $id = parent::_create((int)$parent_id, (int) $position);
+        if( ! $id ) {
+            return (array(false, $parent_id, "Could not import '".$node['title']."'", array()));
+        }
+        $data = array('id' => $id, 'title' => $node['title'], 'pwtype' => $node['pwtype']);
+        foreach(array('agg_id', 'datas', 'cdsrc') as $k) {
+            if(isset($node[$k])) {
+                $data[$k] = $node[$k];
+            }
+        }
+        $this->set_node($data);
+        $id_mapping = array();
+        if(isset($node['id'])) {
+            $id_mapping[$node['id']] = $id;
+        }
+# Import the children if any
+        if(isset($node['children']) && $node['children']) {
+            foreach ($node['children'] as $n) {
+                list($rc, $rid, $rmsg, $rmap) = $this->import_node($id, $n, 0);
+                $id_mapping = $id_mapping + $rmap;
+                if(! $rc) { return(array($rc,$rid, $rmsg, $id_mapping)); }
+            }
+            dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $id);
+        }
+        return(array(true, $id, "OK", $id_mapping ));
+    }
+
+    function import_selections($selections, $id_mapping) {
+        foreach($selections as $sel) {
+            if(!isset($sel['title'])) { return(array(false, 0, "No title for a selection")); }
+            if(!isset($sel['tree_id'])) { return(array(false, 0, "No tree_id for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['deleteafter'])) { return(array(false, 0, "No deleteafter for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['sortorder'])) { return(array(false, 0, "No sortorder for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['data'])) { return(array(false, 0, "No data for selection with title '".$sel['title']."'")); }
+        }
+        foreach($selections as $sel) {
+            $sel['tree_id'] = $id_mapping[$sel['tree_id']];
+            selection_import($sel, $this->db);
+        }
+        return(array(true, 0, "OK" ));
+    }
+
+    function tree_import($id, $json) {
+        $imported_tree = json_decode($json, true);
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['nodes'])) || (!isset($imported_tree[0]['nodes'][0])) ) {
+            return(array(false, $id, "No nodes to import"));
+        }
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['version'])) ) {
+            return(array(false, $id, "Version not specified"));
+        }
+        if($imported_tree[0]['version'] != "1.0") {
+            return(array(false, $id, "Version '".$imported_tree[0]['version']."' not supported"));
+        }
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['dbschema_version'])) ) {
+            return(array(false, $id, "DB Schema Version not specified"));
+        }
+        list($rc, $rid, $rmsg, $id_mapping) = $this->import_node($id, $imported_tree[0]['nodes'][0], 1);
+        if(!$rc) {
+            return(array(false, $rid, $rmsg));
+        }
+        if((isset($imported_tree[0])) && (isset($imported_tree[0]['selections'])) ) {
+            list($rc, $rid, $rmsg) = $this->import_selections($imported_tree[0]['selections'], $id_mapping);
+            if(!$rc) {
+                return(array(false, $rid, $rmsg));
+            }
+        }
+        return(array(true, 0, "OK" ));
+    }
+
     function tree_export($id, $args) {
         /* args keys :
             'fields' : include fields ("all" or some of "position", "datas", "cdsrc" from the db definition)
-            'include_selections' : include selections ("no" means no selections; any other value to say yes)
          */
         $export_version = "1.0";
         $fields = array("id", "parent_id", "title", "pwtype", "agg_id");
@@ -711,14 +801,12 @@ class json_tree extends _tree_struct {
 # Create the list of nodes
         $tree = $this->new_tree($nodes, $root_id);
 
-# Create the list of selections
-        if(! isset($args['include_selections']) || ($args['include_selections'] != "no")) {
-            $this->db->query("SELECT * FROM selections "
-                    ." WHERE tree_id IN (".implode(',',array_keys($id_list)).")");
-            while($this->db->nextr()) {
-                $a =  $this->db->get_row("assoc");
-                $selections[$a['id']] = $a;
-            }
+# Create the list of tabs (for selections, servers or folders)
+        $this->db->query("SELECT * FROM selections "
+                ." WHERE tree_id IN (".implode(',',array_keys($id_list)).")");
+        while($this->db->nextr()) {
+            $a =  $this->db->get_row("assoc");
+            $selections[] = $a;
         }
 # Encode the result
         $json_result = json_encode(array(
