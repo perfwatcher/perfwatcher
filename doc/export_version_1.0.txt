@@ -19,7 +19,6 @@ export NODE
 -----------
 {
         "id":        <id of the node>,
-        "parent_id": <id of the parent node>,
         "title":     <name of the node, for example the server name>,
         "pwtype":    <type of the node, one of "server", "container" or "selection">,
         <any other field name> : <any contents>
@@ -29,10 +28,12 @@ export NODE
 Note : any additionnal field name and contents must match with the database
 schema and contents.
 
+Note : id is needed only if you have selections. If no selection refers to a
+node, the id is ignored.
+
 export SELECTION
 ----------------
 {
-    "id":          <id of the selection>
     "tree_id":     <id of the node in the tree>
     "title":       <name of the tab>
     "sortorder":   <index for sorting purpose>
