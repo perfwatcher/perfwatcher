@@ -38,6 +38,7 @@ switch($_REQUEST["operation"]) {
     case "move_node":
         break;
     case "get_children":
+    case "tree_export":
     case "search":
         break;
 }

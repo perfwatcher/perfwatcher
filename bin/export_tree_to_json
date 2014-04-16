@@ -21,7 +21,7 @@ foreach ($ids as $id1 => $view_id) {
 		$jstree = new json_tree($view_id);
 		if($is_first != 1) print ",";
 		$is_first = 0;
-		print($jstree->tree_export($id1, array("fields"=>"position,agg_id,cdsrc")));
+		print($jstree->_tree_export($id1, array("fields"=>"position,cdsrc")));
 }
 print "]\n";
 ?>

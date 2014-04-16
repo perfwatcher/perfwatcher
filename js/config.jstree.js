@@ -191,7 +191,7 @@ $(function () {
 					"separator_before"	: false,
 					"separator_after"	: true,
 					"label"				: "Export",
-					"action"	    	: function (obj) { tree_export(obj.attr("id").replace("node_","")); }
+					"action"	    	: function (obj) { tree_export(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace("^ *", "")); }
 			    },
 			}
 	    }

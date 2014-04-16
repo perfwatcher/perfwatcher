@@ -1,0 +1,51 @@
+<!-- Perfwatcher | File "form_export.html" | Copyright (c) 2014 Yves Mettier | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
+<script type="text/javascript">
+    var node_id = {{ id }};
+    var view_id = {{ view_id }};
+    $('#form_export').show();
+    $('#form_export__result_pre').empty();
+    $('#form_export__selection_custom').hide();
+    $('input.pw_form_export__selection').on('change', function() {
+        var selection = $(this).val();
+        if(selection == 'custom') {
+            $('#form_export__selection_custom').show();
+        } else {
+            $('#form_export__selection_custom').hide();
+        }
+        });
+    $('#form_export__submit').bind("click", function() {
+        $.ajax({
+            async : false,
+            type: 'POST',
+            url: "action.php?tpl=json_tree",
+            data : { 
+                "operation" : "tree_export", 
+                "id" : node_id,
+                "view_id" : view_id,
+                "options": { "datas": "no", "position": "yes", "cdsrc": "no" }
+            }, 
+            success: function(result, textStatus, XMLHttpRequest) {
+                $('#form_export').hide();
+                $('#form_export__result_pre').html(result.str);
+            }
+        });
+        
+        return false;
+        });
+</script>
+<p>Exporting '{{name}}'</p>
+<form id="form_export">
+  <ul>
+  <li><input class="pw_form_export__selection" type="radio" name="form_export__selection" value="all">All</input></li>
+  <li><input class="pw_form_export__selection" type="radio" name="form_export__selection" value="treeonly" checked='checked'>Tree only</input></li>
+  <li><input class="pw_form_export__selection" type="radio" name="form_export__selection" value="custom">Custom</input></li>
+    <ul id="form_export__selection_custom">
+    <li><input type="checkbox" name="form_export__datas" value="yes">Include datas</input></li>
+    <li><input type="checkbox" name="form_export__position" value="yes">Include positions of items (manual sorting)</input></li>
+    <li><input type="checkbox" name="form_export__cdsrcs" value="yes">Include Collectd sources</input></li>
+    </ul>
+  </ul>
+  <input id="form_export__submit" type="button" name="form_export__submit" value="Export" />
+</form>
+<pre id="form_export__result_pre"></pre>
+

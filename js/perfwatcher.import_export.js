@@ -33,8 +33,27 @@ function tree_import (id) {
     alert("Import " + id);
 }
 
-function tree_export (id) {
-    alert("Export " + id);
+function tree_export (id, name) {
+    var pwgraph_hover_enabled_prev = pwgraph_hover_enabled;
+    hide_graph_helpers();
+    pwgraph_hover_enabled = false;
+    $('<div id="modaldialogcontents"></div>')
+        .html('<p>Export...</p>')
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Export tool ('+name+')',
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                pwgraph_hover_enabled = pwgraph_hover_enabled_prev;
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html(ich.export_box({ 'name': name, 'id': id, 'view_id': view_id }));
+            }
+        });
 }
 
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

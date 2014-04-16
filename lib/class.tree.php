@@ -715,7 +715,7 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
-    function tree_import($id, $json) {
+    function _tree_import($id, $json) {
         $imported_tree = json_decode($json, true);
         if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['nodes'])) || (!isset($imported_tree[0]['nodes'][0])) ) {
             return(array(false, $id, "No nodes to import"));
@@ -742,7 +742,22 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
-    function tree_export($id, $args) {
+    function tree_export($args) {
+        $field = array();
+        if(isset($args['options']['position']) && ($args['options']['position'] == 'yes')) { $field[] = "position"; }
+        if(isset($args['options']['datas']) && ($args['options']['datas'] == 'yes')) { $field[] = "datas"; }
+        if(isset($args['options']['cdsrc']) && ($args['options']['cdsrc'] == 'yes')) { $field[] = "cdsrc"; }
+
+        $options = array();
+        if(count($field)) {
+            $options['fields'] = implode(',',$field);
+        }
+
+        $result = $this->_tree_export($args['id'], $options);
+        return(json_encode(array('str' => $result)));
+    }
+
+    function _tree_export($id, $args) {
         /* args keys :
             'fields' : include fields ("all" or some of "position", "datas", "cdsrc" from the db definition)
          */
@@ -809,7 +824,7 @@ class json_tree extends _tree_struct {
             $selections[] = $a;
         }
 # Encode the result
-        $json_result = json_encode(array(
+        $json_result = json_format(array(
                     "nodes" => $tree, 
                     "selections" => $selections,
                     "version" => $export_version,
