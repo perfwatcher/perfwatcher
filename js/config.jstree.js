@@ -185,7 +185,7 @@ $(function () {
 					"separator_before"	: true,
 					"separator_after"	: false,
 					"label"				: "Import",
-					"action"	    	: function (obj) { tree_import(obj.attr("id").replace("node_","")); }
+					"action"	    	: function (obj) { tree_import(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace("^ *", "")); }
 			    },
 			    "tree_export" : {
 					"separator_before"	: false,

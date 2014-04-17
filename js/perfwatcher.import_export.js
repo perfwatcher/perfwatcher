@@ -29,8 +29,27 @@
  **/
 
 
-function tree_import (id) {
-    alert("Import " + id);
+function tree_import (id, name) {
+    var pwgraph_hover_enabled_prev = pwgraph_hover_enabled;
+    hide_graph_helpers();
+    pwgraph_hover_enabled = false;
+    $('<div id="modaldialogcontents"></div>')
+        .html('<p>Import...</p>')
+        .dialog({
+            autoOpen: true,
+            appendTo: '#modaldialog',
+            title: 'Import tool ('+name+')',
+            close: function(event,ui) {
+                $(this).dialog('destroy').remove();
+                $('#modaldialog').hide();
+                $('#modaldialogcontents').html("");
+                pwgraph_hover_enabled = pwgraph_hover_enabled_prev;
+            },
+            open: function(event, ui) {
+                $('#modaldialog').show();
+                $('#modaldialogcontents').html(ich.import_box({ 'name': name, 'id': id, 'view_id': view_id }));
+            }
+        });
 }
 
 function tree_export (id, name) {

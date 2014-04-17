@@ -1,0 +1,47 @@
+<!-- Perfwatcher | File "form_import.html" | Copyright (c) 2014 Yves Mettier | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
+<script type="text/javascript">
+    var node_id = {{ id }};
+    var view_id = {{ view_id }};
+    $('#form_import').show();
+    $('#form_import__success').hide();
+    $('#form_import__failure').hide();
+    $('#form_import__textarea').empty();
+    $('#form_import__submit').bind("click", function() {
+		var jsonsrc = $('#form_import__textarea').val();
+        $.ajax({
+            async : false,
+            type: 'POST',
+            url: "action.php?tpl=json_tree",
+            data : { 
+                "operation" : "tree_import", 
+                "id" : node_id,
+                "view_id" : view_id,
+                "json": jsonsrc
+            }, 
+            success: function(result, textStatus, XMLHttpRequest) {
+    			$('#form_import').hide();
+				if(result.status) {
+					$('#form_import__success').show();
+				} else {
+					$('#form_import__failure_reason').html(result.errorstring);
+					$('#form_import__failure').show();
+				}
+            }
+        });
+        
+        return false;
+        });
+</script>
+<p>Importing under '{{name}}'</p>
+<form id="form_import">
+  <textarea id="form_import__textarea"></textarea>
+  <input id="form_import__submit" type="button" name="form_import__submit" value="Import" />
+</form>
+<div id="form_import__success">
+	<p>Import successfull</p>
+	<p>You should reload the tree (or the page)</p>
+</div>
+<div id="form_import__failure">
+	<p>Import failed.</p>
+	<p>Reason : <span id="form_import__failure_reason"></span></p>
+</div>

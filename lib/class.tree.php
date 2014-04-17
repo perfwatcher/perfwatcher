@@ -715,10 +715,20 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
+    function tree_import($args) {
+        $field = array();
+        if(!isset($args['json'])) { return(json_encode(array('status' => 0))); }
+
+
+        list($rc, $id, $str) = $this->_tree_import($args['id'], $args['json']);
+
+        return(json_encode(array('status' => ($rc?1:0), 'errorstring' => ($rc?"":$str))));
+    }
+
     function _tree_import($id, $json) {
         $imported_tree = json_decode($json, true);
         if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['nodes'])) || (!isset($imported_tree[0]['nodes'][0])) ) {
-            return(array(false, $id, "No nodes to import"));
+            return(array(false, $id, "No nodes to import (or JSON syntax error)"));
         }
         if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['version'])) ) {
             return(array(false, $id, "Version not specified"));

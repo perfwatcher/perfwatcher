@@ -39,7 +39,7 @@
             }, 
             success: function(result, textStatus, XMLHttpRequest) {
                 $('#form_export').hide();
-                $('#form_export__result_pre').html(result.str);
+                $('#form_export__result_pre').html('['+result.str+']');
             }
         });
         
