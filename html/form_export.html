@@ -1,5 +1,33 @@
 <!-- Perfwatcher | File "form_export.html" | Copyright (c) 2014 Yves Mettier | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
 <script type="text/javascript">
+    function ajax_download(url, data) {
+    // Code from http://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax/21223167#21223167
+        var $iframe, iframe_doc, iframe_html;
+
+        if (($iframe = $('#download_iframe')).length === 0) {
+            $iframe = $("<iframe id='download_iframe'" +
+                        " style='display: none' src='about:blank'></iframe>"
+                       ).appendTo("body");
+        }
+
+        iframe_doc = $iframe[0].contentWindow || $iframe[0].contentDocument;
+        if (iframe_doc.document) {
+                iframe_doc = iframe_doc.document;
+        }
+
+        iframe_html = "<html><head></head><body><form method='POST' action='" + url +"'>" 
+
+        Object.keys(data).forEach(function(key){
+            iframe_html += "<input type='hidden' name='"+key+"' value='"+data[key]+"'>";
+                                });
+
+        iframe_html +="</form></body></html>";
+
+        iframe_doc.open();
+        iframe_doc.write(iframe_html);
+        $(iframe_doc).find('form').submit();
+    }
+
     var node_id = {{ id }};
     var view_id = {{ view_id }};
     $('#form_export').show();
@@ -14,7 +42,8 @@
             $('#form_export__selection_custom').hide();
         }
         });
-    $('#form_export__submit').bind("click", function() {
+    $('input.form_export__submit').bind("click", function() {
+        var btn = $(this).attr("name");
         var option_datas = "no"; 
         var option_position = "no";
         var option_cdsrc = "no";
@@ -28,22 +57,41 @@
             if($('input[name="form_export__position"]').is(":checked")) option_position = "yes";
             if($('input[name="form_export__cdsrcs"]').is(":checked")) option_cdsrc = "yes";
         }
-        $.ajax({
-            async : false,
-            type: 'POST',
-            url: "action.php?tpl=json_tree",
-            data : { 
-                "operation" : "tree_export", 
-                "id" : node_id,
-                "view_id" : view_id,
-                "options": { "datas": option_datas, "position": option_position, "cdsrc": option_cdsrc }
-            }, 
-            success: function(result, textStatus, XMLHttpRequest) {
-                $('#form_export').hide();
-                $('#form_export__result').show();
-                $('#form_export__result_contents').html('['+result.str+']');
-            }
-        });
+        var operation = "tree_export";
+        switch(btn) {
+            case "form_export__submit_export" : 
+                $.ajax({
+                    async : false,
+                    type: 'POST',
+                    url: "action.php?tpl=json_tree",
+                    data : { 
+                        "operation" : "tree_export", 
+                        "id" : node_id,
+                        "view_id" : view_id,
+                        "name" : '{{name}}',
+                        "options": { "datas": option_datas, "position": option_position, "cdsrc": option_cdsrc }
+                    }, 
+                    success: function(result, textStatus, XMLHttpRequest) {
+                        $('#form_export').hide();
+                        $('#form_export__result').show();
+                        $('#form_export__result_contents').html('['+result.str+']');
+                    }
+                });
+                break;
+            case "form_export__submit_export_as_a_file" : 
+                ajax_download(
+					"action.php?tpl=json_tree", 
+					{
+                        "operation" : "tree_export_as_file", 
+                        "id" : node_id,
+                        "view_id" : view_id,
+                        "name" : '{{name}}',
+                        "options": { "datas": option_datas, "position": option_position, "cdsrc": option_cdsrc }
+						
+					}
+				);
+                break;
+        }
         
         return false;
         });
@@ -60,7 +108,8 @@
     <li><input type="checkbox" name="form_export__cdsrcs" value="yes">Include Collectd sources</input></li>
     </ul>
   </ul>
-  <input id="form_export__submit" type="button" name="form_export__submit" value="Export" />
+  <input class="form_export__submit" type="button" name="form_export__submit_export" value="Export" />
+  <input class="form_export__submit" type="button" name="form_export__submit_export_as_a_file" value="Export as a file" />
 </form>
 <form id="form_export__result" class="form_import_export">
   <fieldset class="fieldset_border">

@@ -185,13 +185,13 @@ $(function () {
 					"separator_before"	: true,
 					"separator_after"	: false,
 					"label"				: "Import",
-					"action"	    	: function (obj) { tree_import(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace("^ *", "")); }
+					"action"	    	: function (obj) { tree_import(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace(/^[\u00A0 ]*/, "")); }
 			    },
 			    "tree_export" : {
 					"separator_before"	: false,
 					"separator_after"	: true,
 					"label"				: "Export",
-					"action"	    	: function (obj) { tree_export(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace("^ *", "")); }
+					"action"	    	: function (obj) { tree_export(obj.attr("id").replace("node_",""), $(obj).children("a").text().replace(/^[\u00A0 ]*/, "")); }
 			    },
 			}
 	    }

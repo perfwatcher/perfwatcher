@@ -752,6 +752,10 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
+    function tree_export_as_file($args) {
+        return($this->tree_export($args));
+    }
+
     function tree_export($args) {
         $field = array();
         if(isset($args['options']['position']) && ($args['options']['position'] == 'yes')) { $field[] = "position"; }
