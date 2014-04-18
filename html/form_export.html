@@ -3,7 +3,8 @@
     var node_id = {{ id }};
     var view_id = {{ view_id }};
     $('#form_export').show();
-    $('#form_export__result_pre').empty();
+    $('#form_export__result_contents').empty();
+    $('#form_export__result').hide();
     $('#form_export__selection_custom').hide();
     $('input.pw_form_export__selection').on('change', function() {
         var selection = $(this).val();
@@ -14,19 +15,19 @@
         }
         });
     $('#form_export__submit').bind("click", function() {
-		var option_datas = "no"; 
-		var option_position = "no";
-		var option_cdsrc = "no";
-		var selection = $('input.pw_form_export__selection:checked').val();
-		if(selection == "all") {
-			option_datas = "yes";
-			option_position = "yes";
-			option_cdsrc = "yes";
-		} else if(selection == "custom") {
-			if($('input[name="form_export__datas"]').is(":checked")) option_datas = "yes";
-			if($('input[name="form_export__position"]').is(":checked")) option_position = "yes";
-			if($('input[name="form_export__cdsrcs"]').is(":checked")) option_cdsrc = "yes";
-		}
+        var option_datas = "no"; 
+        var option_position = "no";
+        var option_cdsrc = "no";
+        var selection = $('input.pw_form_export__selection:checked').val();
+        if(selection == "all") {
+            option_datas = "yes";
+            option_position = "yes";
+            option_cdsrc = "yes";
+        } else if(selection == "custom") {
+            if($('input[name="form_export__datas"]').is(":checked")) option_datas = "yes";
+            if($('input[name="form_export__position"]').is(":checked")) option_position = "yes";
+            if($('input[name="form_export__cdsrcs"]').is(":checked")) option_cdsrc = "yes";
+        }
         $.ajax({
             async : false,
             type: 'POST',
@@ -39,7 +40,8 @@
             }, 
             success: function(result, textStatus, XMLHttpRequest) {
                 $('#form_export').hide();
-                $('#form_export__result_pre').html('['+result.str+']');
+                $('#form_export__result').show();
+                $('#form_export__result_contents').html('['+result.str+']');
             }
         });
         
@@ -47,7 +49,7 @@
         });
 </script>
 <p>Exporting '{{name}}'</p>
-<form id="form_export">
+<form id="form_export" class="form_import_export">
   <ul>
   <li><input class="pw_form_export__selection" type="radio" name="form_export__selection" value="all">All</input></li>
   <li><input class="pw_form_export__selection" type="radio" name="form_export__selection" value="treeonly" checked='checked'>Tree only</input></li>
@@ -60,5 +62,10 @@
   </ul>
   <input id="form_export__submit" type="button" name="form_export__submit" value="Export" />
 </form>
-<pre id="form_export__result_pre"></pre>
+<form id="form_export__result" class="form_import_export">
+  <fieldset class="fieldset_border">
+    <legend>Export contents</legend>
+    <textarea id="form_export__result_contents" class="width_100" readonly="readonly"></textarea>
+  </fieldset>
+</form>
 

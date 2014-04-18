@@ -7,7 +7,7 @@
     $('#form_import__failure').hide();
     $('#form_import__textarea').empty();
     $('#form_import__submit').bind("click", function() {
-		var jsonsrc = $('#form_import__textarea').val();
+        var jsonsrc = $('#form_import__textarea').val();
         $.ajax({
             async : false,
             type: 'POST',
@@ -19,13 +19,13 @@
                 "json": jsonsrc
             }, 
             success: function(result, textStatus, XMLHttpRequest) {
-    			$('#form_import').hide();
-				if(result.status) {
-					$('#form_import__success').show();
-				} else {
-					$('#form_import__failure_reason').html(result.errorstring);
-					$('#form_import__failure').show();
-				}
+                $('#form_import').hide();
+                if(result.status) {
+                    $('#form_import__success').show();
+                } else {
+                    $('#form_import__failure_reason').html(result.errorstring);
+                    $('#form_import__failure').show();
+                }
             }
         });
         
@@ -33,15 +33,20 @@
         });
 </script>
 <p>Importing under '{{name}}'</p>
-<form id="form_import">
-  <textarea id="form_import__textarea"></textarea>
-  <input id="form_import__submit" type="button" name="form_import__submit" value="Import" />
+<form id="form_import" class="form_import_export">
+  <fieldset class="fieldset_border">
+    <legend>Import contents</legend>
+    <textarea id="form_import__textarea" class="width_100"></textarea>
+  </fieldset>
+  <fieldset class="fieldset_noborder">
+    <input id="form_import__submit" type="button" name="form_import__submit" value="Import" />
+  </fieldset>
 </form>
 <div id="form_import__success">
-	<p>Import successfull</p>
-	<p>You should reload the tree (or the page)</p>
+    <p>Import successfull</p>
+    <p>You should reload the tree (or the page)</p>
 </div>
 <div id="form_import__failure">
-	<p>Import failed.</p>
-	<p>Reason : <span id="form_import__failure_reason"></span></p>
+    <p>Import failed.</p>
+    <p>Reason : <span id="form_import__failure_reason"></span></p>
 </div>
