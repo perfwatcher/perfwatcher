@@ -715,6 +715,14 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
+    function tree_import_from_file($args) {
+        $tmpname = $_FILES['tree_import_json']['tmp_name'];
+        $json = file_get_contents($tmpname);
+        list($rc, $id, $str) = $this->_tree_import($args['id'], $json);
+
+        return(json_encode(array('status' => ($rc?1:0), 'errorstring' => ($rc?"":$str))));
+    }
+
     function tree_import($args) {
         $field = array();
         if(!isset($args['json'])) { return(json_encode(array('status' => 0))); }
@@ -752,11 +760,7 @@ class json_tree extends _tree_struct {
         return(array(true, 0, "OK" ));
     }
 
-    function tree_export_as_file($args) {
-        return($this->tree_export($args));
-    }
-
-    function tree_export($args) {
+    function _tree_export_generic($args) {
         $field = array();
         if(isset($args['options']['position']) && ($args['options']['position'] == 'yes')) { $field[] = "position"; }
         if(isset($args['options']['datas']) && ($args['options']['datas'] == 'yes')) { $field[] = "datas"; }
@@ -766,14 +770,27 @@ class json_tree extends _tree_struct {
         if(count($field)) {
             $options['fields'] = implode(',',$field);
         }
-
+        if(isset($args['pretty_print']) && $args['pretty_print']) {
+            $options['pretty_print'] = 1;
+        }
         $result = $this->_tree_export($args['id'], $options);
+        return($result);
+    }
+
+    function tree_export_as_file($args) {
+        $result = $this->_tree_export_generic($args);
+        return($result);
+    }
+
+    function tree_export($args) {
+        $result = $this->_tree_export_generic($args);
         return(json_encode(array('str' => $result)));
     }
 
     function _tree_export($id, $args) {
         /* args keys :
             'fields' : include fields ("all" or some of "position", "datas", "cdsrc" from the db definition)
+            'pretty_print' : true/false
          */
         $export_version = "1.0";
         $fields = array("id", "parent_id", "title", "pwtype", "agg_id");
@@ -838,13 +855,17 @@ class json_tree extends _tree_struct {
             $selections[] = $a;
         }
 # Encode the result
-        $json_result = json_format(array(
-                    "nodes" => $tree, 
-                    "selections" => $selections,
-                    "version" => $export_version,
-                    "dbschema_version" => $this->db->get_db_schema(),
-                    )
-                );
+        $array_result = array(
+                "nodes" => $tree, 
+                "selections" => $selections,
+                "version" => $export_version,
+                "dbschema_version" => $this->db->get_db_schema(),
+            );
+        if(isset($args['pretty_print']) && $args['pretty_print']) {
+            $json_result = json_format($array_result);
+        } else {
+            $json_result = json_encode($array_result);
+        }
         return($json_result);
     }
 

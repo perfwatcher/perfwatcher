@@ -42,11 +42,14 @@ if(isset($_REQUEST["operation"]) && $_REQUEST["operation"] && strpos("_", $_REQU
 }
 
 header("HTTP/1.0 200 OK");
-header('Content-type: text/json; charset=utf-8');
 header("Cache-Control: no-cache, must-revalidate");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 header("Pragma: no-cache");
 switch($operation) {
+    case "tree_import_from_file" :
+        header('Content-type: text/plain; charset=utf-8');
+        echo $jstree->{$operation}($_REQUEST);
+        break;
     case "tree_export_as_file" :
         $str = $jstree->{$operation}($_REQUEST);
         header("Content-Description: File Transfer");             
@@ -60,6 +63,7 @@ switch($operation) {
         flush();
         break;
     default:
+        header('Content-type: text/json; charset=utf-8');
         echo $jstree->{$operation}($_REQUEST);
 }
 
