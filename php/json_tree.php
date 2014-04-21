@@ -27,29 +27,44 @@
  * @link      http://www.perfwatcher.org/
  **/ 
 
+$operation = "";
 $view_id = get_arg('view_id', 0, 1, "Error : No valid view_id found !!!", __FILE__, __LINE__);
-
 $jstree = new json_tree($view_id);
 
-switch($_REQUEST["operation"]) {
-    case "create_node":
-    case "remove_node":
-    case "rename_node":
-    case "move_node":
-        break;
-    case "get_children":
-    case "search":
-        break;
-}
-
-
 if(isset($_REQUEST["operation"]) && $_REQUEST["operation"] && strpos("_", $_REQUEST["operation"]) !== 0 && method_exists($jstree, $_REQUEST["operation"])) {
-    header("HTTP/1.0 200 OK");
-    header('Content-type: text/json; charset=utf-8');
+    $operation = $_REQUEST["operation"];
+} else {
+    header("HTTP/1.0 404 Not Found");
     header("Cache-Control: no-cache, must-revalidate");
     header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
     header("Pragma: no-cache");
-    echo $jstree->{$_REQUEST["operation"]}($_REQUEST);
+    exit;
+}
+
+header("HTTP/1.0 200 OK");
+header("Cache-Control: no-cache, must-revalidate");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Pragma: no-cache");
+switch($operation) {
+    case "tree_import_from_file" :
+        header('Content-type: text/plain; charset=utf-8');
+        echo $jstree->{$operation}($_REQUEST);
+        break;
+    case "tree_export_as_file" :
+        $str = $jstree->{$operation}($_REQUEST);
+        header("Content-Description: File Transfer");             
+        header("Content-Type: application/octet-stream");
+        header("Content-Disposition: attachment; filename=" . urlencode("export__".$_REQUEST['name'].".json"));    
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/download");
+        header("Content-Length: " . strlen($str));
+        flush(); // this doesn't really matter.
+        echo "[".$str."]";
+        flush();
+        break;
+    default:
+        header('Content-type: text/json; charset=utf-8');
+        echo $jstree->{$operation}($_REQUEST);
 }
 
 ?>

@@ -807,4 +807,32 @@ function select_view (set_view) {
         .show();
 }
 
+function ajax_download(url, data) {
+// Code from http://stackoverflow.com/questions/4545311/download-a-file-by-jquery-ajax/21223167#21223167
+    var $iframe, iframe_doc, iframe_html;
+
+    if (($iframe = $('#download_iframe')).length === 0) {
+        $iframe = $("<iframe id='download_iframe' name='download_iframe'" +
+                    " style='display: none' src='about:blank'></iframe>"
+                   ).appendTo("body");
+    }
+
+    iframe_doc = $iframe[0].contentWindow || $iframe[0].contentDocument;
+    if (iframe_doc.document) {
+            iframe_doc = iframe_doc.document;
+    }
+
+    iframe_html = "<html><head></head><body><form method='POST' action='" + url +"'>";
+
+    Object.keys(data).forEach(function(key){
+        iframe_html += "<input type='hidden' name='"+key+"' value='"+data[key]+"'>";
+                            });
+
+    iframe_html +="</form></body></html>";
+
+    iframe_doc.open();
+    iframe_doc.write(iframe_html);
+    $(iframe_doc).find('form').submit();
+}
+
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:

@@ -142,6 +142,9 @@ class _tree_struct {
 
     function _create($parent, $position) {
         $id = $this->db->insert_id_before($this->table, 'id', "in class tree::_create()");
+        if($parent == 1) {
+            $this->view_id = $id;
+        }
         $this->db->prepare("INSERT into ".$this->table." (id, view_id, parent_id, position) VALUES (?, ?, ?, ?)", array('integer', 'integer', 'integer', 'integer'));
         $this->db->execute(array((int)$id, (int)$this->view_id, (int)$parent, (int)$position) );
         return $this->db->insert_id_after($id, $this->table, 'id', "in class tree::_create()");
@@ -630,6 +633,242 @@ class json_tree extends _tree_struct {
 
     function _create_default() {
     }
+
+    function create_tree(&$list, $parent) {
+        $tree = array();
+        foreach ($parent as $k=>$l){
+            if(isset($list[$l['id']])){
+                $l['children'] = $this->create_tree($list, $list[$l['id']]);
+            }
+            $tree[] = $l;
+        } 
+        return $tree;
+    }
+
+    function new_tree($list, $root_id) {
+        $new = array();
+        foreach ($list as $a){
+            $new[$a['parent_id']][] = $a;
+        }
+        $tree = $this->create_tree($new, $new[$root_id]); // changed
+        return($tree);
+    }
+
+    function import_node($parent_id, $node, $is_root) {
+# Checks before import
+        if(!isset($node['title'])) { return(array(false, $parent_id, "Missing 'title'", array())); }
+        if(!isset($node['pwtype'])) { return(array(false, $parent_id, "pwtype", array())); }
+        switch($node['pwtype']) {
+            case "container": break;
+            case "server": break;
+            case "selection": break;
+            default : return(array(false, $parent_id, "pwtype '".$node['pwtype']."' not known", array()));
+        }
+
+# Check the position
+        $position = 0;
+        if($is_root) {
+            $position = (int) $this->max_pos($parent_id);
+        } else if(isset($node['position'])) {
+            $position = (int) $node['position'];
+        }
+# Start the import
+        $id = parent::_create((int)$parent_id, (int) $position);
+        if( ! $id ) {
+            return (array(false, $parent_id, "Could not import '".$node['title']."'", array()));
+        }
+        $data = array('id' => $id, 'title' => $node['title'], 'pwtype' => $node['pwtype']);
+        foreach(array('agg_id', 'datas', 'cdsrc') as $k) {
+            if(isset($node[$k])) {
+                $data[$k] = $node[$k];
+            }
+        }
+        $this->set_node($data);
+        $id_mapping = array();
+        if(isset($node['id'])) {
+            $id_mapping[$node['id']] = $id;
+        }
+# Import the children if any
+        if(isset($node['children']) && $node['children']) {
+            foreach ($node['children'] as $n) {
+                list($rc, $rid, $rmsg, $rmap) = $this->import_node($id, $n, 0);
+                $id_mapping = $id_mapping + $rmap;
+                if(! $rc) { return(array($rc,$rid, $rmsg, $id_mapping)); }
+            }
+            dbcompat__reorder_objects_positions($this->db, $this->table, $this->view_id, $id);
+        }
+        return(array(true, $id, "OK", $id_mapping ));
+    }
+
+    function import_selections($selections, $id_mapping) {
+        foreach($selections as $sel) {
+            if(!isset($sel['title'])) { return(array(false, 0, "No title for a selection")); }
+            if(!isset($sel['tree_id'])) { return(array(false, 0, "No tree_id for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['deleteafter'])) { return(array(false, 0, "No deleteafter for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['sortorder'])) { return(array(false, 0, "No sortorder for selection with title '".$sel['title']."'")); }
+            if(!isset($sel['data'])) { return(array(false, 0, "No data for selection with title '".$sel['title']."'")); }
+        }
+        foreach($selections as $sel) {
+            $sel['tree_id'] = $id_mapping[$sel['tree_id']];
+            selection_import($sel, $this->db);
+        }
+        return(array(true, 0, "OK" ));
+    }
+
+    function tree_import_from_file($args) {
+        $tmpname = $_FILES['tree_import_json']['tmp_name'];
+        $json = file_get_contents($tmpname);
+        list($rc, $id, $str) = $this->_tree_import($args['id'], $json);
+
+        return(json_encode(array('status' => ($rc?1:0), 'errorstring' => ($rc?"":$str))));
+    }
+
+    function tree_import($args) {
+        $field = array();
+        if(!isset($args['json'])) { return(json_encode(array('status' => 0))); }
+
+
+        list($rc, $id, $str) = $this->_tree_import($args['id'], $args['json']);
+
+        return(json_encode(array('status' => ($rc?1:0), 'errorstring' => ($rc?"":$str))));
+    }
+
+    function _tree_import($id, $json) {
+        $imported_tree = json_decode($json, true);
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['nodes'])) || (!isset($imported_tree[0]['nodes'][0])) ) {
+            return(array(false, $id, "No nodes to import (or JSON syntax error)"));
+        }
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['version'])) ) {
+            return(array(false, $id, "Version not specified"));
+        }
+        if($imported_tree[0]['version'] != "1.0") {
+            return(array(false, $id, "Version '".$imported_tree[0]['version']."' not supported"));
+        }
+        if((!isset($imported_tree[0])) || (!isset($imported_tree[0]['dbschema_version'])) ) {
+            return(array(false, $id, "DB Schema Version not specified"));
+        }
+        list($rc, $rid, $rmsg, $id_mapping) = $this->import_node($id, $imported_tree[0]['nodes'][0], 1);
+        if(!$rc) {
+            return(array(false, $rid, $rmsg));
+        }
+        if((isset($imported_tree[0])) && (isset($imported_tree[0]['selections'])) ) {
+            list($rc, $rid, $rmsg) = $this->import_selections($imported_tree[0]['selections'], $id_mapping);
+            if(!$rc) {
+                return(array(false, $rid, $rmsg));
+            }
+        }
+        return(array(true, 0, "OK" ));
+    }
+
+    function _tree_export_generic($args) {
+        $field = array();
+        if(isset($args['options']['position']) && ($args['options']['position'] == 'yes')) { $field[] = "position"; }
+        if(isset($args['options']['datas']) && ($args['options']['datas'] == 'yes')) { $field[] = "datas"; }
+        if(isset($args['options']['cdsrc']) && ($args['options']['cdsrc'] == 'yes')) { $field[] = "cdsrc"; }
+
+        $options = array();
+        if(count($field)) {
+            $options['fields'] = implode(',',$field);
+        }
+        if(isset($args['pretty_print']) && $args['pretty_print']) {
+            $options['pretty_print'] = 1;
+        }
+        $result = $this->_tree_export($args['id'], $options);
+        return($result);
+    }
+
+    function tree_export_as_file($args) {
+        $result = $this->_tree_export_generic($args);
+        return($result);
+    }
+
+    function tree_export($args) {
+        $result = $this->_tree_export_generic($args);
+        return(json_encode(array('str' => $result)));
+    }
+
+    function _tree_export($id, $args) {
+        /* args keys :
+            'fields' : include fields ("all" or some of "position", "datas", "cdsrc" from the db definition)
+            'pretty_print' : true/false
+         */
+        $export_version = "1.0";
+        $fields = array("id", "parent_id", "title", "pwtype", "agg_id");
+
+        $containers_id = array();
+        $id_list = array();
+
+        $nodes = array();
+        $selections = array();
+
+        if(isset($args['fields']) && ($args['fields'] != "all")) {
+            $a = preg_split("/[\s,]+/", $args['fields'], PREG_SPLIT_NO_EMPTY);
+            foreach ($a as $f) {
+                if(!in_array($f, $fields)) {
+                    $fields[] = $f;
+                }
+            }
+        }
+# Get the root node info
+        $this->db->prepare("SELECT ".implode(", ", $fields)." FROM ".$this->table
+                ." WHERE id = ?",
+                array('integer'));
+        $this->db->execute(array((int)$id));
+        while($this->db->nextr()) {
+            $a =  $this->db->get_row("assoc");
+            $id_list[$a['id']] = 1;
+            $root_id = $a['parent_id'];
+            unset($a['view_id']);
+            if(! $a['agg_id']) {
+                unset($a['agg_id']);
+            }
+            $nodes[$a['id']] = $a;
+            if($a['pwtype'] == 'container') {
+                $containers_id[] = $a['id'];
+            }
+        }
+        while(null !== ($cur_id = array_pop($containers_id))) {
+# Traverse containers
+            $this->db->prepare("SELECT ".implode(", ", $fields)." FROM ".$this->table
+                    ." WHERE parent_id = ?",
+                    array('integer'));
+            $this->db->execute(array((int)$cur_id));
+            while($this->db->nextr()) {
+                $a =  $this->db->get_row("assoc");
+                $id_list[$a['id']] = 1;
+                unset($a['view_id']);
+                $nodes[$a['id']] = $a;
+                if($a['pwtype'] == 'container') {
+                    $containers_id[] = $a['id'];
+                }
+            }
+        }
+
+# Create the list of nodes
+        $tree = $this->new_tree($nodes, $root_id);
+
+# Create the list of tabs (for selections, servers or folders)
+        $this->db->query("SELECT * FROM selections "
+                ." WHERE tree_id IN (".implode(',',array_keys($id_list)).")");
+        while($this->db->nextr()) {
+            $a =  $this->db->get_row("assoc");
+            $selections[] = $a;
+        }
+# Encode the result
+        $array_result = array(
+                "nodes" => $tree, 
+                "selections" => $selections,
+                "version" => $export_version,
+                "dbschema_version" => $this->db->get_db_schema(),
+            );
+        if(isset($args['pretty_print']) && $args['pretty_print']) {
+            $json_result = json_format($array_result);
+        } else {
+            $json_result = json_encode($array_result);
+        }
+        return($json_result);
+    }
+
 
     function _drop() {
         $this->db->query("TRUNCATE ".$this->table);

@@ -1,0 +1,91 @@
+<!-- Perfwatcher | File "form_import.html" | Copyright (c) 2014 Yves Mettier | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
+<script type="text/javascript">
+    var node_id = {{ id }};
+    var view_id = {{ view_id }};
+    $('#form_import').show();
+    $('#form_import_from_file').show();
+    $('#form_import__success').hide();
+    $('#form_import__failure').hide();
+    $('#form_import__textarea').empty();
+    $('#form_import__submit').bind("click", function() {
+        var jsonsrc = $('#form_import__textarea').val();
+        $.ajax({
+            async : false,
+            type: 'POST',
+            url: "action.php?tpl=json_tree",
+            data : { 
+                "operation" : "tree_import", 
+                "id" : node_id,
+                "view_id" : view_id,
+                "json": jsonsrc
+            }, 
+            success: function(result, textStatus, XMLHttpRequest) {
+                $('#form_import').hide();
+                $('#form_import_from_file').hide();
+                if(result.status) {
+                    $('#form_import__success').show();
+                } else {
+                    $('#form_import__failure_reason').html(result.errorstring);
+                    $('#form_import__failure').show();
+                }
+            }
+        });
+        return false;
+    });
+    $('#form_import_from_file__submit').bind("click", function() {
+
+    var $iframe, iframe_doc, iframe_html;
+
+    if (($iframe = $('#download_iframe')).length === 0) {
+        $iframe = $("<iframe id='download_iframe' name='download_iframe'" +
+                    " style='display: none' src='about:blank'></iframe>"
+                   ).appendTo("body");
+    }
+	$('#form_import_from_file').attr('action', "action.php?tpl=json_tree");
+	$('#form_import_from_file').attr('target', 'download_iframe');
+	$('#form_import_from_file').submit();
+	$('#download_iframe').load(function() {
+		var json = $('#download_iframe').contents().find('body').text();
+		var result = $.parseJSON(json);
+                $('#form_import').hide();
+                $('#form_import_from_file').hide();
+                if(result.status) {
+                    $('#form_import__success').show();
+                } else {
+                    $('#form_import__failure_reason').html(result.errorstring);
+                    $('#form_import__failure').show();
+                }
+	});
+
+        return false;
+    });
+</script>
+<p>Importing under '{{name}}'</p>
+<form method="post" id="form_import_from_file" class="form_import_export" enctype="multipart/form-data">
+  <fieldset class="fieldset_border">
+    <legend>Import from file</legend>
+    <input type="hidden" name="MAX_FILE_SIZE" value="10240000"></input>
+    <input type="hidden" name="operation" value="tree_import_from_file"></input>
+    <input type="hidden" name="id" value="{{ id }}"></input>
+    <input type="hidden" name="view_id" value="{{ view_id }}"></input>
+    <input id="form_import_from_file__file" type="file" name="tree_import.json" size="30"></input>
+    <br />
+    <input id="form_import_from_file__submit" type="button" name="form_import_from_file__submit" value="Import from file"></input>
+  </fieldset>
+</form>
+<form method="post" id="form_import" class="form_import_export">
+  <fieldset class="fieldset_border">
+    <legend>Import contents</legend>
+    <textarea id="form_import__textarea" class="width_100"></textarea>
+    <br />
+    <input id="form_import__submit" type="button" name="form_import__submit" value="Import" />
+  </fieldset>
+</form>
+<div id="form_import__success">
+    <p>Import successfull</p>
+    <p>You should reload the tree (or the page)</p>
+</div>
+<div id="form_import__failure">
+    <p>Import failed.</p>
+    <p>Reason : <span id="form_import__failure_reason"></span></p>
+</div>

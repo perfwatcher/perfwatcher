@@ -42,6 +42,20 @@ function selection_create_new($title, $node_id, $deleteafter) {
     return($id);
 }
 
+function selection_import($field, $db = null) {
+    global $db_config;
+    $id = -1;
+    if(! $db) {$db = new _database($db_config); }
+    if ($db->connect()) {
+        $id = $db->insert_id_before('selections', 'id', "in selection_create_new()");
+        $db->prepare("INSERT INTO selections (id, title, tree_id, deleteafter, sortorder, data) VALUES (?, ?, ?, ?, ?, ?)", array('integer', 'text', 'integer', 'integer', 'integer', 'text'));
+        $db->execute(array((int)$id, $field['title'], (int)$field['tree_id'], (int)$field['deleteafter'], (int)$field['sortorder'], $field['data']));
+        $id = $db->insert_id_after($id, 'selections', 'id', "in selection_create_new()");
+        $db->destroy();
+    }
+    return($id);
+}
+
 function selection_delete($id) {
     global $db_config;
     $db = new _database($db_config);

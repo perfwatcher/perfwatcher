@@ -33,6 +33,7 @@ require "lib/class._database.php";
 require "lib/class.tree.php";
 require "lib/class.selections.php";
 require "lib/class.json_item_datas.php";
+require "lib/nicejson.php";
 require_once("MDB2.php");
 
 function pw_error_log($msg, $file="unset", $line="unset", $fct="unset") {
@@ -316,6 +317,22 @@ function create_new_view($title) {
         $db->destroy();
     }
     return(array($id,$view_id));
+}
+
+function list_view_roots() {
+    global $db_config;
+    $r = array();
+    $db = new _database($db_config);
+    if ($db->connect()) {
+        $result_connect = 1;
+        $db->query("SELECT id,view_id,title FROM tree WHERE parent_id = 1");
+        while($db->nextr()) {
+            $v = $db->get_row('assoc');
+            $r[] = $v;
+        }
+        $db->destroy();
+    }
+    return($r);
 }
 
 function list_views($maxrows, $startswith) {
