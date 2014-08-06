@@ -45,7 +45,6 @@ function load_graph_definitions($logarithmic = false, $tinylegend = false, $zero
 
     $HalfBlueGreen = '89B3C9';
 
-    $GraphDefs = array();
     $GraphDefs['apache_bytes'] = array(
             '-v', 'Bits/s',
             'DEF:avg_raw={file}:count:AVERAGE',
