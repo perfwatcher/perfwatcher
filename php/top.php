@@ -131,7 +131,7 @@ function calc_time_derive(&$data, $data2) {
         $data[$key]['stime'] = $data2[$key]['stime'] - $data[$key]['stime'];
         $data[$key]['utime'] = $data2[$key]['utime'] - $data[$key]['utime'];
         $data[$key]['cpu'] = ceil(($data[$key]['utime'] + $data[$key]['stime'])/($t2 - $t1));
-        $data[$key]['rss'] /= 4096;
+        $data[$key]['rss'] *= 4096;
     }
 }
 
