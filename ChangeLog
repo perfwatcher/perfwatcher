@@ -3,6 +3,7 @@
 - Collectd sources : new "Auto-detect" option.
 - Bugfix in Top ps window on Memory display
 - Top Process : keep sort options when clicking on previous/next
+- Bugfix in Vu Meter for CPU and MEM
 - Developers only : new checks on json_item_datas (less mem / better control)
 - Developers only : container option 'sort' now saved in 'container_options'
 

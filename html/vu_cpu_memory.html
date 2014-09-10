@@ -132,8 +132,8 @@ $(function () {
 	        }],
 	        pane: 0,
 	        title: {
-	        	text: 'CPU',
-	        	y: -40
+	        	text: 'Load per CPU',
+	        	y: -30
 	        }
 	    }, {
 	        min: 0,
@@ -154,7 +154,7 @@ $(function () {
 	        pane: 1,
 	        title: {
 	        	text: 'Memory',
-	        	y: -40
+	        	y: -30
 	        }
 	    }],
 	    
@@ -196,10 +196,10 @@ $(function () {
 	        left.update(leftVal, false);
 	        right.update(rightVal, false);
 			chart.yAxis[0].axisTitle.attr({
-			        text: 'CPU<br/><span style="font-size:8px">'+Math.round(current_real_cpu)+'%</span>'
+			        text: 'Load per CPU<br/><span style="font-size:8px">'+Math.round(current_real_cpu)+'%</span>'
 			});
 			chart.yAxis[1].axisTitle.attr({
-			        text: 'MEM<br/><span style="font-size:8px">'+Math.round(rightVal)+'%</span>'
+			        text: 'Memory<br/><span style="font-size:8px">'+Math.round(current_mem)+'%</span>'
 			});
 			chart.setTitle({ text: json_item_datas['host'] + ' ' + current_nbcpu + ' core(s) / Load: ' + (Math.round(current_load * 100)/100) });
 
