@@ -777,8 +777,8 @@ function showtop (cdsrc, host, toptime) {
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<table id="topprocess" width="100%"><tr>'
-                +  '<td class="prev" width="50%"><b>&#x2190;</b> previous</td>'
-                +  '<td width="50%" class="next" style="text-align: right;">next <b>&#x2192;</b></td>'
+                +  '<td class="prev" width="50%"><span class="topprocess_clickable"><b>&#x2190;</b> previous</span></td>'
+                +  '<td width="50%" class="next" style="text-align: right;"><span class="topprocess_clickable">next <b>&#x2192;</b></span></td>'
                 +'</tr></table>'
                 +'<div id="topprocessgrid">'
                 +'</div>'

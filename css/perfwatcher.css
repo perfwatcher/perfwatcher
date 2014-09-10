@@ -59,3 +59,4 @@ span.selection_span_info { text-align: center; border: 2px solid red; margin: 0;
 .form_import_export textarea.width_100 { width: 100% }
 .form_import_export fieldset.fieldset_border { border: 1px solid black; }
 .form_import_export fieldset.fieldset_noborder { border: 0px }
+span.topprocess_clickable { cursor: pointer; }
