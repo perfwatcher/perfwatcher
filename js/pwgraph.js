@@ -774,6 +774,8 @@ function showtimeline (cdsrc, host, tm_start, tm_end) {
 $.top = {};
 function showtop (cdsrc, host, toptime) {
     $.top.time = toptime;
+    $.top.sortname = 'cpu';
+    $.top.sortorder = 'asc';
     $('<div id="modaldialogcontents"></div>')
         .html(
                 '<table id="topprocess" width="100%"><tr>'
@@ -803,20 +805,24 @@ function showtop (cdsrc, host, toptime) {
                 pwgraph_hover_enabled = false;
 
                 $('#modaldialog').show();
-                load_top(cdsrc, host, $.top.time);
+                load_top(cdsrc, host, $.top.time, $.top.sortname, $.top.sortorder);
           }
     });
 	$('#topprocess .prev').click(function() {
         $.top.time = $.top.time - 60;
-		load_top(cdsrc, host, $.top.time);
+        $.top.sortname = $('#topprocesstable').jqGrid('getGridParam', 'sortname');
+        $.top.sortorder = $('#topprocesstable').jqGrid('getGridParam', 'sortorder');
+		load_top(cdsrc, host, $.top.time, $.top.sortname, $.top.sortorder);
 	});
 	$('#topprocess .next').click(function() {
         $.top.time = $.top.time + 60;
-		load_top(cdsrc, host, $.top.time);
+        $.top.sortname = $('#topprocesstable').jqGrid('getGridParam', 'sortname');
+        $.top.sortorder = $('#topprocesstable').jqGrid('getGridParam', 'sortorder');
+		load_top(cdsrc, host, $.top.time, $.top.sortname, $.top.sortorder);
 	});
 }
 
-function load_top(cdsrc, host, toptime) {
+function load_top(cdsrc, host, toptime, sortname, sortorder) {
     $('#topprocessgrid').html(
             '  <table id="topprocesstable"></table>'
             +'  <div id="topprocessdiv"></div>'
@@ -837,8 +843,8 @@ function load_top(cdsrc, host, toptime) {
         rowNum: 20,
         rowList: [10,20,30],
         pager: '#topprocessdiv',
-        sortname: 'cpu',
-        sortorder: 'asc',
+        sortname: sortname,
+        sortorder: sortorder,
         height: 'auto',
         width: 630,
         loadonce: true,

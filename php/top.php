@@ -42,6 +42,8 @@ if(isset($collectd_source) && $collectd_source && isset($collectd_sources[$colle
 
 // ps-1335804082.gz
 $time = isset($_GET['time']) ? $_GET['time'] : time();
+$sortname = isset($_GET['sidx']) ? $_GET['sidx'] : "cpu";
+$sortorder = isset($_GET['sord']) ? $_GET['sord'] : "asc";
 
 // if (!$t1 || !$t2) { echo json_encode(array()); exit; }
 
@@ -96,6 +98,7 @@ $data1 = get_ps_hash($data1);
 $data2 = get_ps_hash($data2);
 $data = array_intersect_uassoc($data1, $data2, "strcmp");
 calc_time_derive($data, $data2);
+uasort($data, 'ps_hash_sort');
 
 //$data = array_slice($data, 63);
 echo json_encode(array(
@@ -103,6 +106,16 @@ echo json_encode(array(
             'userdata' => array('date1' => $t1, 'date2' => $t2)
             )
         );
+
+function ps_hash_sort($a,$b) {
+    global $sortname, $sortorder;
+    if($a[$sortname] == $b[$sortname]) return(0);
+    if($sortorder == 'asc') {
+        return ($a[$sortname] > $b[$sortname]) ? 1 : -1;
+    } else {
+        return ($a[$sortname] > $b[$sortname]) ? -1 : 1;
+    }
+}
 
 function get_ps_hash($data) {
     $ret = array();
