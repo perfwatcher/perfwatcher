@@ -4,6 +4,7 @@
 $schema_version_required = '1.1';
 $schema_version_new = '1.2';
 
+$debug_enabled = 0;
 
 chdir(dirname(__FILE__)."/../..");
 require "lib/common.php";

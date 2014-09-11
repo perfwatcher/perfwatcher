@@ -4,6 +4,8 @@
 require "lib/common.php";
 global $collectd_source_default;
 
+
+
 function show_config_error_msg() {
     echo "Please update your etc/config.php first.\n";
     echo "You need to set \$collectd_source_default and \$collectd_sources\n";
