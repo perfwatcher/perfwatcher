@@ -13,7 +13,7 @@ function usage_and_exit($argv, $msg = "") {
     echo "where \n";
     echo "  container : is the name of the container (folder) to update\n";
     echo "  id        : is the id of the folder to update (if you want to update only one)\n";
-    echo "  Collectd Source(s) : is a CSV list of Collectd sources\n";
+    echo "  Collectd Source(s) : is a CSV list of Collectd sources (or 'Inherit')\n";
     echo "\n";
     if($msg) print "$msg\n";
     exit;
@@ -51,6 +51,7 @@ if(!isset($cdsrc)) usage_and_exit($argv, "No 'collectd_source' was provided");
 $cdsrc = preg_replace('/[ \t]*,[ \t]*/', ',', $cdsrc);
 $cdsrc = preg_replace('/,$/', '', $cdsrc);
 $cdsrc = preg_replace('/^,/', '', $cdsrc);
+if(strtolower($cdsrc) == 'inherit') { $cdsrc = ''; }
 
 
 if(count($container_ids) == 0) {

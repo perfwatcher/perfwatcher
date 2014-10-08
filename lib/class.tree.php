@@ -543,16 +543,55 @@ class json_tree extends _tree_struct {
         global $collectd_sources;
         $rc = 0;
         if(isset($collectd_sources[$cdsrc]) || ($cdsrc == "Auto-detect")) {
+            $this->set_aggregator_collectd_source($id, '', $cdsrc);
             $this->db->prepare("UPDATE ".$this->table." SET cdsrc=? WHERE id = ?", array('text', 'integer'));
             $this->db->execute(array($cdsrc, (int)$id));
         } else if($cdsrc == "") {
+            list($collectd_source_old, $cdsrc_is_computed, $db_cdsrc) = $this->get_node_collectd_source($id);
             $this->db->prepare("UPDATE ".$this->table." SET cdsrc=NULL WHERE id = ?", array('integer'));
             $this->db->execute(array((int)$id));
+            list($collectd_source_new, $cdsrc_is_computed, $db_cdsrc) = $this->get_node_collectd_source($id);
+            $this->set_aggregator_collectd_source($id, $collectd_source_old, $collectd_source_new);
         } else {
             pw_error_log("Source '$cdsrc' is not a valid source for id=$id. No update");
             $rc = -1;
         }
         return($rc);
+    }
+
+    /* Usage :
+     *  set_aggregator_collectd_source($id, $old_cdsrc, $new_cdsrc);
+     *      $id : id of the container
+     *      $old_cdsrc : one of
+     *                      ''     : will find (or compute) the old cdsrc
+     *                      '.*'   : will convert all aggregators to the new one
+     *                      string : will convert aggregators when old cdsrc == string
+     *      $new_cdsrc : new cdsrc.
+     *
+     *  Note : if $new_cdsrc == "Auto-detect", all aggregators will be removed.
+     */
+    function set_aggregator_collectd_source($id, $old_cdsrc, $new_cdsrc) {
+        $datas = $this->get_datas($id);
+        if($old_cdsrc == '') {
+            list($collectd_source, $cdsrc_is_computed, $db_cdsrc) = $this->get_node_collectd_source($id);
+            $old_cdsrc = $collectd_source;
+        }
+        if (!isset($datas['aggregators'])) { return ; }
+        $aggregators = array();
+        if($new_cdsrc != "Auto-detect") {
+            foreach ($datas['aggregators'] as $agg_name => $agg_array) {
+                list($a, $b) = explode('/', $agg_name, 2);
+                if(($old_cdsrc == '.*') || ($old_cdsrc == $a)) {
+                    $agg_name = $new_cdsrc."/".$b;
+                }
+                if(($old_cdsrc == '.*') || ($old_cdsrc == $agg_array['CdSrc'])) {
+                    $agg_array['CdSrc'] = $new_cdsrc;
+                }
+                $aggregators[$agg_name] = $agg_array;
+            }
+        }
+        $datas['aggregators'] = $aggregators;
+        $this->set_datas($id, $datas);
     }
 
     function set_container_nodes_autodetect_collectd_source($id) {

@@ -2,6 +2,7 @@
 <?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
 $starttime = time();
 chdir(dirname(dirname($_SERVER['SCRIPT_FILENAME'])));
+ini_set('memory_limit', '512M');
 
 require "lib/common.php";
 
@@ -76,41 +77,40 @@ foreach ($views as $view_id) {
 				$alreadydoes = array();
 				ksort($datas['aggregators']);
 				foreach ($datas['aggregators'] as $aggregator => $aggdata) {
-						if (isset($alreadydoes[$aggregator])) { continue; }
-						$aggregator_cdsrc = $aggdata['CdSrc'];
                         if(! isset($allowed_collectd_sources[$cdsrc])) { continue; }
                         if(0 == $allowed_collectd_sources[$cdsrc]) { continue; }
-						if (!isset($children_with_cdsrc[$aggregator_cdsrc])) { continue; }
 						$aggregator_prefix = substr($aggregator, 0, -4);
 						$pluginstr = substr($aggdata['plugin'], 0, -4);
 						$calc = substr($aggdata['plugin'], -3);
+                        if(isset($alreadydoes[$aggregator_prefix.'-'.$calc])) { continue; }
+                        $alreadydoes[$aggregator_prefix.'-'.$calc] = true;
 						list($plugin, $plugin_instance, $type, $type_instance) =  split_pluginstr($pluginstr);
 
 
-						if(!isset($conf[$aggregator_cdsrc])) { $conf[$aggregator_cdsrc] = ""; }
-						$conf[$aggregator_cdsrc] .= "\t<aggregator>\n"
+						if(!isset($conf[$cdsrc])) { $conf[$cdsrc] = ""; }
+						$conf[$cdsrc] .= "\t<aggregator>\n"
 								.  "\t\tresultvalue \"$container_host/$plugin".( $plugin_instance != '' ? "-$plugin_instance" : '')."/".$type.(in_array($type, $derive_type) ? 'g' : '').( $type_instance != '' ? "-".str_replace(' ', '_', $type_instance) : '')."\"\n"
 								.  "\t\toperation \"$calc\"\n";
 
 						if ($calc == 'SUM') { $testcalc = 'AVG'; } else { $testcalc = 'SUM'; }
 						if (isset($datas['aggregators'][$aggregator_prefix.'-'.$testcalc])) {
-								$conf[$aggregator_cdsrc] .= "\t\toperation \"$testcalc\"\n";
+								$conf[$cdsrc] .= "\t\toperation \"$testcalc\"\n";
 								$alreadydoes[$aggregator_prefix.'-'.$testcalc] = true;
 						}
-						$conf[$aggregator_cdsrc] .= "\t\t<valuelist manual>\n";
+						$conf[$cdsrc] .= "\t\t<valuelist manual>\n";
 
-						ksort($children_with_cdsrc[$aggregator_cdsrc]);
-						foreach($children_with_cdsrc[$aggregator_cdsrc] as $idc => $children) {
+						ksort($children_with_cdsrc[$cdsrc]);
+						foreach($children_with_cdsrc[$cdsrc] as $idc => $children) {
 								if ($children['pwtype'] != 'server') { continue; }
 								if (in_array($type, $grouped_type)) {
-										$conf[$aggregator_cdsrc] .= "\t\t\talltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+										$conf[$cdsrc] .= "\t\t\talltypesof	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
 								} else {
-										$conf[$aggregator_cdsrc] .= "\t\t\ttype	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
+										$conf[$cdsrc] .= "\t\t\ttype	\"".$children['title']."/".str_replace("\"", "\\\"", $pluginstr)."\"\n";
 								}
 						}
 
-						$conf[$aggregator_cdsrc] .= "\t\t</valuelist>\n";
-						$conf[$aggregator_cdsrc] .= "\t</aggregator>\n";
+						$conf[$cdsrc] .= "\t\t</valuelist>\n";
+						$conf[$cdsrc] .= "\t</aggregator>\n";
 				}
 		}
 }
