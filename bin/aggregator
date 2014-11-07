@@ -67,6 +67,7 @@ foreach ($views as $view_id) {
 
 # Get all children and sub-children with their Collectd source. Sort them by Collectd source.
 				$childrens = $jstree->_get_children($container['id'], true, "", "", $cdsrc);
+                unset ($children_with_cdsrc);
 				foreach($childrens as $idc => $children) {
 						if ($children['pwtype'] == 'server') { 
 							$children_with_cdsrc[$children['CdSrc']][$idc] = $children;
