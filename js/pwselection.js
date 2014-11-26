@@ -40,7 +40,9 @@
     init : function( initoptions ) { 
 	  var myoptions = options;
 	  $.extend(myoptions, initoptions);
-      myoptions['grouped_types'] = get_grouped_types();
+	  myoptions['grouped_types'] = get_grouped_types();
+	  myoptions['allowed_cdsrc'] = get_config_cdsrc();
+
 	  this.data(myoptions);
       return this;
     },
@@ -252,6 +254,7 @@
     switch_to_show: function () {
 	    var options = this.data();
         var pwtabid = options['pwtabid'];
+        var show_warning_for_unknown_sources = new Object;
         $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_edit"]').show();
         $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_reload"]').hide();
         $('.selection_command[pwtabid="'+pwtabid+'"] input[class="selection_btn_save"]').hide();
@@ -292,13 +295,20 @@
                     item_graph.insertAfter(item_current);
                     item_graph.pwgraph(g).pwgraph('display');
                     item_current = item_graph;
-    
+
+                    if($.inArray(g.cdsrc, options['allowed_cdsrc']) == -1) {
+                        show_warning_for_unknown_sources[g.cdsrc] = 1;
+                    }
+
                     graphid++;
                 });
-    
+
             }
             $(this).remove();
         });
+      $.each(show_warning_for_unknown_sources, function(k,v) {
+          notify_ko("Warning : this selection is using '"+k+"' as a Collectd source. However, that source does not exist. Please edit and replace '"+k+"' with an existing Collectd source.");
+      });
       return this;
     },
     switch_to_edit: function () {

@@ -42,6 +42,21 @@ function get_grouped_types() {
     return(gp);
 }
 
+function get_config_cdsrc() {
+    var as;
+	$.ajax({
+		async : false, type: 'GET', url: 'action.php',
+		data : { 'action': 'get_config_list', 'tpl': 'server_collectd_source', '_': (new Date()).getTime(), 'id': 0 },
+		complete : function (r) {
+			if(r.status) {
+				as = jQuery.parseJSON(r.responseText);
+			}
+		}
+	});
+    return(as);
+}
+
+
 function get_tab_id_from_name(name) {
 	var pwtabid = 1;
 	var result = 0;
