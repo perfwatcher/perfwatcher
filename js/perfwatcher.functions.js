@@ -801,7 +801,7 @@ function select_view (set_view) {
                         {name: 'view_id', index: 'view_id', hidden: true},
                         {name: 'title', index: 'title'}
                         ],
-                    rowNum: 20,
+                    rowNum: 10,
                     rowList: [10,20,30],
                     height: 'auto',
                     width: 520,

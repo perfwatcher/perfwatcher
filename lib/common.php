@@ -298,15 +298,15 @@ function split_pluginstr($pluginstr) {
 }
 
 function create_new_view($title) {
-    global $db_config;
+    global $db_config, $collectd_source_default;
     $view_id = -1;
     $id = -1;
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
         $id = $db->insert_id_before('tree', 'id', "in create_new_view()");
-        $db->prepare("INSERT INTO tree (id, view_id, parent_id, position, pwtype, title) VALUES (?, (SELECT MAX(view_id)+1 FROM tree), 1, 0, 'container', ?)", array('integer', 'text'));
-        $db->execute(array((int)$id, $title));
+        $db->prepare("INSERT INTO tree (id, view_id, parent_id, position, pwtype, title) VALUES (?, (SELECT v FROM (SELECT MAX(view_id)+1 AS v FROM tree) a), 1, 0, 'container', ?)", array('integer', 'text', 'text'));
+        $db->execute(array((int)$id, $title, $collectd_source_default));
         $id = $db->insert_id_after($id, 'tree', 'id', "in create_new_view()");
         $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));
         $db->execute((int)$id);
@@ -335,18 +335,23 @@ function list_view_roots() {
     return($r);
 }
 
-function list_views($maxrows, $startswith) {
+function list_views($maxrows=0, $startswith) {
     global $db_config;
     $r = array();
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
         $startswith = $startswith."%";
-        $db->prepare("SELECT view_id,title FROM tree WHERE parent_id = 1 AND title LIKE ? ORDER BY title LIMIT ?", array('text', 'integer'));
-        $db->execute(array($startswith, $maxrows));
+        $db->prepare("SELECT view_id,title FROM tree WHERE parent_id = 1 AND title LIKE ? ORDER BY title", array('text'));
+        $db->execute(array($startswith));
+        $n = 0;
         while($db->nextr()) {
             $v = $db->get_row('assoc');
             $r[] = $v;
+            $n++;
+            if(($maxrows > 0) && ($n>= $maxrows)) {
+                break;
+            }
         }
         $db->destroy();
     }
