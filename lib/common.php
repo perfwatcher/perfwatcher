@@ -317,18 +317,23 @@ function create_new_view($title) {
     return(array($id,$view_id));
 }
 
-function list_views($maxrows, $startswith) {
+function list_views($maxrows=0, $startswith) {
     global $db_config;
     $r = array();
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
         $startswith = $startswith."%";
-        $db->prepare("SELECT view_id,title FROM tree WHERE parent_id = 1 AND title LIKE ? ORDER BY title LIMIT ?", array('text', 'integer'));
-        $db->execute(array($startswith, $maxrows));
+        $db->prepare("SELECT view_id,title FROM tree WHERE parent_id = 1 AND title LIKE ? ORDER BY title", array('text'));
+        $db->execute(array($startswith));
+        $n = 0;
         while($db->nextr()) {
             $v = $db->get_row('assoc');
             $r[] = $v;
+            $n++;
+            if(($maxrows > 0) && ($n>= $maxrows)) {
+                break;
+            }
         }
         $db->destroy();
     }

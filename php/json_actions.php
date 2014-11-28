@@ -83,7 +83,7 @@ switch ($action) {
         echo json_encode(array( 'id' => $id, 'view_id' => $view_id ));
         break;
     case 'list_views':
-        $maxrows = get_arg('maxrows', 10, 0, "", __FILE__, __LINE__);
+        $maxrows = get_arg('maxrows', 0, 1, "", __FILE__, __LINE__);
         $startswith = get_arg('startswith', "", 0, "", __FILE__, __LINE__);
         $r = list_views($maxrows, $startswith);
         echo json_encode( $r );
