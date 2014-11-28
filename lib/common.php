@@ -296,15 +296,15 @@ function split_pluginstr($pluginstr) {
 }
 
 function create_new_view($title) {
-    global $db_config;
+    global $db_config, $collectd_source_default;
     $view_id = -1;
     $id = -1;
     $db = new _database($db_config);
     if ($db->connect()) {
         $result_connect = 1;
         $id = $db->insert_id_before('tree', 'id', "in create_new_view()");
-        $db->prepare("INSERT INTO tree (id, view_id, parent_id, position, pwtype, title) VALUES (?, (SELECT MAX(view_id)+1 FROM tree), 1, 0, 'container', ?)", array('integer', 'text'));
-        $db->execute(array((int)$id, $title));
+        $db->prepare("INSERT INTO tree (id, view_id, parent_id, position, pwtype, title) VALUES (?, (SELECT v FROM (SELECT MAX(view_id)+1 AS v FROM tree) a), 1, 0, 'container', ?)", array('integer', 'text', 'text'));
+        $db->execute(array((int)$id, $title, $collectd_source_default));
         $id = $db->insert_id_after($id, 'tree', 'id', "in create_new_view()");
         $db->prepare("SELECT distinct view_id FROM tree WHERE id = ?", array('integer'));
         $db->execute((int)$id);
