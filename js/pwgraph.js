@@ -819,7 +819,7 @@ function load_top(cdsrc, host, toptime) {
             {name: 'process', index: 'process', sortable: false}
             ],
         rowNum: 20,
-        rowList: [10,20,30],
+        rowList: [10,20,30,100,1000],
         pager: '#topprocessdiv',
         sortname: 'cpu',
         sortorder: 'asc',
