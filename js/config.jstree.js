@@ -278,14 +278,21 @@ $(function () {
 		});
 	    });
 	}).bind("select_node.jstree", function (e, data) {
-	    select_node(data.rslt.obj.attr("id").replace("node_",""));
+		var ext = location.hash.split('/');
+		var taburl = '';
+		var tabstr = '';
+		if(ext.length > 1) {
+			tabstr = ext[1];
+			taburl = '/'+ext[1];
+		}
+		select_node(data.rslt.obj.attr("id").replace("node_",""), tabstr);
 		//location.hash = data.rslt.obj.attr("id").replace("node_","");
 		var path = $("#tree").jstree("get_path", data.rslt.obj, true);
 		var hash = '';
 		for (n in path) {
 			hash = hash + '_' + path[n].replace('node_', '');
 		}
-		location.hash = 'id_'+view_id+'_'+hash.substr(1);
+		location.hash = 'id_'+view_id+'_'+hash.substr(1)+taburl;
 	}).bind("loaded.jstree", function (event, data) {
 		if (!location.hash) { return; }
 		var nodes = location.hash.substr(1).split('_');
@@ -297,13 +304,18 @@ $(function () {
 		} else if(nodes[0] == 'host') {
 			var fullhost = location.hash.substr(6);
 			select_node_by_name(fullhost);
-            $('#mainSplitter').layout().close('west');
+			$('#mainSplitter').layout().close('west');
 		}
-    });
+	});
 
 	function recurse_open_node (nodes) {
 		var node = nodes.shift();
+		var nodestr;
 		if (nodes.length == 0) { 
+			nodestr = node.split('/');
+			if(nodestr.length > 1) {
+				node = nodestr[0];
+			}
 			$('#node_'+node+' a').click();
 		} else {
 			$('#tree').jstree("open_node", $('#node_'+node), function (event, data) { recurse_open_node (nodes); }, true);

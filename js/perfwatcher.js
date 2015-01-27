@@ -27,7 +27,7 @@
  * @license   http://opensource.org/licenses/mit-license.php
  * @link      http://www.perfwatcher.org/
  **/ 
-var PERFWATCHER_VERSION="2.0.pr2-20140204";
+var PERFWATCHER_VERSION='2.2.4-20150127';
 var json_item_datas = new Array();
 var current_graph = null;
 var current_selection = null;
@@ -210,7 +210,7 @@ $(document).ready(function() {
 				$('#tree').jstree("refresh");
 			break;
 			case 'menu_refresh_node':
-				select_node(json_item_datas['jstree']['id']);
+				select_node(json_item_datas['jstree']['id'], '');
 			break;
 			case 'menu_refresh_status':
 				refresh_status();
