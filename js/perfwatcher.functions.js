@@ -289,8 +289,20 @@ function select_node_by_name(fullhost) {
 	} );
 }
 
-function select_node(nodeid) {
-	$.getJSON('action.php?tpl=json_node_datas&view_id='+view_id+'&id='+nodeid, function(datas) { select_node_with_data(datas); } );
+function select_node(nodeid, tab='') {
+	$.getJSON('action.php?tpl=json_node_datas&view_id='+view_id+'&id='+nodeid, function(datas) {
+		var pwtabid = 0;
+		select_node_with_data(datas);
+		if(tab != "") {
+			pwtabid = get_tab_id_from_name(tab);
+		}
+		if(pwtabid > 0) { 
+			tabs = $('#itemtab').tabs();
+			current_tab = pwtabid;
+			tabs.tabs('option', 'active', $('#itemtab li[plugin="'+tab+'"]').index());
+			tabs.tabs("refresh");
+		}
+	} );
 }
 
 function create_plugin_tab(plugin, plugin_instance, pwtabid) {
