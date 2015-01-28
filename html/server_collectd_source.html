@@ -67,7 +67,7 @@
 		    			},
 		                complete : function (r) {
 		                    if(!r.status) { ('div[widget="server_collectd_source"] div.result').html('Error, can\'t retrieve data from server !'); }
-		                    else { $('div[widget="server_collectd_source"] div.result').html(r.responseText); select_node(json_item_datas['jstree']['id']);}
+		                    else { $('div[widget="server_collectd_source"] div.result').html(r.responseText); select_node(json_item_datas['jstree']['id'],'');}
 		                }
 		            });
 				}

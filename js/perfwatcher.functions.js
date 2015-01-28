@@ -289,7 +289,7 @@ function select_node_by_name(fullhost) {
 	} );
 }
 
-function select_node(nodeid, tab='') {
+function select_node(nodeid, tab) {
 	$.getJSON('action.php?tpl=json_node_datas&view_id='+view_id+'&id='+nodeid, function(datas) {
 		var pwtabid = 0;
 		select_node_with_data(datas);
