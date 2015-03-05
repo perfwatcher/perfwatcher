@@ -31,10 +31,13 @@
 
   var options = {
 	begin		: -86400,
-	end			: null,
+	end		: null,
 	zero		: 0,
 	logarithmic	: 0,
 	tinylegend	: 0,
+	play		: 0,
+	play_interval	: 60,
+	play_timer	: null,
 	width		: 697,
 	zoomXstart	: 0,
 	gridXstart	: 67,
@@ -71,6 +74,12 @@
               var datetimetop = $(this).offset().top + 20 ;
               var datetimeleft = $(this).offset().left + ($(this).width() / 2) - ($('#datetime').width() / 2) + 17 ;
               $('#datetime').clearQueue().show().animate({ top: datetimetop, left: datetimeleft }, { queue: true, duration: 100 });
+              var options = $(current_graph).data();
+	      if (options['play'] == 1) {
+	      	$('.play').html('&#9724;');
+	      } else {
+	      	$('.play').html('&rtrif;');
+	      }
           }
         }
       });
@@ -289,6 +298,23 @@
 	  });
 	  return this;
 	},
+	play : function() {
+		var options = this.data();
+		if (options['play'] == 1) {
+			options['play'] = 0;
+			clearInterval(options['play_timer']);
+			$('.play').html('&rtrif;');
+		} else {
+			options['play'] = 1;
+			$('.play').html('&#9724;');
+			options['play_timer'] = setInterval(function (graph) {
+				var options = $(graph).data();
+				$(graph).pwgraph('set_options', { begin: options['begin'] + options['play_interval'], end: options['end'] + options['play_interval']}).pwgraph('display');
+			}, options['play_interval'] * 1000, this);
+		}
+		this.data(options);
+		return this;
+	},
 	custd : function() {
       var options = this.data();
       pwgraph_hover_enabled = false;
@@ -360,7 +386,6 @@
                     width: 1,
                     height: options['gridYend'] - options['gridYstart'] + 1
                 });
-
                 $(this).bind('mouseout', methods.mouseout);
                 $(this).unbind('mousedown');
                 $('#timespan').bind('mousemove', function(event) { $(this).pwgraph('mousemove', event); } );
