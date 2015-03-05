@@ -1,4 +1,4 @@
-<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et : 
+<?php # vim: set filetype=php fdm=marker sw=4 ts=4 et :
 /*
  * Copyright (C) 2009  Bruno Prémont <bonbons AT linux-vserver.org>
  *
@@ -538,7 +538,7 @@ function collectd_draw_meta_stack($collectd_source, &$opts, &$sources) {
         $file      = $inst_data['file'];
         if(!isset($rrd_checked_files[$file])) continue;
 
-        $inst_name = str_replace('!', '_', $inst_data['name']);
+        $inst_name = str_replace(array('!', '.'), array('_', '_'), $inst_data['name']);
         $ds        = isset($inst_data['ds']) ? $inst_data['ds'] : 'value';
         $reverse   = isset($inst_data['reverse']) ? $inst_data['reverse'] : false;
 
@@ -549,20 +549,20 @@ function collectd_draw_meta_stack($collectd_source, &$opts, &$sources) {
         $cmd[] = 'CDEF:'.$inst_name.'_nnl='.$inst_name.'_avg,UN,0,'.$inst_name.'_avg,IF';
     }
     $inst_data = end($sources);
-    $inst_name = $inst_data['name'];
+    $inst_name = str_replace(array('!', '.'), array('_', '_'), $inst_data['name']);
     $cmd[] = 'CDEF:'.$inst_name.'_stk='.$inst_name.'_nnl';
 
     $inst_data1 = end($sources);
     while (($inst_data0 = prev($sources)) !== false) {
-        $inst_name0 = str_replace('!', '_', $inst_data0['name']);
-        $inst_name1 = str_replace('!', '_', $inst_data1['name']);
+        $inst_name0 = str_replace(array('!', '.'), array('_', '_'), $inst_data0['name']);
+        $inst_name1 = str_replace(array('!', '.'), array('_', '_'), $inst_data1['name']);
 
         $cmd[] = 'CDEF:'.$inst_name0.'_stk='.$inst_name0.'_nnl,'.$inst_name1.'_stk,+';
         $inst_data1 = $inst_data0;
     }
 
     foreach($sources as &$inst_data) {
-        $inst_name = str_replace('!', '_', $inst_data['name']);
+        $inst_name = str_replace(array('!', '.'), array('_', '_'), $inst_data['name']);
         $legend = sprintf('%s', $inst_data['name']);
         while (strlen($legend) < $max_inst_name)
             $legend .= ' ';
@@ -621,7 +621,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
     $max_inst_name = 0;
 
     foreach ($sources as &$inst_data) {
-        $inst_name = str_replace('!', '_', $inst_data['name']);
+        $inst_name = str_replace(array('!', '.'), array('_', '_'), $inst_data['name']);
         $file      = $inst_data['file'];
         $ds        = isset($inst_data['ds']) ? $inst_data['ds'] : 'value';
         $reverse   = isset($inst_data['reverse']) && $inst_data['reverse'];
@@ -640,7 +640,7 @@ function collectd_draw_meta_line(&$opts, &$sources) {
     }
 
     foreach ($sources as &$inst_data) {
-        $inst_name = str_replace('!', '_', $inst_data['name']);
+        $inst_name = str_replace(array('!', '.'), array('_', '_'), $inst_data['name']);
         $legend = sprintf('%s', $inst_name);
         $reverse   = isset($inst_data['reverse']) && $inst_data['reverse'];
         while (strlen($legend) < $max_inst_name)
