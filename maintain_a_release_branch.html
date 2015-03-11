@@ -171,8 +171,8 @@ $ git tag -a "collectd-5.3.0-20130829" -m "Unofficial version 5.3.0-20130829 wit
 <pre>
 $ ./clean.sh
 $ ./build.sh
-$ ./configure
-$ make distcheck
+$ ./configure CFLAGS="-O0 -g" CXXFLAGS="-O0 -g" --enable-debug
+$ make distcheck am__tar='tar --numeric-owner --owner=0 --group=0 --format=posix -chf - "$$tardir"'
 </pre>
 <ul>
 <li>You should now have archives like <i>collectd-5.3.0.20130829</i> (you recognize the tag).</li>
@@ -185,7 +185,7 @@ $ git push -u -n origin refs/tags/collectd-5.3.0-20130829
 $ git push -u origin refs/tags/collectd-5.3.0-20130829
 </pre>
 <ul>
-<li>Upload the files</li>
+<li>Upload the files (on both http://perfwatcher.free.fr and https://github.com/perfwatcher/collectd-pw/releases/latest)</li>
 <li>Update the web site</li>
 <ul>
   <li>Update <code>genpages.sh</code> (change the version number)</li>
