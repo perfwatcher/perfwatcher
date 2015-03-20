@@ -1,0 +1,22 @@
+<!-- Perfwatcher | File "win32_process_plugin_view.html" | Copyright (c) 2015 Yves Mettier | Licensed under the MIT licenses: http://www.opensource.org/licenses/mit-license.php -->
+<div>
+	<script type="text/javascript">
+		var pwtabid = {{ pwtabid }};
+		var plugin = "{{ plugin }}";
+		custom_plugin_view_generic(pwtabid, plugin, 
+						{
+						'selector1_legend': 'Select process',
+						'selector2_legend': 'Select probe(s)',
+						});
+	</script>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="cdsrc"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="plugin_instance"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="type"></select>
+    <select multiple="multiple" pwtabid="{{ pwtabid }}" part="type_instance"></select>
+	<input type="button" action="apply" pwtabid="{{ pwtabid }}" value="Apply" />
+	<br/>
+	<div class="graphcontainer">
+	
+	</div>
+	    
+</div>
