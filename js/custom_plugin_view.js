@@ -469,4 +469,19 @@ function vmem_plugin_view(pwtabid, plugin) {
 	});
 }
 
+function win32_process_plugin_view(pwtabid, plugin) {
+	$.ajax({
+	    async : true,
+	    type: 'GET',
+	    url: 'html/win32_process_plugin_view.html',
+	    complete : function (r) {
+	        if(r.status) {
+				ich.addTemplate('win32_process_plugin_view', r.responseText);
+				ich.win32_process_plugin_view({ pwtabid: pwtabid, plugin: plugin }).appendTo('div[pwtabid="'+pwtabid+'"]');
+	        }
+	    }
+	});
+}
+
+
 // vim: set filetype=javascript fdm=marker sw=4 ts=4 et:
